@@ -1,7 +1,7 @@
 import React from 'react';
 import LSHeader from '../LSHeader';
 import AuthContainer from './AuthContainer';
-
+import '../../../styles/login-signup.css';
 const LSpage: React.FC = () => {
   return (
     <div className="bg-gray-50 text-gray-800 min-h-screen flex flex-col">

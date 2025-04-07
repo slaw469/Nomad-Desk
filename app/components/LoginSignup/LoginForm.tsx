@@ -19,15 +19,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, onSwitchToSignup }) => 
   };
 
   return (
-    <form className="flex flex-col flex-1" onSubmit={handleSubmit}>
-      <div className="mb-5">
-        <label htmlFor="login-email" className="block mb-2 font-medium text-gray-800">
+    <form className="auth-form" onSubmit={handleSubmit}>
+      <div className="form-group">
+        <label htmlFor="login-email" className="form-label">
           Email Address
         </label>
         <input
           type="email"
           id="login-email"
-          className="w-full p-3 border border-gray-200 rounded-lg text-sm transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-outline-blue"
+          className="form-input"
           placeholder="your@email.com"
           required
           value={email}
@@ -35,14 +35,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, onSwitchToSignup }) => 
         />
       </div>
       
-      <div className="mb-5">
-        <label htmlFor="login-password" className="block mb-2 font-medium text-gray-800">
+      <div className="form-group">
+        <label htmlFor="login-password" className="form-label">
           Password
         </label>
         <input
           type="password"
           id="login-password"
-          className="w-full p-3 border border-gray-200 rounded-lg text-sm transition-all duration-300 focus:outline-none focus:border-blue-500 focus:shadow-outline-blue"
+          className="form-input"
           placeholder="••••••••"
           required
           value={password}
@@ -50,39 +50,36 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, onSwitchToSignup }) => 
         />
       </div>
       
-      <div className="flex items-center mb-5">
+      <div className="form-checkbox-group">
         <input
           type="checkbox"
           id="remember"
+          className="form-checkbox"
           checked={rememberMe}
           onChange={(e) => setRememberMe(e.target.checked)}
-          className="mr-2"
         />
         <label htmlFor="remember">Remember me</label>
-        <a href="#" className="ml-auto text-blue-600 text-sm hover:underline">
+        <a href="#" className="form-link forgot-password">
           Forgot Password?
         </a>
       </div>
       
-      <button 
-        type="submit" 
-        className="bg-gradient-to-r from-blue-600 to-teal-400 text-white border-none rounded-lg py-3.5 px-5 font-semibold cursor-pointer transition-all duration-300 shadow-md hover:-translate-y-0.5 hover:shadow-lg mt-2.5"
-      >
+      <button type="submit" className="btn btn-primary">
         Sign In
       </button>
       
       <Divider />
       
-      <div className="flex gap-4 md:flex-row flex-col">
+      <div className="social-buttons">
         <SocialButton provider="google" />
         <SocialButton provider="facebook" />
       </div>
       
-      <div className="text-center mt-5 text-sm">
+      <div className="account-text">
         Don't have an account?{' '}
         <a 
           href="#" 
-          className="text-blue-600 font-semibold hover:underline"
+          className="form-link"
           onClick={(e) => {
             e.preventDefault();
             onSwitchToSignup();

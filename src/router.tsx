@@ -3,6 +3,7 @@ import LandingPage from '../app/components/LandingPageComponents/components/Land
 import WorkspaceList from '../app/components/workspaces/WorkSpaceIndex'
 import WorkspaceDetail from '../app/components/workspaces/$workspaceId/WSindex'
 import App from './App'
+import LSpafe from '../app/components/LoginSignup/LSutils/LSpage'
 import '../app/styles/landing.css';
 import '../app/styles/font-fix.css';
 // Placeholder component for routes that don't have components yet
@@ -61,13 +62,13 @@ const aboutRoute = new Route({
 const loginRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'login',
-  component: PlaceholderPage,
+  component: LSpafe,
 })
 
 const signupRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'signup',
-  component: PlaceholderPage,
+  component: LSpafe,
 })
 
 const createGroupRoute = new Route({
