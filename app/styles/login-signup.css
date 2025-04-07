@@ -290,6 +290,7 @@
 }
 
 /* LSHeader */
+/*
 .ls-header {
     display: flex;
     justify-content: center;
@@ -297,6 +298,19 @@
     background-color: var(--white);
     box-shadow: var(--shadow-sm);
 }
+*/
+.ls-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 80px;
+    background-color: var(--white);
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+*/
 
 .logo-wrapper {
     display: flex;
