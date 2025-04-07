@@ -60,19 +60,26 @@ header {
     gap: 30px;
 }
 
-.nav-links a {
+.nav-links a, .nav-links button.nav-link-button {
     text-decoration: none;
     color: var(--dark);
     font-weight: 500;
     transition: color 0.3s ease;
     position: relative;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
 }
 
-.nav-links a:hover {
+.nav-links a:hover, .nav-links button.nav-link-button:hover {
     color: var(--primary);
 }
 
-.nav-links a:after {
+.nav-links a:after, .nav-links button.nav-link-button:after {
     content: '';
     position: absolute;
     width: 0;
@@ -83,10 +90,9 @@ header {
     transition: width 0.3s ease;
 }
 
-.nav-links a:hover:after {
+.nav-links a:hover:after, .nav-links button.nav-link-button:hover:after {
     width: 100%;
 }
-
 .cta-buttons {
     display: flex;
     gap: 15px;

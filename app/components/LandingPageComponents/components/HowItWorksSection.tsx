@@ -2,6 +2,7 @@ import React from 'react';
 
 const HowItWorksSection: React.FC = () => {
   return (
+    <section id="how-it-works" className="how-it-works">
     <section className="how-it-works">
       <div className="section-header">
         <h2 className="section-title">How It Works</h2>
@@ -29,6 +30,7 @@ const HowItWorksSection: React.FC = () => {
           <p className="step-description">Show up and enjoy your productive space with all the amenities you need.</p>
         </div>
       </div>
+    </section>
     </section>
   );
 };

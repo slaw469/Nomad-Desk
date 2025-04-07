@@ -1,7 +1,31 @@
 import React from 'react';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 
 const Header: React.FC = () => {
+  const navigate = useNavigate();
+
+  // Handle scrolling to section if on same page
+  const scrollToSection = (sectionId: string, path: string) => {
+    // Check if we're already on the home page
+    if (window.location.pathname === '/' || window.location.pathname === '') {
+      // We're on the home page, so just scroll
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // We're on a different page, navigate to home first and then scroll
+      navigate({ to: path });
+      // After navigation, scroll to the section (with a small delay to ensure the page loads)
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  };
+
   return (
     <header>
       <div className="logo">
@@ -16,7 +40,13 @@ const Header: React.FC = () => {
       
       <div className="nav-links">
         <Link to="/workspaces">Find Spaces</Link>
-        <Link to="/how-it-works">How It Works</Link>
+        {/* Replace the Link with a button for sections on the same page */}
+        <button 
+          onClick={() => scrollToSection('how-it-works', '/')} 
+          className="nav-link-button"
+        >
+          How It Works
+        </button>
         <Link to="/features">Features</Link>
         <Link to="/about">About Us</Link>
       </div>
