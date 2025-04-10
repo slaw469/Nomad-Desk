@@ -1,3 +1,4 @@
+// components/LandingPage.tsx
 import React from 'react';
 import Header from './Header';
 import HeroSection from './HeroSection';
@@ -7,11 +8,11 @@ import PopularSpacesSection from './PopularSpacesSection';
 import TestimonialsSection from './TestimonialsSection';
 import NewsletterSection from './NewsletterSection';
 import Footer from './Footer';
-import '../../../styles/landing.css';
+import styles from "../../../styles/landing.module.css";
 
 const LandingPage: React.FC = () => {
   return (
-    <>
+    <div className={styles.body}>
       <Header />
       <main>
         <HeroSection />
@@ -22,7 +23,7 @@ const LandingPage: React.FC = () => {
         <NewsletterSection />
       </main>
       <Footer />
-    </>
+    </div>
   );
 };
 

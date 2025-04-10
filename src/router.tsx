@@ -1,10 +1,12 @@
+//Nomad-Desk/src/router.tsx
+
 import { Router, Route, RootRoute } from '@tanstack/react-router'
 import LandingPage from '../app/components/LandingPageComponents/components/LandingPage'
 import WorkspaceList from '../app/components/workspaces/WorkSpaceIndex'
 import WorkspaceDetail from '../app/components/workspaces/$workspaceId/WSindex'
 import App from './App'
 import LSpafe from '../app/components/LoginSignup/LSutils/LSpage'
-import '../app/styles/landing.css';
+import NomadDeskAbout from '../app/components/About/NomadDeskAbout'
 import '../app/styles/font-fix.css';
 // Placeholder component for routes that don't have components yet
 const PlaceholderPage = () => (
@@ -56,7 +58,7 @@ const featuresRoute = new Route({
 const aboutRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'about',
-  component: PlaceholderPage,
+  component: NomadDeskAbout,
 })
 
 const loginRoute = new Route({
