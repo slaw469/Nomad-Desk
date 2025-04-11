@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from '../../styles/loginSignup.module.css';
 
 interface SocialButtonProps {
   provider: 'google' | 'facebook';
@@ -9,7 +10,7 @@ const SocialButton: React.FC<SocialButtonProps> = ({ provider, onClick }) => {
   return (
     <button 
       type="button" 
-      className="btn-social"
+      className={styles.btnSocial}
       onClick={onClick}
     >
       {provider === 'google' ? (

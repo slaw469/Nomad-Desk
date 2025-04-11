@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import AuthImage from './AuthImage';
 import LoginForm from '../LoginForm';
 import SignupForm from './SignupForm';
+import styles from '../../../styles/loginSignup.module.css';
 
 const AuthContainer: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
@@ -20,26 +21,26 @@ const AuthContainer: React.FC = () => {
   };
 
   return (
-    <div className="auth-container">
+    <div className={styles.container}>
       <AuthImage />
       
-      <div className="auth-form-container">
-        <div className="auth-tabs">
+      <div className={styles.formContainer}>
+        <div className={styles.tabs}>
           <div 
-            className={`auth-tab ${activeTab === 'login' ? 'active' : ''}`}
+            className={`${styles.tab} ${activeTab === 'login' ? styles.tabActive : ''}`}
             onClick={() => setActiveTab('login')}
           >
             Login
           </div>
           <div 
-            className={`auth-tab ${activeTab === 'signup' ? 'active' : ''}`}
+            className={`${styles.tab} ${activeTab === 'signup' ? styles.tabActive : ''}`}
             onClick={() => setActiveTab('signup')}
           >
             Sign Up
           </div>
         </div>
         
-        <div className="form-container">
+        <div>
           {activeTab === 'login' ? (
             <LoginForm 
               onSubmit={handleLoginSubmit} 

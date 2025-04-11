@@ -1,8 +1,9 @@
-// SignupForm.tsx
 import React, { useState, useEffect } from 'react';
-import { AuthFormProps } from './types';
+import { AuthFormProps } from '../LSutils/types';
 import Divider from '../Divider';
 import SocialButton from '../SocialButton';
+import styles from '../../../styles/loginSignup.module.css';
+
 interface SignupFormProps extends AuthFormProps {
   onSwitchToLogin: () => void;
 }
@@ -35,15 +36,15 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onSwitchToLogin }) =>
   };
 
   return (
-    <form className="auth-form" onSubmit={handleSubmit}>
-      <div className="form-group">
-        <label htmlFor="signup-name" className="form-label">
+    <form className={styles.form} onSubmit={handleSubmit}>
+      <div className={styles.formGroup}>
+        <label htmlFor="signup-name" className={styles.formLabel}>
           Full Name
         </label>
         <input
           type="text"
           id="signup-name"
-          className="form-input"
+          className={styles.formInput}
           placeholder="John Doe"
           required
           value={name}
@@ -51,14 +52,14 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onSwitchToLogin }) =>
         />
       </div>
       
-      <div className="form-group">
-        <label htmlFor="signup-email" className="form-label">
+      <div className={styles.formGroup}>
+        <label htmlFor="signup-email" className={styles.formLabel}>
           Email Address
         </label>
         <input
           type="email"
           id="signup-email"
-          className="form-input"
+          className={styles.formInput}
           placeholder="your@email.com"
           required
           value={email}
@@ -66,14 +67,14 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onSwitchToLogin }) =>
         />
       </div>
       
-      <div className="form-group">
-        <label htmlFor="signup-password" className="form-label">
+      <div className={styles.formGroup}>
+        <label htmlFor="signup-password" className={styles.formLabel}>
           Password
         </label>
         <input
           type="password"
           id="signup-password"
-          className="form-input"
+          className={styles.formInput}
           placeholder="At least 8 characters"
           required
           value={password}
@@ -81,54 +82,54 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onSwitchToLogin }) =>
         />
       </div>
       
-      <div className="form-group">
-        <label htmlFor="signup-confirm-password" className="form-label">
+      <div className={styles.formGroup}>
+        <label htmlFor="signup-confirm-password" className={styles.formLabel}>
           Confirm Password
         </label>
         <input
           type="password"
           id="signup-confirm-password"
-          className={`form-input ${!passwordsMatch ? 'error' : ''}`}
+          className={`${styles.formInput} ${!passwordsMatch ? styles.formInputError : ''}`}
           placeholder="Confirm your password"
           required
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
         {!passwordsMatch && (
-          <span className="form-error">Passwords do not match</span>
+          <span className={styles.formError}>Passwords do not match</span>
         )}
       </div>
       
-      <div className="form-checkbox-group">
+      <div className={styles.formCheckboxGroup}>
         <input
           type="checkbox"
           id="terms"
-          className="form-checkbox"
+          className={styles.formCheckbox}
           required
           checked={agreeToTerms}
           onChange={(e) => setAgreeToTerms(e.target.checked)}
         />
         <label htmlFor="terms">
-          I agree to the <a href="#" className="form-link">Terms of Service</a> and <a href="#" className="form-link">Privacy Policy</a>
+          I agree to the <a href="#" className={styles.formLink}>Terms of Service</a> and <a href="#" className={styles.formLink}>Privacy Policy</a>
         </label>
       </div>
       
-      <button type="submit" className="btn btn-primary">
+      <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`}>
         Create Account
       </button>
       
       <Divider />
       
-      <div className="social-buttons">
+      <div className={styles.socialButtons}>
         <SocialButton provider="google" />
         <SocialButton provider="facebook" />
       </div>
       
-      <div className="account-text">
+      <div className={styles.accountText}>
         Already have an account?{' '}
         <a 
           href="#" 
-          className="form-link"
+          className={styles.formLink}
           onClick={(e) => {
             e.preventDefault();
             onSwitchToLogin();

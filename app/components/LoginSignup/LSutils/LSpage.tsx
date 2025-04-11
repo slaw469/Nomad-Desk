@@ -1,17 +1,17 @@
 import React from 'react';
 import LSHeader from '../LSHeader';
 import AuthContainer from './AuthContainer';
-import '../../../styles/login-signup.css';
-const LSpage: React.FC = () => {
+import styles from '../../../styles/loginSignup.module.css';
+
+const LSPage: React.FC = () => {
   return (
-    <div className="ls-page">
+    <div className={styles.page}>
       <LSHeader />
-      <div className="ls-content">
+      <div className={styles.content}>
         <AuthContainer />
       </div>
     </div>
   );
 };
 
-export default LSpage;
-// This component serves as a layout for the login/signup page.
+export default LSPage;
