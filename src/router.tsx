@@ -1,13 +1,15 @@
-//Nomad-Desk/src/router.tsx
+// src/router.tsx
 
 import { Router, Route, RootRoute } from '@tanstack/react-router'
 import LandingPage from '../app/components/LandingPageComponents/components/LandingPage'
 import WorkspaceList from '../app/components/workspaces/WorkSpaceIndex'
 import WorkspaceDetail from '../app/components/workspaces/$workspaceId/WSindex'
+import FeaturesPage from '../app/components/Features/FeaturesPage'
 import App from './App'
-import LSpafe from '../app/components/LoginSignup/LSutils/LSpage'
+import LSpage from '../app/components/LoginSignup/LSutils/LSpage'
 import NomadDeskAbout from '../app/components/About/NomadDeskAbout'
 import '../app/styles/font-fix.css';
+
 // Placeholder component for routes that don't have components yet
 const PlaceholderPage = () => (
   <div style={{ padding: '50px', textAlign: 'center' }}>
@@ -52,7 +54,7 @@ const howItWorksRoute = new Route({
 const featuresRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'features',
-  component: PlaceholderPage,
+  component: FeaturesPage, // Now using the actual FeaturesPage component
 })
 
 const aboutRoute = new Route({
@@ -64,13 +66,13 @@ const aboutRoute = new Route({
 const loginRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'login',
-  component: LSpafe,
+  component: LSpage,
 })
 
 const signupRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'signup',
-  component: LSpafe,
+  component: LSpage,
 })
 
 const createGroupRoute = new Route({
