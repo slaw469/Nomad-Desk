@@ -5,9 +5,13 @@ import LandingPage from '../app/components/LandingPageComponents/components/Land
 import WorkspaceList from '../app/components/workspaces/WorkSpaceIndex'
 import WorkspaceDetail from '../app/components/workspaces/$workspaceId/WSindex'
 import FeaturesPage from '../app/components/Features/FeaturesPage'
+import Dashboard from '../app/components/dashboard/Dashboard'
 import App from './App'
 import LSpage from '../app/components/LoginSignup/LSutils/LSpage'
 import NomadDeskAbout from '../app/components/About/NomadDeskAbout'
+import ProtectedRoute from '../app/components/dashboard/ProtectedRoute'
+import { AuthProvider } from '../app/components/dashboard/AuthContext'
+import React from 'react'
 import '../app/styles/font-fix.css';
 
 // Placeholder component for routes that don't have components yet
@@ -20,7 +24,11 @@ const PlaceholderPage = () => (
 
 // Define the root route
 const rootRoute = new RootRoute({
-  component: App,
+  component: () => (
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  ),
 })
 
 // Define the index route (landing page)
@@ -30,18 +38,37 @@ const indexRoute = new Route({
   component: LandingPage,
 })
 
-// Define the workspaces list route
+// Define the dashboard route (protected)
+const dashboardRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: 'dashboard',
+  component: () => (
+    <ProtectedRoute>
+      <Dashboard />
+    </ProtectedRoute>
+  ),
+})
+
+// Define the workspaces list route (protected)
 const workspacesRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'workspaces',
-  component: WorkspaceList,
+  component: () => (
+    <ProtectedRoute>
+      <WorkspaceList />
+    </ProtectedRoute>
+  ),
 })
 
-// Define the workspace detail route with dynamic parameter
+// Define the workspace detail route with dynamic parameter (protected)
 const workspaceDetailRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'workspaces/$workspaceId',
-  component: WorkspaceDetail,
+  component: () => (
+    <ProtectedRoute>
+      <WorkspaceDetail />
+    </ProtectedRoute>
+  ),
 })
 
 // Define additional routes
@@ -54,7 +81,7 @@ const howItWorksRoute = new Route({
 const featuresRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'features',
-  component: FeaturesPage, // Now using the actual FeaturesPage component
+  component: FeaturesPage,
 })
 
 const aboutRoute = new Route({
@@ -78,12 +105,17 @@ const signupRoute = new Route({
 const createGroupRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'create-group',
-  component: PlaceholderPage,
+  component: () => (
+    <ProtectedRoute>
+      <PlaceholderPage />
+    </ProtectedRoute>
+  ),
 })
 
 // Create the route tree using the routes
 const routeTree = rootRoute.addChildren([
   indexRoute,
+  dashboardRoute,
   workspacesRoute,
   workspaceDetailRoute,
   howItWorksRoute,

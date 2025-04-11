@@ -1,20 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { AuthFormProps } from '../LSutils/types';
 import Divider from '../Divider';
 import SocialButton from '../SocialButton';
 import styles from '../../../styles/loginSignup.module.css';
 
-interface SignupFormProps extends AuthFormProps {
+interface SignupFormProps {
+  onSubmit: (data: any) => void | Promise<void>;
   onSwitchToLogin: () => void;
+  isLoading?: boolean;
+  onSocialLogin?: (provider: string) => void;
 }
 
-const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onSwitchToLogin }) => {
+const SignupForm: React.FC<SignupFormProps> = ({ 
+  onSubmit, 
+  onSwitchToLogin,
+  isLoading = false,
+  onSocialLogin 
+}) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     // Validate passwords when either password field changes
@@ -25,18 +33,41 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onSwitchToLogin }) =>
     }
   }, [password, confirmPassword]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     
+    // Basic validation
     if (!passwordsMatch) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (!agreeToTerms) {
+      setError('You must agree to the terms of service');
       return;
     }
     
-    onSubmit({ name, email, password, agreeToTerms });
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+    
+    try {
+      await onSubmit({ name, email, password, agreeToTerms });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred during signup');
+    }
   };
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
+      {error && (
+        <div className={styles.formError}>
+          {error}
+        </div>
+      )}
+      
       <div className={styles.formGroup}>
         <label htmlFor="signup-name" className={styles.formLabel}>
           Full Name
@@ -49,6 +80,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onSwitchToLogin }) =>
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
+          disabled={isLoading}
         />
       </div>
       
@@ -64,6 +96,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onSwitchToLogin }) =>
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          disabled={isLoading}
         />
       </div>
       
@@ -79,6 +112,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onSwitchToLogin }) =>
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          disabled={isLoading}
         />
       </div>
       
@@ -94,6 +128,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onSwitchToLogin }) =>
           required
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
+          disabled={isLoading}
         />
         {!passwordsMatch && (
           <span className={styles.formError}>Passwords do not match</span>
@@ -108,21 +143,34 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onSwitchToLogin }) =>
           required
           checked={agreeToTerms}
           onChange={(e) => setAgreeToTerms(e.target.checked)}
+          disabled={isLoading}
         />
         <label htmlFor="terms">
           I agree to the <a href="#" className={styles.formLink}>Terms of Service</a> and <a href="#" className={styles.formLink}>Privacy Policy</a>
         </label>
       </div>
       
-      <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`}>
-        Create Account
+      <button 
+        type="submit" 
+        className={`${styles.btn} ${styles.btnPrimary}`}
+        disabled={isLoading}
+      >
+        {isLoading ? 'Creating Account...' : 'Create Account'}
       </button>
       
       <Divider />
       
       <div className={styles.socialButtons}>
-        <SocialButton provider="google" />
-        <SocialButton provider="facebook" />
+        <SocialButton 
+          provider="google" 
+          disabled={isLoading}
+          onClick={() => onSocialLogin && onSocialLogin('google')}
+        />
+        <SocialButton 
+          provider="facebook" 
+          disabled={isLoading}
+          onClick={() => onSocialLogin && onSocialLogin('facebook')}
+        />
       </div>
       
       <div className={styles.accountText}>
@@ -132,7 +180,9 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onSwitchToLogin }) =>
           className={styles.formLink}
           onClick={(e) => {
             e.preventDefault();
-            onSwitchToLogin();
+            if (!isLoading) {
+              onSwitchToLogin();
+            }
           }}
         >
           Login
