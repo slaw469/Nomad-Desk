@@ -1,5 +1,6 @@
 // app/routes/workspaces/$workspaceId/components/WorkspaceDetails.tsx
 import React, { useState } from 'react';
+import styles from '../../workspace.module.css';
 import AmenityList from './AmenityList';
 import RulesList from './RulesList';
 import ReviewSection from './ReviewSection';
@@ -51,39 +52,39 @@ export default function WorkspaceDetails({
   ];
   
   return (
-    <div className="workspace-details">
+    <div className={styles.workspaceDetails}>
       <TabNavigation 
         tabs={tabs} 
         activeTab={activeTab} 
         onChange={(tab) => setActiveTab(tab)} 
       />
       
-      <div className="tab-content">
+      <div className={styles.tabContent}>
         {activeTab === 'overview' && (
           <>
-            <div className="tab-section">
-              <h2 className="section-title">About this space</h2>
-              <p className="section-content">{description}</p>
+            <div className={styles.tabSection}>
+              <h2 className={styles.sectionTitle}>About this space</h2>
+              <p className={styles.sectionContent}>{description}</p>
             </div>
             
-            <div className="tab-section">
-              <h2 className="section-title">Amenities</h2>
+            <div className={styles.tabSection}>
+              <h2 className={styles.sectionTitle}>Amenities</h2>
               <AmenityList amenities={amenities} />
             </div>
             
-            <div className="tab-section">
-              <h2 className="section-title">House Rules</h2>
+            <div className={styles.tabSection}>
+              <h2 className={styles.sectionTitle}>House Rules</h2>
               <RulesList rules={houseRules} />
             </div>
           </>
         )}
         
         {activeTab === 'photos' && (
-          <div className="tab-section">
-            <h2 className="section-title">Photos</h2>
-            <div className="photo-gallery">
+          <div className={styles.tabSection}>
+            <h2 className={styles.sectionTitle}>Photos</h2>
+            <div className={styles.photoGallery}>
               {photos.map((photo, index) => (
-                <div key={index} className="photo-item">
+                <div key={index} className={styles.photoItem}>
                   <img src={photo.url} alt={photo.alt} />
                 </div>
               ))}
@@ -92,16 +93,16 @@ export default function WorkspaceDetails({
         )}
         
         {activeTab === 'reviews' && (
-          <div className="tab-section">
-            <h2 className="section-title">Reviews</h2>
+          <div className={styles.tabSection}>
+            <h2 className={styles.sectionTitle}>Reviews</h2>
             <ReviewSection reviews={reviews} />
           </div>
         )}
         
         {activeTab === 'location' && (
-          <div className="tab-section">
-            <h2 className="section-title">Location</h2>
-            <p className="section-content">
+          <div className={styles.tabSection}>
+            <h2 className={styles.sectionTitle}>Location</h2>
+            <p className={styles.sectionContent}>
               Location details will be displayed here.
             </p>
           </div>

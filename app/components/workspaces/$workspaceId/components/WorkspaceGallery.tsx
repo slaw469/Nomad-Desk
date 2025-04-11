@@ -1,5 +1,6 @@
 // app/routes/workspaces/$workspaceId/components/WorkspaceGallery.tsx
 import React, { useState } from 'react';
+import styles from '../../workspace.module.css';
 
 interface Photo {
   url: string;
@@ -44,8 +45,8 @@ export default function WorkspaceGallery({ photos }: WorkspaceGalleryProps) {
   
   return (
     <>
-      <div className="workspace-gallery">
-        <div className="gallery-item gallery-main">
+      <div className={styles.workspaceGallery}>
+        <div className={`${styles.galleryItem} ${styles.galleryMain}`}>
           <img 
             src={displayPhotos[0].url} 
             alt={displayPhotos[0].alt} 
@@ -54,7 +55,7 @@ export default function WorkspaceGallery({ photos }: WorkspaceGalleryProps) {
         </div>
         
         {displayPhotos.length > 1 && (
-          <div className="gallery-item">
+          <div className={styles.galleryItem}>
             <img 
               src={displayPhotos[1].url} 
               alt={displayPhotos[1].alt} 
@@ -64,7 +65,7 @@ export default function WorkspaceGallery({ photos }: WorkspaceGalleryProps) {
         )}
         
         {displayPhotos.length > 2 && (
-          <div className="gallery-item">
+          <div className={styles.galleryItem}>
             <img 
               src={displayPhotos[2].url} 
               alt={displayPhotos[2].alt} 
@@ -73,7 +74,7 @@ export default function WorkspaceGallery({ photos }: WorkspaceGalleryProps) {
             
             {photos.length > 3 && (
               <button 
-                className="view-all-photos"
+                className={styles.viewAllPhotos}
                 onClick={() => openGalleryModal(0)}
               >
                 View all photos
@@ -85,34 +86,34 @@ export default function WorkspaceGallery({ photos }: WorkspaceGalleryProps) {
       
       {/* Photo Gallery Modal */}
       {showModal && (
-        <div className="gallery-modal">
-          <div className="gallery-modal-content">
-            <button className="modal-close" onClick={closeGalleryModal}>
+        <div className={styles.galleryModal}>
+          <div className={styles.galleryModalContent}>
+            <button className={styles.modalClose} onClick={closeGalleryModal}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
             
-            <div className="gallery-modal-navigation">
-              <button className="nav-button prev" onClick={() => navigatePhoto('prev')}>
+            <div className={styles.galleryModalNavigation}>
+              <button className={`${styles.navButton} ${styles.prev}`} onClick={() => navigatePhoto('prev')}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
               
-              <div className="gallery-modal-image">
+              <div className={styles.galleryModalImage}>
                 <img src={photos[activePhotoIndex].url} alt={photos[activePhotoIndex].alt} />
               </div>
               
-              <button className="nav-button next" onClick={() => navigatePhoto('next')}>
+              <button className={`${styles.navButton} ${styles.next}`} onClick={() => navigatePhoto('next')}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
             </div>
             
-            <div className="gallery-modal-count">
+            <div className={styles.galleryModalCount}>
               {activePhotoIndex + 1} / {photos.length}
             </div>
           </div>

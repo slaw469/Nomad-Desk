@@ -1,3 +1,4 @@
+//LSstyles.ts
 export const styles = {
   root: {
     "--primary": "#4A6FDC",

@@ -1,11 +1,11 @@
 import React from 'react';
 import { useParams } from '@tanstack/react-router';
+import styles from '../workspace.module.css';
 import WorkspaceHeader from './components/WorkspaceHeader';
 import WorkspaceGallery from './components/WorkspaceGallery';
 import WorkspaceDetails from './components/WorkspaceDetails';
 import BookingCard from './components/BookingCard';
 import SimilarWorkspaces from './components/SimilarWorkspaces';
-import '../workspace.css';
 
 // This would be defined in your API or data fetching layer
 interface WorkspaceData {
@@ -200,7 +200,7 @@ export default function WorkspaceDetail() {
   }, [workspaceId]);
   
   if (loading) {
-    return <div className="loading-indicator">Loading workspace...</div>;
+    return <div className={styles.loadingIndicator}>Loading workspace...</div>;
   }
   
   if (!workspace) {
@@ -208,7 +208,7 @@ export default function WorkspaceDetail() {
   }
   
   return (
-    <div className="workspace-container">
+    <div className={styles.workspaceContainer}>
       <WorkspaceHeader 
         title={workspace.title} 
         type={workspace.type} 
@@ -221,7 +221,7 @@ export default function WorkspaceDetail() {
       
       <WorkspaceGallery photos={workspace.photos} />
       
-      <div className="workspace-content">
+      <div className={styles.workspaceContent}>
         <WorkspaceDetails 
           description={workspace.description}
           amenities={workspace.amenities}

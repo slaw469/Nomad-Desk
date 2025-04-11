@@ -6,7 +6,7 @@ import './index.css'
 import './App.css'
 
 // Import CSS files
-import '../app/components/workspaces/workspace.css'
+
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

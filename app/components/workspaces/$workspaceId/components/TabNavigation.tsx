@@ -1,5 +1,6 @@
 // app/routes/workspaces/$workspaceId/components/TabNavigation.tsx
 import React from 'react';
+import styles from '../../workspace.module.css';
 
 interface Tab {
   id: string;
@@ -14,11 +15,11 @@ interface TabNavigationProps {
 
 export default function TabNavigation({ tabs, activeTab, onChange }: TabNavigationProps) {
   return (
-    <div className="tabs">
+    <div className={styles.tabs}>
       {tabs.map((tab) => (
         <div
           key={tab.id}
-          className={`tab ${activeTab === tab.id ? 'active' : ''}`}
+          className={`${styles.tab} ${activeTab === tab.id ? styles.active : ''}`}
           onClick={() => onChange(tab.id)}
           id={tab.id === 'reviews' ? 'reviews' : undefined}
         >

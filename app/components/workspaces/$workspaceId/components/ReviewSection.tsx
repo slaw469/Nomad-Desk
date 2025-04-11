@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from '../../workspace.module.css';
 
 interface Review {
   id: string;
@@ -36,11 +37,11 @@ export default function ReviewSection({ reviews }: ReviewSectionProps) {
   ];
   
   return (
-    <div className="reviews-section">
-      <div className="review-stats">
-        <div className="overall-rating">
-          <div className="rating-big">{calculateAverageRating()}</div>
-          <div className="rating-stars-big">
+    <div className={styles.reviewsSection}>
+      <div className={styles.reviewStats}>
+        <div className={styles.overallRating}>
+          <div className={styles.ratingBig}>{calculateAverageRating()}</div>
+          <div className={styles.ratingStarsBig}>
             {[...Array(5)].map((_, i) => (
               <svg 
                 key={i}
@@ -60,39 +61,39 @@ export default function ReviewSection({ reviews }: ReviewSectionProps) {
               </svg>
             ))}
           </div>
-          <div className="rating-count">{reviews.length} reviews</div>
+          <div className={styles.ratingCount}>{reviews.length} reviews</div>
         </div>
         
-        <div className="rating-breakdown">
+        <div className={styles.ratingBreakdown}>
           {ratingCategories.map((category) => (
-            <div key={category.name} className="rating-category">
-              <div className="category-name">{category.name}</div>
-              <div className="category-bar">
+            <div key={category.name} className={styles.ratingCategory}>
+              <div className={styles.categoryName}>{category.name}</div>
+              <div className={styles.categoryBar}>
                 <div 
-                  className="category-fill" 
+                  className={styles.categoryFill} 
                   style={{ width: `${(category.value / 5) * 100}%` }}
                 ></div>
               </div>
-              <div className="category-value">{category.value}</div>
+              <div className={styles.categoryValue}>{category.value}</div>
             </div>
           ))}
         </div>
       </div>
       
-      <div className="reviews-list">
+      <div className={styles.reviewsList}>
         {reviews.map((review) => (
-          <div key={review.id} className="review-item">
-            <div className="review-header">
-              <div className="reviewer">
-                <div className="reviewer-avatar">
+          <div key={review.id} className={styles.reviewItem}>
+            <div className={styles.reviewHeader}>
+              <div className={styles.reviewer}>
+                <div className={styles.reviewerAvatar}>
                   {review.reviewer.avatar}
                 </div>
-                <div className="reviewer-info">
-                  <div className="reviewer-name">{review.reviewer.name}</div>
-                  <div className="review-date">{review.date}</div>
+                <div className={styles.reviewerInfo}>
+                  <div className={styles.reviewerName}>{review.reviewer.name}</div>
+                  <div className={styles.reviewDate}>{review.date}</div>
                 </div>
               </div>
-              <div className="review-rating">
+              <div className={styles.reviewRating}>
                 {[...Array(5)].map((_, i) => (
                   <svg 
                     key={i}
@@ -113,17 +114,17 @@ export default function ReviewSection({ reviews }: ReviewSectionProps) {
                 ))}
               </div>
             </div>
-            <div className="review-content">
+            <div className={styles.reviewContent}>
               <p>{review.text}</p>
             </div>
             {review.photos && review.photos.length > 0 && (
-              <div className="review-photos">
+              <div className={styles.reviewPhotos}>
                 {review.photos.map((photo, index) => (
                   <img 
                     key={index} 
                     src={photo.url} 
                     alt={photo.alt} 
-                    className="review-photo" 
+                    className={styles.reviewPhoto} 
                   />
                 ))}
               </div>

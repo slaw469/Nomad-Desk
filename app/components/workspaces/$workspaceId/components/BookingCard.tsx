@@ -1,5 +1,6 @@
 // app/routes/workspaces/$workspaceId/components/BookingCard.tsx
 import React, { useState } from 'react';
+import styles from '../../workspace.module.css';
 
 interface BookingCardProps {
   price: string;
@@ -39,13 +40,13 @@ export default function BookingCard({
   };
   
   return (
-    <div className="booking-card">
-      <div className="price-section">
-        <div className="price-display">
-          <span className="price">{price}</span>
-          <span className="price-period">{priceDescription}</span>
+    <div className={styles.bookingCard}>
+      <div className={styles.priceSection}>
+        <div className={styles.priceDisplay}>
+          <span className={styles.price}>{price}</span>
+          <span className={styles.pricePeriod}>{priceDescription}</span>
         </div>
-        <div className="price-rating">
+        <div className={styles.priceRating}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="#4A6FDC" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="#4A6FDC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
@@ -53,23 +54,23 @@ export default function BookingCard({
         </div>
       </div>
       
-      <form className="booking-form" onSubmit={handleSubmit}>
-        <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">Date</label>
+      <form className={styles.bookingForm} onSubmit={handleSubmit}>
+        <div className={styles.formRow}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Date</label>
             <input 
               type="date" 
-              className="form-control" 
+              className={styles.formControl} 
               min={new Date().toISOString().split('T')[0]} 
               value={date}
               onChange={(e) => setDate(e.target.value)}
               required
             />
           </div>
-          <div className="form-group">
-            <label className="form-label">Number of People</label>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Number of People</label>
             <select 
-              className="form-control"
+              className={styles.formControl}
               value={numPeople}
               onChange={(e) => setNumPeople(e.target.value)}
             >
@@ -82,11 +83,11 @@ export default function BookingCard({
           </div>
         </div>
         
-        <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">From</label>
+        <div className={styles.formRow}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>From</label>
             <select 
-              className="form-control time-select"
+              className={styles.formControl}
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
             >
@@ -95,10 +96,10 @@ export default function BookingCard({
               ))}
             </select>
           </div>
-          <div className="form-group">
-            <label className="form-label">To</label>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>To</label>
             <select 
-              className="form-control time-select"
+              className={styles.formControl}
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
             >
@@ -109,10 +110,10 @@ export default function BookingCard({
           </div>
         </div>
         
-        <div className="form-group">
-          <label className="form-label">Room Type</label>
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>Room Type</label>
           <select 
-            className="form-control"
+            className={styles.formControl}
             value={roomType}
             onChange={(e) => setRoomType(e.target.value)}
           >
@@ -124,10 +125,10 @@ export default function BookingCard({
           </select>
         </div>
         
-        <div className="form-group">
-          <label className="form-label">Special Requests (Optional)</label>
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>Special Requests (Optional)</label>
           <textarea 
-            className="form-control" 
+            className={styles.formControl} 
             rows={3} 
             placeholder="Any specific requirements or preferences?"
             value={requests}
@@ -135,29 +136,29 @@ export default function BookingCard({
           ></textarea>
         </div>
         
-        <button type="submit" className="book-button">
+        <button type="submit" className={styles.bookButton}>
           Reserve Now
         </button>
       </form>
       
-      <div className="booking-summary">
-        <div className="summary-row">
+      <div className={styles.bookingSummary}>
+        <div className={styles.summaryRow}>
           <span>{roomType}</span>
           <span>{price}</span>
         </div>
-        <div className="summary-row">
+        <div className={styles.summaryRow}>
           <span>Service fee</span>
           <span>$0.00</span>
         </div>
-        <div className="summary-total">
+        <div className={styles.summaryTotal}>
           <span>Total</span>
           <span>{price}</span>
         </div>
       </div>
       
-      <div className="workspace-contact">
-        <p className="contact-text">Have questions about this space?</p>
-        <button className="contact-host">Contact Workspace Host</button>
+      <div className={styles.workspaceContact}>
+        <p className={styles.contactText}>Have questions about this space?</p>
+        <button className={styles.contactHost}>Contact Workspace Host</button>
       </div>
     </div>
   );
