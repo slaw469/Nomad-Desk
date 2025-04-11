@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link } from '@tanstack/react-router';
 import styles from "../../../styles/landing.module.css";
+import SpaceFinderAnimation from './SpaceFinderAnimation';
 
 const HeroSection: React.FC = () => {
   return (
@@ -29,7 +30,7 @@ const HeroSection: React.FC = () => {
         </div>
       </div>
       <div className={styles.heroImage}>
-        <img src="/api/placeholder/800/600" alt="Students working in a modern workspace" />
+        <SpaceFinderAnimation />
       </div>
     </section>
   );

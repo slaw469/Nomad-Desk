@@ -198,15 +198,20 @@
     color: #4B5563;
 }
 
+/* Updated Hero Image styling for animation */
 .heroImage {
     position: absolute;
-    width: 55%;
-    right: -5%;
+    width: 45%;
+    right: 5%;
     top: 50%;
     transform: translateY(-50%);
     z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+/* Original image styling, kept for compatibility */
 .heroImage img {
     width: 100%;
     height: auto;
@@ -696,13 +701,15 @@
         justify-content: center;
     }
     
+    /* Updated styling for animation on mobile */
     .heroImage {
         position: relative;
         width: 100%;
+        max-width: 600px;
         right: auto;
         top: auto;
         transform: none;
-        margin-top: 60px;
+        margin: 60px auto 0;
     }
     
     .steps:before {
