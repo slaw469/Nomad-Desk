@@ -6,6 +6,7 @@ import WorkspaceList from '../app/components/workspaces/WorkSpaceIndex'
 import WorkspaceDetail from '../app/components/workspaces/$workspaceId/WSindex'
 import FeaturesPage from '../app/components/Features/FeaturesPage'
 import Dashboard from '../app/components/dashboard/Dashboard'
+import Profile from '../app/components/dashboard/sidebar/Profile'
 import App from './App'
 import LSpage from '../app/components/LoginSignup/LSutils/LSpage'
 import NomadDeskAbout from '../app/components/About/NomadDeskAbout'
@@ -45,6 +46,17 @@ const dashboardRoute = new Route({
   component: () => (
     <ProtectedRoute>
       <Dashboard />
+    </ProtectedRoute>
+  ),
+})
+
+// Define the profile route (protected)
+const profileRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: 'profile',
+  component: () => (
+    <ProtectedRoute>
+      <Profile />
     </ProtectedRoute>
   ),
 })
@@ -116,6 +128,7 @@ const createGroupRoute = new Route({
 const routeTree = rootRoute.addChildren([
   indexRoute,
   dashboardRoute,
+  profileRoute,
   workspacesRoute,
   workspaceDetailRoute,
   howItWorksRoute,
