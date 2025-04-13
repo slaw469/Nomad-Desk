@@ -1,5 +1,5 @@
-// src/router.tsx
 
+// src/router.tsx
 import { Router, Route, RootRoute } from '@tanstack/react-router'
 import LandingPage from '../app/components/LandingPageComponents/components/LandingPage'
 import WorkspaceList from '../app/components/workspaces/WorkSpaceIndex'
@@ -7,6 +7,9 @@ import WorkspaceDetail from '../app/components/workspaces/$workspaceId/WSindex'
 import FeaturesPage from '../app/components/Features/FeaturesPage'
 import Dashboard from '../app/components/dashboard/Dashboard'
 import Profile from '../app/components/dashboard/sidebar/Profile'
+import Settings from '../app/components/dashboard/sidebar/Settings'
+import Notifications from '../app/components/dashboard/sidebar/Notifications'
+import Network from '../app/components/dashboard/sidebar/Network'
 import App from './App'
 import LSpage from '../app/components/LoginSignup/LSutils/LSpage'
 import NomadDeskAbout from '../app/components/About/NomadDeskAbout'
@@ -57,6 +60,39 @@ const profileRoute = new Route({
   component: () => (
     <ProtectedRoute>
       <Profile />
+    </ProtectedRoute>
+  ),
+})
+
+// Define the settings route (protected)
+const settingsRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: 'settings',
+  component: () => (
+    <ProtectedRoute>
+      <Settings />
+    </ProtectedRoute>
+  ),
+})
+
+// Define the notifications route (protected)
+const notificationsRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: 'notifications',
+  component: () => (
+    <ProtectedRoute>
+      <Notifications />
+    </ProtectedRoute>
+  ),
+})
+
+// Define the network route (protected)
+const networkRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: 'network',
+  component: () => (
+    <ProtectedRoute>
+      <Network />
     </ProtectedRoute>
   ),
 })
@@ -129,6 +165,9 @@ const routeTree = rootRoute.addChildren([
   indexRoute,
   dashboardRoute,
   profileRoute,
+  settingsRoute,
+  notificationsRoute,
+  networkRoute,
   workspacesRoute,
   workspaceDetailRoute,
   howItWorksRoute,

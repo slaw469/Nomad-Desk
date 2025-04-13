@@ -5,6 +5,14 @@ import { useAuth } from './AuthContext';
 import styles from './dashboard.module.css';
 
 // Import icons (using the same icons you already have)
+const NetworkIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+      <circle cx="9" cy="7" r="4"></circle>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+    </svg>
+  );
 const CalendarIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -230,10 +238,10 @@ const Dashboard: React.FC = () => {
             <BookmarkIcon />
             <span>Favorites</span>
           </Link>
-          <Link to="/reviews" className={styles.sidebarLink}>
-            <StarIcon />
-            <span>My Reviews</span>
-          </Link>
+          <Link to="/network" className={styles.sidebarLink}>
+        <NetworkIcon />
+            <span>My Network</span>
+        </Link>
           <Link to="/notifications" className={styles.sidebarLink}>
             <BellIcon />
             <span>Notifications</span>
@@ -304,14 +312,14 @@ const Dashboard: React.FC = () => {
           </div>
           
           <div className={styles.summaryCard}>
-            <div className={styles.summaryIconWrapper}>
-              <StarIcon />
-            </div>
-            <div className={styles.summaryInfo}>
-              <h3 className={styles.summaryValue}>6</h3>
-              <p className={styles.summaryLabel}>Reviews Left</p>
-            </div>
-          </div>
+  <div className={styles.summaryIconWrapper}>
+    <NetworkIcon />
+  </div>
+  <div className={styles.summaryInfo}>
+    <h3 className={styles.summaryValue}>6</h3>
+    <p className={styles.summaryLabel}>Connections</p>
+  </div>
+</div>
           
           <div className={styles.summaryCard}>
             <div className={styles.summaryIconWrapper}>
