@@ -1,0 +1,15 @@
+/* This file specifically fixes font rendering issues */
+
+.section-title {
+    font-size: 2.5rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 15px !important;
+    color: var(--dark) !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+  }
+  
+  /* These selectors are for the other headings that might need fixing */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-weight: 700 !important;
+  }

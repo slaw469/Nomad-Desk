@@ -1,0 +1,809 @@
+.selectedTheme .themePreview {
+    border: 2px solid var(--primary);
+    box-shadow: 0 0 0 2px rgba(74, 111, 220, 0.2);
+  }
+  
+  .themeOption span {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--dark);
+  }
+  
+  /* Danger Zone */
+  .dangerZoneSection {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background-color: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  
+  .dangerZoneItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+    padding-bottom: 15px;
+  }
+  
+  .dangerZoneItem:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  
+  .dangerZoneInfo {
+    flex: 1;
+  }
+  
+  .dangerZoneInfo h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dark);
+    margin: 0 0 5px;
+  }
+  
+  .dangerZoneInfo p {
+    font-size: 14px;
+    color: var(--dark-gray);
+    margin: 0;
+  }
+  
+  .dangerZoneAction {
+    margin-left: 20px;
+  }
+  
+  /* Support Options */
+  .supportOptions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  
+  .supportCard {
+    background-color: var(--light);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .supportCardIcon {
+    width: 50px;
+    height: 50px;
+    background: var(--gradient-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    margin-bottom: 15px;
+  }
+  
+  .supportCard h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dark);
+    margin: 0 0 10px;
+  }
+  
+  .supportCard p {
+    font-size: 14px;
+    color: var(--dark-gray);
+    margin: 0 0 15px;
+    flex: 1;
+  }
+  
+  /* App Info */
+  .appInfo {
+    background-color: var(--light);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  
+  .appInfo h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dark);
+    margin: 0 0 15px;
+  }
+  
+  .appInfoItem {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--light-gray);
+    font-size: 14px;
+  }
+  
+  .appInfoItem:last-child {
+    border-bottom: none;
+  }
+  
+  .linkText {
+    color: var(--primary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+  
+  .linkText:hover {
+    text-decoration: underline;
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 992px) {
+    .settingsBody {
+      flex-direction: column;
+    }
+    
+    .settingsSidebar {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    
+    .sidebarNav {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 5px;
+      gap: 5px;
+    }
+    
+    .navButton {
+      width: auto;
+      flex: 1;
+      min-width: 100px;
+      border-left: none;
+      border-radius: 6px;
+      border-bottom: 3px solid transparent;
+      justify-content: center;
+      padding: 10px;
+    }
+    
+    .navButton svg {
+      margin-right: 5px;
+    }
+    
+    .activeNavButton {
+      border-left-color: transparent;
+      border-bottom-color: var(--primary);
+    }
+    
+    .supportOptions {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .settingsContainer {
+      padding: 20px 15px;
+    }
+    
+    .dangerZoneItem, 
+    .toggleOption, 
+    .passwordSection {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    
+    .toggleSwitch,
+    .dangerZoneAction,
+    .passwordInfo {
+      align-self: flex-start;
+    }
+    
+    .billingHistory {
+      overflow-x: auto;
+    }
+    
+    .billingHistoryItem, 
+    .billingHistoryHeader {
+      min-width: 600px;
+    }
+    
+    .themeSelector {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .paymentMethod {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .paymentMethodActions {
+      width: 100%;
+      margin-top: 15px;
+      justify-content: space-between;
+    }
+  }/* app/components/settings/settings.module.css */
+  :root {
+    --primary: #4A6FDC;
+    --secondary: #FF7E5F;
+    --accent: #2DD4BF;
+    --dark: #2A3347;
+    --light: #F8FAFC;
+    --white: #FFFFFF;
+    --gradient-bg: linear-gradient(135deg, #4A6FDC 0%, #2DD4BF 100%);
+    --light-gray: #E5E7EB;
+    --gray: #9CA3AF;
+    --dark-gray: #4B5563;
+    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 15px 30px rgba(0, 0, 0, 0.15);
+    --danger: #EF4444;
+    --success: #22C55E;
+    --warning: #EAB308;
+  }
+  
+  /* Settings Container */
+  .settingsContainer {
+    width: 100%;
+    padding: 30px;
+  }
+  
+  /* Settings Header */
+  .settingsHeader {
+    margin-bottom: 30px;
+  }
+  
+  .settingsTitle {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--dark);
+    margin: 0 0 10px;
+  }
+  
+  .settingsDescription {
+    font-size: 16px;
+    color: var(--dark-gray);
+    margin: 0;
+  }
+  
+  /* Settings Body */
+  .settingsBody {
+    display: flex;
+    gap: 30px;
+  }
+  
+  /* Settings Sidebar */
+  .settingsSidebar {
+    width: 250px;
+    flex-shrink: 0;
+  }
+  
+  .sidebarNav {
+    background-color: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  
+  .navButton {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: transparent;
+    border: none;
+    border-left: 3px solid transparent;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--dark-gray);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .navButton svg {
+    margin-right: 10px;
+  }
+  
+  .navButton:hover {
+    background-color: rgba(74, 111, 220, 0.1);
+    color: var(--primary);
+  }
+  
+  .activeNavButton {
+    background-color: rgba(74, 111, 220, 0.1);
+    color: var(--primary);
+    border-left-color: var(--primary);
+  }
+  
+  /* Settings Content */
+  .settingsContent {
+    flex: 1;
+    background-color: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  
+  .settingsSection {
+    padding: 30px;
+  }
+  
+  .sectionTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--dark);
+    margin: 0 0 10px;
+  }
+  
+  .sectionDescription {
+    font-size: 14px;
+    color: var(--dark-gray);
+    margin: 0 0 30px;
+  }
+  
+  .formSection {
+    margin-bottom: 30px;
+  }
+  
+  .subsectionTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dark);
+    margin: 0 0 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--light-gray);
+  }
+  
+  /* Form Elements */
+  .formGroup {
+    margin-bottom: 20px;
+  }
+  
+  .formGroup label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 8px;
+  }
+  
+  .textInput, 
+  .selectInput, 
+  .textareaInput {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--dark);
+    transition: all 0.3s ease;
+  }
+  
+  .textInput:focus, 
+  .selectInput:focus, 
+  .textareaInput:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(74, 111, 220, 0.2);
+  }
+  
+  .inputNote {
+    font-size: 12px;
+    color: var(--gray);
+    margin-top: 5px;
+  }
+  
+  /* Toggle Switch */
+  .toggleOption {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .toggleInfo {
+    flex: 1;
+  }
+  
+  .toggleTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dark);
+    margin: 0 0 5px;
+  }
+  
+  .toggleDescription {
+    font-size: 12px;
+    color: var(--dark-gray);
+    margin: 0;
+  }
+  
+  .toggleSwitch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+  }
+  
+  .toggleSwitch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--light-gray);
+    transition: .4s;
+    border-radius: 34px;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+  }
+  
+  input:checked + .slider {
+    background-color: var(--primary);
+  }
+  
+  input:focus + .slider {
+    box-shadow: 0 0 0 2px rgba(74, 111, 220, 0.2);
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(24px);
+  }
+  
+  /* Checkbox Option */
+  .checkboxOption {
+    display: flex;
+    margin-bottom: 15px;
+  }
+  
+  .checkboxOption input[type="checkbox"] {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+  }
+  
+  .checkboxOption label {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .checkboxGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .optionTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dark);
+  }
+  
+  .optionDescription {
+    font-size: 12px;
+    color: var(--dark-gray);
+  }
+  
+  /* Radio Button Group */
+  .radioGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .radioOption {
+    display: flex;
+    align-items: flex-start;
+  }
+  
+  .radioOption input[type="radio"] {
+    margin-right: 10px;
+    margin-top: 2px;
+    width: 18px;
+    height: 18px;
+  }
+  
+  .radioOption label {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Buttons */
+  .formActions {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px;
+  }
+  
+  .primaryButton {
+    background: var(--gradient-bg);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .primaryButton:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .secondaryButton {
+    background-color: var(--white);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .secondaryButton:hover {
+    background-color: rgba(74, 111, 220, 0.1);
+  }
+  
+  .dangerButton {
+    background-color: var(--danger);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .dangerButton:hover {
+    background-color: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 10px rgba(239, 68, 68, 0.2);
+  }
+  
+  .textButton {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.3s ease;
+  }
+  
+  .textButton:hover {
+    color: #3d5ec7;
+    text-decoration: underline;
+  }
+  
+  /* Password Section */
+  .passwordSection {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--light);
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  .passwordInfo p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--dark-gray);
+  }
+  
+  /* Sessions List */
+  .sessionsList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .sessionItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+  }
+  
+  .sessionInfo {
+    flex: 1;
+  }
+  
+  .deviceName {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dark);
+    margin: 0 0 5px;
+  }
+  
+  .sessionDetails {
+    font-size: 12px;
+    color: var(--dark-gray);
+    margin: 0;
+  }
+  
+  .activeBadge {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--success);
+    background-color: rgba(34, 197, 94, 0.1);
+    padding: 3px 8px;
+    border-radius: 12px;
+  }
+  
+  /* Payment Methods */
+  .paymentMethodsList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .paymentMethod {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+  }
+  
+  .paymentMethodInfo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .paymentMethodIcon {
+    width: 40px;
+    height: 40px;
+    background-color: var(--light);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+  }
+  
+  .paymentMethodDetails {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .paymentMethodName {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dark);
+    margin: 0 0 5px;
+  }
+  
+  .paymentMethodExpiry {
+    font-size: 12px;
+    color: var(--dark-gray);
+    margin: 0;
+  }
+  
+  .paymentMethodActions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .defaultBadge {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--primary);
+    background-color: rgba(74, 111, 220, 0.1);
+    padding: 3px 8px;
+    border-radius: 12px;
+  }
+  
+  /* Billing History */
+  .billingHistory {
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .billingHistoryHeader {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr 1fr;
+    gap: 10px;
+    padding: 12px 15px;
+    background-color: var(--light);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--dark-gray);
+    border-bottom: 1px solid var(--light-gray);
+  }
+  
+  .billingHistoryItem {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr 1fr;
+    gap: 10px;
+    padding: 12px 15px;
+    font-size: 14px;
+    color: var(--dark);
+    border-bottom: 1px solid var(--light-gray);
+  }
+  
+  .billingHistoryItem:last-child {
+    border-bottom: none;
+  }
+  
+  /* Theme Selector */
+  .themeSelector {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .themeOption {
+    position: relative;
+    width: 120px;
+  }
+  
+  .themeOption input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .themeOption label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  
+  .themePreview {
+    width: 100%;
+    height: 90px;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .themePreviewHeader {
+    width: 100%;
+  }
+  
+  .themePreviewContent {
+    padding: 10px;
+  }

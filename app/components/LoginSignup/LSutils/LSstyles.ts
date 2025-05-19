@@ -1,0 +1,26 @@
+//LSstyles.ts
+export const styles = {
+  root: {
+    "--primary": "#4A6FDC",
+    "--secondary": "#FF7E5F",
+    "--accent": "#2DD4BF",
+    "--dark": "#2A3347",
+    "--light": "#F8FAFC",
+    "--white": "#FFFFFF",
+    "--gradient-bg": "linear-gradient(135deg, #4A6FDC 0%, #2DD4BF 100%)",
+    "--shadow-sm": "0 2px 10px rgba(0, 0, 0, 0.05)",
+    "--shadow-md": "0 4px 20px rgba(0, 0, 0, 0.08)",
+    "--shadow-lg": "0 15px 30px rgba(0, 0, 0, 0.15)",
+    "--gray-50": "#F9FAFB",
+    "--gray-100": "#F3F4F6",
+    "--gray-200": "#E5E7EB",
+    "--gray-300": "#D1D5DB",
+    "--gray-400": "#9CA3AF",
+    "--gray-500": "#6B7280",
+    "--gray-600": "#4B5563",
+    "--gray-700": "#374151",
+    "--gray-800": "#1F2937",
+    "--gray-900": "#111827",
+    "--error": "#EF4444",
+  } as React.CSSProperties,
+};

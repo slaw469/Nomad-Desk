@@ -1,0 +1,668 @@
+.interestTag {
+    font-size: 12px;
+    color: var(--primary);
+    background-color: rgba(74, 111, 220, 0.1);
+    padding: 4px 10px;
+    border-radius: 12px;
+  }
+  
+  .connectionMutual {
+    font-size: 13px;
+    color: var(--gray);
+    margin: 0 0 5px;
+  }
+  
+  .mutualCount {
+    font-weight: 600;
+    color: var(--dark-gray);
+  }
+  
+  .lastActive {
+    font-size: 12px;
+    color: var(--gray);
+    margin: 0;
+    font-style: italic;
+  }
+  
+  .connectionActions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 120px;
+  }
+  
+  /* Connection Action Buttons */
+  .messageButton,
+  .scheduleButton,
+  .removeButton,
+  .acceptButton,
+  .ignoreButton,
+  .connectButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-decoration: none;
+  }
+  
+  .messageButton {
+    background-color: var(--primary);
+    color: var(--white);
+    border: none;
+  }
+  
+  .messageButton:hover {
+    background-color: #3d5ec7;
+    transform: translateY(-2px);
+  }
+  
+  .scheduleButton {
+    background-color: var(--accent);
+    color: var(--white);
+    border: none;
+  }
+  
+  .scheduleButton:hover {
+    background-color: #25b9a7;
+    transform: translateY(-2px);
+  }
+  
+  .removeButton {
+    background-color: transparent;
+    border: 1px solid var(--light-gray);
+    color: var(--dark-gray);
+  }
+  
+  .removeButton:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    border-color: var(--danger);
+  }
+  
+  .acceptButton {
+    background-color: var(--success);
+    color: var(--white);
+    border: none;
+  }
+  
+  .acceptButton:hover {
+    background-color: #0ca678;
+    transform: translateY(-2px);
+  }
+  
+  .ignoreButton {
+    background-color: transparent;
+    border: 1px solid var(--light-gray);
+    color: var(--dark-gray);
+  }
+  
+  .ignoreButton:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    border-color: var(--danger);
+  }
+  
+  .connectButton {
+    background: var(--gradient-bg);
+    color: var(--white);
+    border: none;
+  }
+  
+  .connectButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(74, 111, 220, 0.3);
+  }
+  
+  /* Empty State */
+  .emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+  }
+  
+  .emptyStateIcon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-color: rgba(74, 111, 220, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: var(--primary);
+  }
+  
+  .emptyStateIcon svg {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .emptyStateTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--dark);
+    margin: 0 0 10px;
+  }
+  
+  .emptyStateMessage {
+    font-size: 14px;
+    color: var(--dark-gray);
+    margin: 0 0 20px;
+    max-width: 400px;
+  }
+  
+  .resetButton,
+  .findPeopleButton {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .resetButton {
+    background-color: transparent;
+    border: 1px solid var(--light-gray);
+    color: var(--dark-gray);
+  }
+  
+  .resetButton:hover {
+    background-color: rgba(156, 163, 175, 0.1);
+    color: var(--dark);
+  }
+  
+  .findPeopleButton {
+    background: var(--gradient-bg);
+    color: var(--white);
+    border: none;
+  }
+  
+  .findPeopleButton:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 992px) {
+    .networkContainer {
+      padding: 20px;
+    }
+    
+    .headerTop {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+    }
+    
+    .headerActions {
+      width: 100%;
+      justify-content: space-between;
+    }
+    
+    .searchInput {
+      width: 200px;
+    }
+    
+    .tabsContainer {
+      overflow-x: auto;
+      padding-bottom: 15px;
+      margin-bottom: -5px;
+    }
+    
+    .tabButton {
+      white-space: nowrap;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .networkContainer {
+      padding: 15px;
+    }
+    
+    .connectionCard {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    
+    .connectionAvatar {
+      margin-right: 0;
+      margin-bottom: 15px;
+    }
+    
+    .connectionInfo {
+      margin-bottom: 15px;
+      width: 100%;
+    }
+    
+    .connectionInterests {
+      justify-content: center;
+    }
+    
+    .connectionActions {
+      width: 100%;
+      min-width: unset;
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+    
+    .messageButton,
+    .scheduleButton,
+    .removeButton,
+    .acceptButton,
+    .ignoreButton,
+    .connectButton {
+      flex: 1;
+      min-width: 120px;
+    }
+    
+    .searchInput {
+      width: 100%;
+    }
+    
+    .headerActions {
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .searchContainer {
+      width: 100%;
+    }
+    
+    .searchInput {
+      width: 100%;
+    }
+    
+    .filterButton {
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .filterOptions {
+      justify-content: center;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .networkHeader {
+      padding: 15px;
+    }
+    
+    .networkContent {
+      padding: 15px;
+    }
+    
+    .connectionCard {
+      padding: 15px;
+    }
+    
+    .connectionActions {
+      flex-direction: column;
+    }
+    
+    .messageButton,
+    .scheduleButton,
+    .removeButton,
+    .acceptButton,
+    .ignoreButton,
+    .connectButton {
+      width: 100%;
+    }
+    
+    .filterButton span {
+      display: none;
+    }
+  }/* app/components/network/network.module.css */
+  :root {
+    --primary: #4A6FDC;
+    --secondary: #FF7E5F;
+    --accent: #2DD4BF;
+    --dark: #2A3347;
+    --light: #F8FAFC;
+    --white: #FFFFFF;
+    --gradient-bg: linear-gradient(135deg, #4A6FDC 0%, #2DD4BF 100%);
+    --light-gray: #E5E7EB;
+    --gray: #9CA3AF;
+    --dark-gray: #4B5563;
+    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 15px 30px rgba(0, 0, 0, 0.15);
+    --success: #10B981;
+    --danger: #EF4444;
+    --warning: #F59E0B;
+  }
+  
+  /* Network Container */
+  .networkContainer {
+    width: 100%;
+    padding: 30px;
+    background-color: var(--light);
+    min-height: calc(100vh - 60px);
+  }
+  
+  /* Network Header */
+  .networkHeader {
+    background-color: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .headerTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .networkTitle {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--dark);
+    margin: 0;
+  }
+  
+  .headerActions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  /* Search Container */
+  .searchContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .searchContainer svg {
+    position: absolute;
+    left: 10px;
+    color: var(--gray);
+  }
+  
+  .searchInput {
+    padding: 10px 35px 10px 35px;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    font-size: 14px;
+    width: 250px;
+    transition: all 0.3s ease;
+  }
+  
+  .searchInput:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(74, 111, 220, 0.2);
+  }
+  
+  .clearSearchButton {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .clearSearchButton:hover {
+    color: var(--dark-gray);
+  }
+  
+  /* Filter Button */
+  .filterButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    background-color: var(--white);
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--dark-gray);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .filterButton:hover {
+    background-color: rgba(74, 111, 220, 0.05);
+    border-color: var(--primary);
+  }
+  
+  .activeFilter {
+    background-color: rgba(74, 111, 220, 0.1);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  
+  .filterCount {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    background-color: var(--primary);
+    color: var(--white);
+    border-radius: 9px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 0 5px;
+  }
+  
+  /* Filters Panel */
+  .filtersPanel {
+    background-color: rgba(74, 111, 220, 0.05);
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .filterSection {
+    margin-bottom: 15px;
+  }
+  
+  .filterTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dark);
+    margin: 0 0 10px;
+  }
+  
+  .filterOptions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .filterOption {
+    padding: 6px 12px;
+    background-color: var(--white);
+    border: 1px solid var(--light-gray);
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--dark-gray);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .filterOption:hover {
+    background-color: rgba(74, 111, 220, 0.05);
+    border-color: var(--primary);
+  }
+  
+  .selectedFilter {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: var(--white);
+  }
+  
+  .selectedFilter:hover {
+    background-color: #3d5ec7;
+  }
+  
+  .filterActions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px;
+  }
+  
+  .clearFiltersButton {
+    padding: 8px 15px;
+    background-color: transparent;
+    border: 1px solid var(--light-gray);
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--dark-gray);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .clearFiltersButton:hover {
+    background-color: rgba(156, 163, 175, 0.1);
+    color: var(--dark);
+  }
+  
+  /* Tabs Container */
+  .tabsContainer {
+    display: flex;
+    gap: 10px;
+    border-bottom: 1px solid var(--light-gray);
+    padding-bottom: 10px;
+  }
+  
+  .tabButton {
+    padding: 8px 15px;
+    border: none;
+    background-color: transparent;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--dark-gray);
+    cursor: pointer;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .tabButton:hover {
+    background-color: rgba(74, 111, 220, 0.1);
+  }
+  
+  .activeTab {
+    background-color: var(--primary);
+    color: var(--white);
+  }
+  
+  .activeTab:hover {
+    background-color: var(--primary);
+  }
+  
+  .tabCount {
+    font-size: 12px;
+    font-weight: 700;
+    background-color: rgba(255, 255, 255, 0.3);
+    color: inherit;
+    border-radius: 10px;
+    padding: 2px 6px;
+    min-width: 20px;
+    text-align: center;
+  }
+  
+  /* Network Content */
+  .networkContent {
+    background-color: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    padding: 20px;
+    min-height: 400px;
+  }
+  
+  .connectionsList {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .connectionCard {
+    display: flex;
+    padding: 20px;
+    border: 1px solid var(--light-gray);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    align-items: flex-start;
+  }
+  
+  .connectionCard:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .connectionAvatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 20px;
+    flex-shrink: 0;
+  }
+  
+  .connectionAvatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .connectionInfo {
+    flex: 1;
+  }
+  
+  .connectionName {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--dark);
+    margin: 0 0 5px;
+  }
+  
+  .connectionProfession {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--primary);
+    margin: 0 0 5px;
+  }
+  
+  .connectionLocation {
+    font-size: 14px;
+    color: var(--dark-gray);
+    margin: 0 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .connectionInterests {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
