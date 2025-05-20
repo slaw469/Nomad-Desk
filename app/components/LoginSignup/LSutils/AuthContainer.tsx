@@ -1,12 +1,16 @@
-// app/components/LoginSignup/AuthContainer.tsx
+// app/components/LoginSignup/LSutils/AuthContainer.tsx
 import React, { useState } from 'react';
 import AuthImage from './AuthImage';
 import LoginForm from '../LoginForm';
 import SignupForm from './SignupForm';
 import styles from '../../../styles/loginSignup.module.css';
 
-const AuthContainer: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
+interface AuthContainerProps {
+  initialTab?: 'login' | 'signup';
+}
+
+const AuthContainer: React.FC<AuthContainerProps> = ({ initialTab = 'login' }) => {
+  const [activeTab, setActiveTab] = useState<'login' | 'signup'>(initialTab);
   
   return (
     <div className={styles.container}>

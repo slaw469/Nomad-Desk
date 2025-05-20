@@ -25,13 +25,13 @@ const PlaceholderPage = () => (
   </div>
 );
 
-// Define the root route
+// Define the root route with AuthProvider
 const rootRoute = new RootRoute({
   component: () => (
     <AuthProvider>
       <App />
     </AuthProvider>
-  ),
+  )
 });
 
 // Define the index route (landing page)

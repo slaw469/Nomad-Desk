@@ -11,10 +11,10 @@ const app = express();
 
 // CORS middleware with proper configuration
 app.use(cors({
-  origin: 'http://localhost:5173', // Vite's default port - change if needed
+  origin: '*', // For development only
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'x-auth-token'],
-  credentials: true // If you need to send cookies
+  allowedHeaders: ['Content-Type', 'x-auth-token', 'Authorization'],
+  credentials: true
 }));
 
 app.use(express.json());

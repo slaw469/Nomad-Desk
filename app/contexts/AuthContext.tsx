@@ -23,14 +23,24 @@ interface AuthContextType {
   clearError: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Create a default value for the context
+const defaultAuthContext: AuthContextType = {
+  user: null,
+  isAuthenticated: false,
+  isLoading: false,
+  error: null,
+  login: async () => { throw new Error('Auth provider not initialized'); },
+  signup: async () => { throw new Error('Auth provider not initialized'); },
+  logout: () => {},
+  socialLogin: async () => { throw new Error('Auth provider not initialized'); },
+  clearError: () => {}
+};
+
+// Create context with default value
+const AuthContext = createContext<AuthContextType>(defaultAuthContext);
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return useContext(AuthContext);
 };
 
 interface AuthProviderProps {

@@ -9,7 +9,10 @@ import { useAuth } from '../../../contexts/AuthContext';
 const LSPage: React.FC = () => {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
-  const isSignupPage = router.state.location.pathname === '/signup';
+  
+  // Get current path and set initial tab accordingly
+  const currentPath = router.state.location.pathname;
+  const initialTab = currentPath === '/signup' ? 'signup' : 'login';
 
   // If already authenticated, redirect to dashboard
   useEffect(() => {
@@ -24,7 +27,7 @@ const LSPage: React.FC = () => {
     <div className={styles.page}>
       <LSHeader />
       <div className={styles.content}>
-        <AuthContainer />
+        <AuthContainer initialTab={initialTab} />
       </div>
     </div>
   );
