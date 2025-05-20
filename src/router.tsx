@@ -1,21 +1,20 @@
-
 // src/router.tsx
-import { Router, Route, RootRoute } from '@tanstack/react-router'
-import LandingPage from '../app/components/LandingPageComponents/components/LandingPage'
-import WorkspaceList from '../app/components/workspaces/WorkSpaceIndex'
-import WorkspaceDetail from '../app/components/workspaces/$workspaceId/WSindex'
-import FeaturesPage from '../app/components/Features/FeaturesPage'
-import Dashboard from '../app/components/dashboard/Dashboard'
-import Profile from '../app/components/dashboard/sidebar/Profile'
-import Settings from '../app/components/dashboard/sidebar/Settings'
-import Notifications from '../app/components/dashboard/sidebar/Notifications'
-import Network from '../app/components/dashboard/sidebar/Network'
-import App from './App'
-import LSpage from '../app/components/LoginSignup/LSutils/LSpage'
-import NomadDeskAbout from '../app/components/About/NomadDeskAbout'
-import ProtectedRoute from '../app/components/dashboard/ProtectedRoute'
-import { AuthProvider } from '../app/components/dashboard/AuthContext'
-import React from 'react'
+import { Router, Route, RootRoute } from '@tanstack/react-router';
+import React from 'react';
+import App from './App';
+import LandingPage from '../app/components/LandingPageComponents/components/LandingPage';
+import WorkspaceList from '../app/components/workspaces/WorkSpaceIndex';
+import WorkspaceDetail from '../app/components/workspaces/$workspaceId/WSindex';
+import FeaturesPage from '../app/components/Features/FeaturesPage';
+import Dashboard from '../app/components/dashboard/Dashboard';
+import Profile from '../app/components/dashboard/sidebar/Profile';
+import Settings from '../app/components/dashboard/sidebar/Settings';
+import Notifications from '../app/components/dashboard/sidebar/Notifications';
+import Network from '../app/components/dashboard/sidebar/Network';
+import LSpage from '../app/components/LoginSignup/LSutils/LSpage';
+import NomadDeskAbout from '../app/components/About/NomadDeskAbout';
+import ProtectedRoute from '../app/components/ProtectedRoute';
+import { AuthProvider } from '../app/contexts/AuthContext';
 import '../app/styles/font-fix.css';
 
 // Placeholder component for routes that don't have components yet
@@ -24,7 +23,7 @@ const PlaceholderPage = () => (
     <h1>Coming Soon</h1>
     <p>This page is under construction.</p>
   </div>
-)
+);
 
 // Define the root route
 const rootRoute = new RootRoute({
@@ -33,14 +32,14 @@ const rootRoute = new RootRoute({
       <App />
     </AuthProvider>
   ),
-})
+});
 
 // Define the index route (landing page)
 const indexRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/',
   component: LandingPage,
-})
+});
 
 // Define the dashboard route (protected)
 const dashboardRoute = new Route({
@@ -51,9 +50,9 @@ const dashboardRoute = new Route({
       <Dashboard />
     </ProtectedRoute>
   ),
-})
+});
 
-// Define the profile route (protected)
+// Define all the other protected routes
 const profileRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'profile',
@@ -62,9 +61,8 @@ const profileRoute = new Route({
       <Profile />
     </ProtectedRoute>
   ),
-})
+});
 
-// Define the settings route (protected)
 const settingsRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'settings',
@@ -73,9 +71,8 @@ const settingsRoute = new Route({
       <Settings />
     </ProtectedRoute>
   ),
-})
+});
 
-// Define the notifications route (protected)
 const notificationsRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'notifications',
@@ -84,9 +81,8 @@ const notificationsRoute = new Route({
       <Notifications />
     </ProtectedRoute>
   ),
-})
+});
 
-// Define the network route (protected)
 const networkRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'network',
@@ -95,9 +91,8 @@ const networkRoute = new Route({
       <Network />
     </ProtectedRoute>
   ),
-})
+});
 
-// Define the workspaces list route (protected)
 const workspacesRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'workspaces',
@@ -106,9 +101,8 @@ const workspacesRoute = new Route({
       <WorkspaceList />
     </ProtectedRoute>
   ),
-})
+});
 
-// Define the workspace detail route with dynamic parameter (protected)
 const workspaceDetailRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'workspaces/$workspaceId',
@@ -117,38 +111,39 @@ const workspaceDetailRoute = new Route({
       <WorkspaceDetail />
     </ProtectedRoute>
   ),
-})
+});
 
-// Define additional routes
+// Define additional public routes
 const howItWorksRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'how-it-works',
   component: PlaceholderPage,
-})
+});
 
 const featuresRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'features',
   component: FeaturesPage,
-})
+});
 
 const aboutRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'about',
   component: NomadDeskAbout,
-})
+});
 
+// Auth routes
 const loginRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'login',
   component: LSpage,
-})
+});
 
 const signupRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'signup',
   component: LSpage,
-})
+});
 
 const createGroupRoute = new Route({
   getParentRoute: () => rootRoute,
@@ -158,7 +153,7 @@ const createGroupRoute = new Route({
       <PlaceholderPage />
     </ProtectedRoute>
   ),
-})
+});
 
 // Create the route tree using the routes
 const routeTree = rootRoute.addChildren([
@@ -176,10 +171,10 @@ const routeTree = rootRoute.addChildren([
   loginRoute,
   signupRoute,
   createGroupRoute,
-])
+]);
 
 // Create the router
-export const router = new Router({ routeTree })
+export const router = new Router({ routeTree });
 
 // Register the router for type safety
 declare module '@tanstack/react-router' {

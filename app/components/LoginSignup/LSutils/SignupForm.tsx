@@ -1,31 +1,33 @@
+// app/components/LoginSignup/SignupForm.tsx
 import React, { useState, useEffect } from 'react';
 import Divider from '../Divider';
 import SocialButton from '../SocialButton';
 import styles from '../../../styles/loginSignup.module.css';
+import { useAuth } from '../../../contexts/AuthContext';
 
 interface SignupFormProps {
-  onSubmit: (data: any) => void | Promise<void>;
   onSwitchToLogin: () => void;
-  isLoading?: boolean;
-  onSocialLogin?: (provider: string) => void;
 }
 
-const SignupForm: React.FC<SignupFormProps> = ({ 
-  onSubmit, 
-  onSwitchToLogin,
-  isLoading = false,
-  onSocialLogin 
-}) => {
+const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
+  const { signup, socialLogin, isLoading, error, clearError } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [passwordsMatch, setPasswordsMatch] = useState(true);
-  const [error, setError] = useState('');
+  const [formError, setFormError] = useState('');
 
+  // Update error from auth context
   useEffect(() => {
-    // Validate passwords when either password field changes
+    if (error) {
+      setFormError(error);
+    }
+  }, [error]);
+
+  // Check if passwords match
+  useEffect(() => {
     if (confirmPassword) {
       setPasswordsMatch(password === confirmPassword);
     } else {
@@ -35,36 +37,43 @@ const SignupForm: React.FC<SignupFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    clearError();
+    setFormError('');
     
     // Basic validation
     if (!passwordsMatch) {
-      setError('Passwords do not match');
+      setFormError('Passwords do not match');
       return;
     }
 
     if (!agreeToTerms) {
-      setError('You must agree to the terms of service');
+      setFormError('You must agree to the terms of service');
       return;
     }
     
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters long');
+    if (password.length < 6) {
+      setFormError('Password must be at least 6 characters long');
       return;
     }
     
     try {
-      await onSubmit({ name, email, password, agreeToTerms });
+      await signup({ name, email, password });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during signup');
+      // Error is handled by the auth context and displayed via the error state
     }
+  };
+
+  const handleSocialLoginClick = (provider: string) => {
+    clearError();
+    setFormError('');
+    socialLogin(provider);
   };
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
-      {error && (
+      {formError && (
         <div className={styles.formError}>
-          {error}
+          {formError}
         </div>
       )}
       
@@ -108,7 +117,7 @@ const SignupForm: React.FC<SignupFormProps> = ({
           type="password"
           id="signup-password"
           className={styles.formInput}
-          placeholder="At least 8 characters"
+          placeholder="At least 6 characters"
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -164,12 +173,12 @@ const SignupForm: React.FC<SignupFormProps> = ({
         <SocialButton 
           provider="google" 
           disabled={isLoading}
-          onClick={() => onSocialLogin && onSocialLogin('google')}
+          onClick={() => handleSocialLoginClick('google')}
         />
         <SocialButton 
           provider="facebook" 
           disabled={isLoading}
-          onClick={() => onSocialLogin && onSocialLogin('facebook')}
+          onClick={() => handleSocialLoginClick('facebook')}
         />
       </div>
       
@@ -181,6 +190,7 @@ const SignupForm: React.FC<SignupFormProps> = ({
           onClick={(e) => {
             e.preventDefault();
             if (!isLoading) {
+              clearError();
               onSwitchToLogin();
             }
           }}

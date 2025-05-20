@@ -1,10 +1,12 @@
-// components/Header.tsx
+// app/components/LandingPageComponents/components/Header.tsx
 import React from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import styles from "../../../styles/landing.module.css";
+import { useAuth } from '../../../contexts/AuthContext';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, logout } = useAuth();
 
   // Handle scrolling to section if on same page
   const scrollToSection = (sectionId: string, path: string) => {
@@ -26,6 +28,11 @@ const Header: React.FC = () => {
         }
       }, 100);
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate({ to: '/' });
   };
 
   return (
@@ -56,8 +63,23 @@ const Header: React.FC = () => {
       </div>
       
       <div className={styles.ctaButtons}>
-        <Link to="/login" className={`${styles.ctaButton} ${styles.secondaryButton}`}>Log in</Link>
-        <Link to="/signup" className={`${styles.ctaButton} ${styles.primaryButton}`}>Sign up</Link>
+        {isAuthenticated ? (
+          <>
+            <Link to="/dashboard" className={`${styles.ctaButton} ${styles.secondaryButton}`}>Dashboard</Link>
+            <button 
+              onClick={handleLogout} 
+              className={`${styles.ctaButton} ${styles.primaryButton}`}
+              style={{ border: 'none', cursor: 'pointer' }}
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/login" className={`${styles.ctaButton} ${styles.secondaryButton}`}>Log in</Link>
+            <Link to="/signup" className={`${styles.ctaButton} ${styles.primaryButton}`}>Sign up</Link>
+          </>
+        )}
       </div>
     </header>
   );

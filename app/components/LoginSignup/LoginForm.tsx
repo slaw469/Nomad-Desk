@@ -1,48 +1,57 @@
-import React, { useState } from 'react';
+// app/components/LoginSignup/LoginForm.tsx
+import React, { useState, useEffect } from 'react';
 import Divider from './Divider';
 import SocialButton from './SocialButton';
 import styles from '../../styles/loginSignup.module.css';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface LoginFormProps {
-  onSubmit: (data: any) => void | Promise<void>;
   onSwitchToSignup: () => void;
-  isLoading?: boolean;
-  onSocialLogin?: (provider: string) => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ 
-  onSubmit, 
-  onSwitchToSignup,
-  isLoading = false,
-  onSocialLogin 
-}) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
+  const { login, socialLogin, isLoading, error, clearError } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState('');
+  const [formError, setFormError] = useState('');
+
+  // Clear form error when auth context error changes
+  useEffect(() => {
+    if (error) {
+      setFormError(error);
+    }
+  }, [error]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    clearError();
+    setFormError('');
     
     // Basic validation
     if (!email || !password) {
-      setError('Please enter both email and password');
+      setFormError('Please enter both email and password');
       return;
     }
     
     try {
-      await onSubmit({ email, password, rememberMe });
+      await login({ email, password, rememberMe });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during login');
+      // Error is handled by the auth context and displayed via the error state
     }
+  };
+
+  const handleSocialLoginClick = (provider: string) => {
+    clearError();
+    setFormError('');
+    socialLogin(provider);
   };
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
-      {error && (
+      {formError && (
         <div className={styles.formError}>
-          {error}
+          {formError}
         </div>
       )}
       
@@ -107,12 +116,12 @@ const LoginForm: React.FC<LoginFormProps> = ({
         <SocialButton 
           provider="google" 
           disabled={isLoading}
-          onClick={() => onSocialLogin && onSocialLogin('google')}
+          onClick={() => handleSocialLoginClick('google')}
         />
         <SocialButton 
           provider="facebook" 
           disabled={isLoading}
-          onClick={() => onSocialLogin && onSocialLogin('facebook')}
+          onClick={() => handleSocialLoginClick('facebook')}
         />
       </div>
       
@@ -124,6 +133,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
           onClick={(e) => {
             e.preventDefault();
             if (!isLoading) {
+              clearError();
               onSwitchToSignup();
             }
           }}

@@ -1,3 +1,4 @@
+// src/App.tsx
 import { Outlet } from '@tanstack/react-router'
 import './App.css'
 

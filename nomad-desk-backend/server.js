@@ -1,3 +1,4 @@
+// nomad-desk-backend/server.js
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -8,8 +9,14 @@ dotenv.config();
 // Initialize app
 const app = express();
 
-// Middleware
-app.use(cors());
+// CORS middleware with proper configuration
+app.use(cors({
+  origin: 'http://localhost:5173', // Vite's default port - change if needed
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'x-auth-token'],
+  credentials: true // If you need to send cookies
+}));
+
 app.use(express.json());
 
 // Connect to database
