@@ -10,6 +10,7 @@ interface AuthResponse {
     id: string;
     name: string;
     email: string;
+    avatar?: string;
   };
 }
 
@@ -49,18 +50,38 @@ const fetchApi = async <T>(
   };
 
   try {
+    console.log(`Fetching ${method} ${API_BASE_URL}${endpoint}`);
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    const responseData = await response.json();
-
+    
+    // If status is 401 Unauthorized and this is a getCurrentUser request,
+    // return null instead of throwing an error
+    if (response.status === 401 && endpoint === '/auth/user') {
+      console.log('User not authenticated, returning null');
+      return null as T;
+    }
+    
+    // Try to parse response as JSON
+    let responseData;
+    try {
+      responseData = await response.json();
+    } catch (e) {
+      // If response is not JSON, use an empty object
+      responseData = {};
+    }
+    
     if (!response.ok) {
-      throw new Error(responseData.message || 'Something went wrong');
+      const errorMessage = responseData.message || `Error: ${response.status} ${response.statusText}`;
+      console.error('API error:', errorMessage);
+      throw new Error(errorMessage);
     }
 
     return responseData as T;
   } catch (error) {
     if (error instanceof Error) {
+      console.error('API fetch error:', error.message);
       throw error;
     }
+    console.error('Unexpected API error:', error);
     throw new Error('An unexpected error occurred');
   }
 };
@@ -78,7 +99,12 @@ export const authService = {
   },
 
   // Get current user
-  getCurrentUser: async (token: string): Promise<{ id: string; name: string; email: string }> => {
+  getCurrentUser: async (token: string): Promise<{ id: string; name: string; email: string; avatar?: string } | null> => {
     return fetchApi('/auth/user', 'GET', undefined, token);
   }
+};
+
+// Export default for convenience
+export default {
+  auth: authService
 };

@@ -1,3 +1,4 @@
+// app/components/LoginSignup/SocialButton.tsx
 import React from 'react';
 import styles from '../../styles/loginSignup.module.css';
 
@@ -9,13 +10,19 @@ interface SocialButtonProps {
 
 const SocialButton: React.FC<SocialButtonProps> = ({ provider, disabled = false, onClick }) => {
   const handleClick = () => {
-    if (!disabled && onClick) {
-      onClick();
-    } else if (!disabled) {
-      // Default handler if no onClick provided
-      console.log(`Login with ${provider}`);
-      // You could implement the actual social login logic here
-      // or in the parent component
+    if (!disabled) {
+      if (onClick) {
+        onClick();
+      } else {
+        // Save the current path for redirect after login
+        const currentPath = window.location.pathname;
+        if (currentPath !== '/' && currentPath !== '/login' && currentPath !== '/signup') {
+          localStorage.setItem('redirectAfterLogin', currentPath);
+        }
+        
+        // Redirect to backend OAuth endpoint
+        window.location.href = `http://localhost:5001/api/auth/${provider}`;
+      }
     }
   };
 

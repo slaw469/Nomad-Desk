@@ -12,6 +12,7 @@ import Settings from '../app/components/dashboard/sidebar/Settings';
 import Notifications from '../app/components/dashboard/sidebar/Notifications';
 import Network from '../app/components/dashboard/sidebar/Network';
 import WrappedLSPage from '../app/components/LoginSignup/WrappedLSPage';
+import OAuthCallback from '../app/components/LoginSignup/OAuthCallback';
 import NomadDeskAbout from '../app/components/About/NomadDeskAbout';
 import ProtectedRoute from '../app/components/ProtectedRoute';
 import '../app/styles/font-fix.css';
@@ -127,7 +128,7 @@ const aboutRoute = new Route({
   component: NomadDeskAbout,
 });
 
-// Auth routes - Using WrappedLSPage instead of LSpage
+// Auth routes
 const loginRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'login',
@@ -138,6 +139,13 @@ const signupRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'signup',
   component: WrappedLSPage,
+});
+
+// OAuth callback route
+const oauthCallbackRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: 'oauth-callback',
+  component: OAuthCallback,
 });
 
 const createGroupRoute = new Route({
@@ -165,6 +173,7 @@ const routeTree = rootRoute.addChildren([
   aboutRoute,
   loginRoute,
   signupRoute,
+  oauthCallbackRoute, // Added OAuth callback route
   createGroupRoute,
 ]);
 

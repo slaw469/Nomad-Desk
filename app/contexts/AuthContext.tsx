@@ -1,7 +1,5 @@
-// app/contexts/AuthContext.tsx - Replace useNavigate with window.location
+// app/contexts/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-// Remove this import:
-// import { useNavigate } from '@tanstack/react-router';
 import { authService, LoginData, SignupData } from '../services/api';
 
 interface User {
@@ -9,6 +7,7 @@ interface User {
   email?: string;
   name?: string;
   provider?: string;
+  avatar?: string;
   [key: string]: any; // Allow any additional properties
 }
 
@@ -48,14 +47,14 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// Define backend URL - use environment variable if available or fallback to localhost
+const BACKEND_URL = 'http://localhost:5001';
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  // Remove useNavigate and use window.location instead
-  // const navigate = useNavigate();
   
   // Helper function to navigate to a path
   const navigateTo = (path: string) => {
@@ -72,15 +71,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
           // Verify token validity by getting current user
           const userData = await authService.getCurrentUser(token);
-          setUser(userData);
-          setIsAuthenticated(true);
+          if (userData) {
+            setUser(userData);
+            setIsAuthenticated(true);
+          } else {
+            // Clear invalid data
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+          }
         } catch (err) {
+          console.log('Token validation failed, clearing auth data');
           // If token is invalid, clear storage
           localStorage.removeItem('token');
           localStorage.removeItem('user');
         }
       }
       
+      // Always set loading to false, even if token verification fails
       setIsLoading(false);
     };
     
@@ -150,47 +157,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Social login placeholder - replace with actual social auth logic
+  // Social login - redirects to backend OAuth endpoint
   const socialLogin = async (provider: string) => {
-    setIsLoading(true);
-    setError(null);
-    
     try {
-      // Placeholder for social login - in a real app this would call your backend
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Save the current path for redirect after login
+      const currentPath = window.location.pathname;
+      if (currentPath !== '/' && currentPath !== '/login' && currentPath !== '/signup') {
+        localStorage.setItem('redirectAfterLogin', currentPath);
+      }
       
-      const mockUser = { provider, name: `${provider} User`, id: Date.now().toString() };
-      
-      // For demo purposes, store mock auth info
-      localStorage.setItem('token', 'mock-social-token');
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      
-      setUser(mockUser);
-      setIsAuthenticated(true);
-      
-      // Navigate to dashboard after successful social login
-      navigateTo('/dashboard');
+      // Redirect to backend OAuth route
+      window.location.href = `${BACKEND_URL}/api/auth/${provider}`;
     } catch (err) {
+      console.error(`${provider} login error:`, err);
       if (err instanceof Error) {
         setError(err.message);
       } else {
         setError(`An error occurred during ${provider} login`);
       }
       throw err;
-    } finally {
-      setIsLoading(false);
     }
   };
 
   // Logout user
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('redirectAfterLogin');
-    
-    setUser(null);
-    setIsAuthenticated(false);
-    navigateTo('/');
+    try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('redirectAfterLogin');
+      
+      setUser(null);
+      setIsAuthenticated(false);
+      navigateTo('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const value = {

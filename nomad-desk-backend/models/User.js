@@ -1,3 +1,5 @@
+// nomad-desk-backend/models/User.js
+
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
@@ -12,7 +14,18 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    // Allow null for social login users
+    required: function() {
+      return !this.googleId;
+    }
+  },
+  googleId: {
+    type: String,
+    default: null
+  },
+  avatar: {
+    type: String,
+    default: null
   },
   date: {
     type: Date,
