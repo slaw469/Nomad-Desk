@@ -1,6 +1,7 @@
-// app/contexts/AuthContext.tsx
+// app/contexts/AuthContext.tsx - Replace useNavigate with window.location
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+// Remove this import:
+// import { useNavigate } from '@tanstack/react-router';
 import { authService, LoginData, SignupData } from '../services/api';
 
 interface User {
@@ -52,7 +53,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
+  
+  // Remove useNavigate and use window.location instead
+  // const navigate = useNavigate();
+  
+  // Helper function to navigate to a path
+  const navigateTo = (path: string) => {
+    window.location.href = path;
+  };
 
   // Check if user is logged in on initial load
   useEffect(() => {
@@ -100,7 +108,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsAuthenticated(true);
       
       // Navigate to dashboard after successful login
-      navigate({ to: '/dashboard' });
+      navigateTo('/dashboard');
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -129,7 +137,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsAuthenticated(true);
       
       // Navigate to dashboard after successful signup
-      navigate({ to: '/dashboard' });
+      navigateTo('/dashboard');
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -161,7 +169,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsAuthenticated(true);
       
       // Navigate to dashboard after successful social login
-      navigate({ to: '/dashboard' });
+      navigateTo('/dashboard');
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -182,7 +190,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     setUser(null);
     setIsAuthenticated(false);
-    navigate({ to: '/' });
+    navigateTo('/');
   };
 
   const value = {

@@ -11,10 +11,9 @@ import Profile from '../app/components/dashboard/sidebar/Profile';
 import Settings from '../app/components/dashboard/sidebar/Settings';
 import Notifications from '../app/components/dashboard/sidebar/Notifications';
 import Network from '../app/components/dashboard/sidebar/Network';
-import LSpage from '../app/components/LoginSignup/LSutils/LSpage';
+import WrappedLSPage from '../app/components/LoginSignup/WrappedLSPage';
 import NomadDeskAbout from '../app/components/About/NomadDeskAbout';
 import ProtectedRoute from '../app/components/ProtectedRoute';
-import { AuthProvider } from '../app/contexts/AuthContext';
 import '../app/styles/font-fix.css';
 
 // Placeholder component for routes that don't have components yet
@@ -25,13 +24,9 @@ const PlaceholderPage = () => (
   </div>
 );
 
-// Define the root route with AuthProvider
+// Define the root route
 const rootRoute = new RootRoute({
-  component: () => (
-    <AuthProvider>
-      <App />
-    </AuthProvider>
-  )
+  component: App
 });
 
 // Define the index route (landing page)
@@ -132,17 +127,17 @@ const aboutRoute = new Route({
   component: NomadDeskAbout,
 });
 
-// Auth routes
+// Auth routes - Using WrappedLSPage instead of LSpage
 const loginRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'login',
-  component: LSpage,
+  component: WrappedLSPage,
 });
 
 const signupRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'signup',
-  component: LSpage,
+  component: WrappedLSPage,
 });
 
 const createGroupRoute = new Route({

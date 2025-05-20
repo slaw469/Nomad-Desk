@@ -1,7 +1,7 @@
 // app/components/profile/Profile.tsx
 import React, { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
-import { useAuth } from '../AuthContext';
+import { useAuth } from "../../../contexts/AuthContext";
 import styles from './sidebarstyles/profile.module.css';
 import { useNavigate } from '@tanstack/react-router';
 

@@ -1,7 +1,7 @@
 // app/components/dashboard/Dashboard.tsx
 import React, { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
-import { useAuth } from './AuthContext';
+import { useAuth } from "../../contexts/AuthContext";
 import styles from './dashboard.module.css';
 
 // Import icons (using the same icons you already have)

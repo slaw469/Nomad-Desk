@@ -1,6 +1,6 @@
 // app/components/settings/Settings.tsx
 import React, { useState } from 'react';
-import { useAuth } from '../AuthContext';
+import { useAuth } from "../../../contexts/AuthContext";
 import styles from './sidebarstyles/settings.module.css';
 
 // Icons
