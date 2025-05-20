@@ -1,4 +1,6 @@
-/* loginSignup.module.css */
+/* Fixed loginSignup.module.css */
+/* This addresses the container flex direction issue */
+
 :root {
     --primary: #4A6FDC;
     --secondary: #FF7E5F;
@@ -56,16 +58,12 @@
     display: flex;
     overflow: hidden;
     min-height: 600px;
-    flex-direction: column;
+    
+    /* The key fix - make this row by default */
+    flex-direction: row;
 }
 
-@media (min-width: 768px) {
-    .container {
-        flex-direction: row;
-    }
-}
-
-/* Auth Image */
+/* Fix the image component to take full height in row layout */
 .image {
     flex: 1;
     background: var(--gradient-bg);
@@ -114,6 +112,18 @@
     flex-direction: column;
 }
 
+/* Media query for mobile devices - switch to column layout */
+@media (max-width: 767px) {
+    .container {
+        flex-direction: column;
+    }
+    
+    .image {
+        min-height: 200px; /* Shorter on mobile */
+    }
+}
+
+/* Rest of the CSS remains the same */
 /* Auth Tabs */
 .tabs {
     display: flex;

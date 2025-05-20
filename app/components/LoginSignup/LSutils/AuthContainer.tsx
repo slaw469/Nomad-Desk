@@ -98,9 +98,12 @@ const AuthContainer: React.FC = () => {
   };
 
   return (
+    // Fixed: This container div is now set to row layout by default in CSS
     <div className={styles.container}>
+      {/* The AuthImage component will be on the left in row layout */}
       <AuthImage />
       
+      {/* The form container will be on the right in row layout */}
       <div className={styles.formContainer}>
         <div className={styles.tabs}>
           <div 

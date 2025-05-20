@@ -15,11 +15,11 @@ const LSPage: React.FC = () => {
         <AuthContainer />
         {isSignupPage ? (
           <div className={styles.pageInfo}>
-            <p>Join NomadDesk today to find the perfect workspace for your needs.</p>
+      
           </div>
         ) : (
           <div className={styles.pageInfo}>
-            <p>Welcome back to NomadDesk. Log in to access your account.</p>
+           
           </div>
         )}
       </div>
