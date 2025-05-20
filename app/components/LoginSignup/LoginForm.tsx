@@ -112,16 +112,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
       
       <Divider />
       
+      {/* Only include Google button */}
       <div className={styles.socialButtons}>
         <SocialButton 
           provider="google" 
           disabled={isLoading}
           onClick={() => handleSocialLoginClick('google')}
-        />
-        <SocialButton 
-          provider="facebook" 
-          disabled={isLoading}
-          onClick={() => handleSocialLoginClick('facebook')}
         />
       </div>
       

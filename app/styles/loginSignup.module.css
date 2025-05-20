@@ -250,6 +250,15 @@
     cursor: pointer;
     transition: all 0.3s ease;
     background-color: var(--white);
+    width: 100%; /* Make it full width */
+    max-width: 3000px; /* Optional: limit maximum width */
+    margin: 0 auto; /* Center the button */
+}
+
+@media (min-width: 768px) {
+    .socialButtons {
+        flex-direction: row;
+    }
 }
 
 .btnSocial:hover {
@@ -283,6 +292,7 @@
 /* Social Login */
 .socialButtons {
     display: flex;
+    justify-content: center; /* Center the button */
     gap: 16px;
     flex-direction: column;
 }

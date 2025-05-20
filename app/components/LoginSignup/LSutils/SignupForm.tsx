@@ -1,4 +1,4 @@
-// app/components/LoginSignup/SignupForm.tsx
+// app/components/LoginSignup/LSutils/SignupForm.tsx
 import React, { useState, useEffect } from 'react';
 import Divider from '../Divider';
 import SocialButton from '../SocialButton';
@@ -169,16 +169,12 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
       
       <Divider />
       
+      {/* Only include Google button */}
       <div className={styles.socialButtons}>
         <SocialButton 
           provider="google" 
           disabled={isLoading}
           onClick={() => handleSocialLoginClick('google')}
-        />
-        <SocialButton 
-          provider="facebook" 
-          disabled={isLoading}
-          onClick={() => handleSocialLoginClick('facebook')}
         />
       </div>
       
