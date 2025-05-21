@@ -1,10 +1,11 @@
-// app/routes/workspaces/$workspaceId/components/WorkspaceDetails.tsx
+// app/components/workspaces/$workspaceId/components/WorkspaceDetails.tsx
 import React, { useState } from 'react';
 import styles from '../../workspace.module.css';
 import AmenityList from './AmenityList';
 import RulesList from './RulesList';
 import ReviewSection from './ReviewSection';
 import TabNavigation from './TabNavigation';
+import LocationSection from './LocationSection';
 
 interface WorkspaceDetailsProps {
   description: string;
@@ -33,6 +34,12 @@ interface WorkspaceDetailsProps {
       alt: string;
     }>;
   }>;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+  address: string;
+  title: string;
 }
 
 export default function WorkspaceDetails({
@@ -40,7 +47,10 @@ export default function WorkspaceDetails({
   amenities,
   houseRules,
   photos,
-  reviews
+  reviews,
+  coordinates,
+  address,
+  title
 }: WorkspaceDetailsProps) {
   const [activeTab, setActiveTab] = useState('overview');
   
@@ -101,10 +111,11 @@ export default function WorkspaceDetails({
         
         {activeTab === 'location' && (
           <div className={styles.tabSection}>
-            <h2 className={styles.sectionTitle}>Location</h2>
-            <p className={styles.sectionContent}>
-              Location details will be displayed here.
-            </p>
+            <LocationSection 
+              title={title}
+              address={address}
+              coordinates={coordinates}
+            />
           </div>
         )}
       </div>

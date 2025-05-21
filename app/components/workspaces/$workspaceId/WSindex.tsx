@@ -228,6 +228,9 @@ export default function WorkspaceDetail() {
           houseRules={workspace.houseRules}
           photos={workspace.photos}
           reviews={workspace.reviews}
+          coordinates={workspace.coordinates}
+          address={workspace.address}
+          title={workspace.title}
         />
         
         <BookingCard 

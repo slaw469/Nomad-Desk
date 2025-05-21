@@ -49,6 +49,7 @@ require('./config/db');
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/auth', require('./routes/googleAuthRoutes')); // Add Google auth routes
+app.use('/api/maps', require('./routes/mapsRoutes')); // Add Google Maps routes
 
 // Basic route
 app.get('/', (req, res) => {

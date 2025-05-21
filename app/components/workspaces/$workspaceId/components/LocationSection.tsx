@@ -1,5 +1,7 @@
+// app/components/workspaces/$workspaceId/components/LocationSection.tsx
 import React from 'react';
 import styles from '../../workspace.module.css';
+import GoogleMap from '../../../Common/GoogleMap';
 
 interface LocationSectionProps {
   title: string;
@@ -10,19 +12,26 @@ interface LocationSectionProps {
   };
 }
 
-export default function LocationSection({
+const LocationSection: React.FC<LocationSectionProps> = ({
   title,
   address,
   coordinates
-}: LocationSectionProps) {
+}) => {
+  // This should be stored in environment variables in a real application
+  // For this example, we'll use a placeholder that you should replace with your actual key
+  const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY || 'YOUR_GOOGLE_MAPS_API_KEY';
+
   return (
     <div className={styles.locationSection}>
       <h2 className={styles.sectionTitle}>Location</h2>
       <div className={styles.mapContainer}>
-        <img 
-          src={`/api/placeholder/1200/400`} 
-          alt="Map location" 
-          className={styles.mapPlaceholder} 
+        <GoogleMap 
+          apiKey={googleMapsApiKey}
+          center={coordinates}
+          markerTitle={title}
+          address={address}
+          height="400px"
+          width="100%"
         />
         <div className={styles.mapCard}>
           <h3 className={styles.mapCardTitle}>{title}</h3>
@@ -41,4 +50,6 @@ export default function LocationSection({
       </div>
     </div>
   );
-}
+};
+
+export default LocationSection;

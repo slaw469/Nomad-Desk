@@ -5,6 +5,8 @@ import App from './App';
 import LandingPage from '../app/components/LandingPageComponents/components/LandingPage';
 import WorkspaceList from '../app/components/workspaces/WorkSpaceIndex';
 import WorkspaceDetail from '../app/components/workspaces/$workspaceId/WSindex';
+import WorkspaceSearchPage from '../app/components/workspaces/WorkspaceSearchPage';
+import MapWorkspaceDetail from '../app/components/workspaces/MapWorkspaceDetail';
 import FeaturesPage from '../app/components/Features/FeaturesPage';
 import Dashboard from '../app/components/dashboard/Dashboard';
 import Profile from '../app/components/dashboard/sidebar/Profile';
@@ -89,6 +91,7 @@ const networkRoute = new Route({
   ),
 });
 
+// Workspace routes
 const workspacesRoute = new Route({
   getParentRoute: () => rootRoute,
   path: 'workspaces',
@@ -105,6 +108,28 @@ const workspaceDetailRoute = new Route({
   component: () => (
     <ProtectedRoute>
       <WorkspaceDetail />
+    </ProtectedRoute>
+  ),
+});
+
+// New workspace search route
+const workspaceSearchRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: 'search',
+  component: () => (
+    <ProtectedRoute>
+      <WorkspaceSearchPage />
+    </ProtectedRoute>
+  ),
+});
+
+// New map-based workspace detail route
+const mapWorkspaceDetailRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: 'workspaces/map/$placeId',
+  component: () => (
+    <ProtectedRoute>
+      <MapWorkspaceDetail />
     </ProtectedRoute>
   ),
 });
@@ -168,12 +193,14 @@ const routeTree = rootRoute.addChildren([
   networkRoute,
   workspacesRoute,
   workspaceDetailRoute,
+  workspaceSearchRoute,
+  mapWorkspaceDetailRoute,
   howItWorksRoute,
   featuresRoute,
   aboutRoute,
   loginRoute,
   signupRoute,
-  oauthCallbackRoute, // Added OAuth callback route
+  oauthCallbackRoute,
   createGroupRoute,
 ]);
 
