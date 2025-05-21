@@ -122,6 +122,11 @@ const WorkspaceSearch: React.FC<WorkspaceSearchProps> = ({ onLocationSelected })
     }
   };
 
+  // Method to get photo URL
+  const getPhotoUrl = (photoReference: string) => {
+    return mapsService.getPhotoUrl(photoReference);
+  };
+
   return (
     <div className={styles.workspaceSearchContainer}>
       <div className={styles.searchHeader}>
@@ -185,6 +190,12 @@ const WorkspaceSearch: React.FC<WorkspaceSearchProps> = ({ onLocationSelected })
         >
           Co-working
         </button>
+        <button
+          className={`${styles.filterButton} ${activeFilter === 'book_store' ? styles.active : ''}`}
+          onClick={() => handleFilterChange('book_store')}
+        >
+          Bookstores
+        </button>
       </div>
 
       {error && (
@@ -209,9 +220,13 @@ const WorkspaceSearch: React.FC<WorkspaceSearchProps> = ({ onLocationSelected })
                       <Link to={`/workspaces/map/${workspace.id}`}>
                         <img 
                           src={workspace.photos && workspace.photos.length > 0 
-                            ? `/api/maps/photo?reference=${workspace.photos[0]}&maxwidth=400`
-                            : `/api/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`} 
-                          alt={workspace.name} 
+                            ? getPhotoUrl(workspace.photos[0])
+                            : `${import.meta.env.VITE_API_BASE_URL}/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`} 
+                          alt={workspace.name}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = `${import.meta.env.VITE_API_BASE_URL}/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`;
+                          }}
                         />
                       </Link>
                       <div className={styles.cardFavorite}>

@@ -38,14 +38,18 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false);
 
   // Function to create the Google Maps script
   const loadGoogleMapsScript = () => {
     // Check if the script is already loaded
     if (window.google && window.google.maps) {
+      setIsScriptLoaded(true);
       initializeMap();
       return;
     }
+
+    console.log('Loading Google Maps script with key:', apiKey.substring(0, 10) + '...');
 
     // Create script element
     const script = document.createElement('script');
@@ -55,13 +59,16 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
     
     // Handle script load event
     script.onload = () => {
+      console.log('Google Maps script loaded successfully');
+      setIsScriptLoaded(true);
       initializeMap();
     };
     
     // Handle script error
-    script.onerror = () => {
+    script.onerror = (e) => {
+      console.error('Failed to load Google Maps API:', e);
       setLoading(false);
-      setError('Failed to load Google Maps API');
+      setError('Failed to load Google Maps API. Please check your API key.');
     };
     
     // Add script to document
@@ -70,9 +77,16 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
 
   // Initialize the map
   const initializeMap = () => {
-    if (!mapRef.current) return;
+    if (!mapRef.current || !window.google || !window.google.maps) {
+      console.warn('Cannot initialize map: missing dependencies');
+      setLoading(false);
+      setError('Failed to initialize map - missing dependencies');
+      return;
+    }
     
     try {
+      console.log('Initializing map with center:', center);
+      
       // Create a new map instance
       const mapInstance = new window.google.maps.Map(mapRef.current, {
         center,
@@ -124,6 +138,8 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
       if (onLoad) {
         onLoad(mapInstance);
       }
+      
+      console.log('Map initialized successfully');
     } catch (err) {
       console.error('Error initializing map:', err);
       setError('Failed to initialize Google Maps');
@@ -147,13 +163,13 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
     
     // Cleanup function
     return () => {
-      // Nothing to clean up at the moment
+      // Nothing to clean up currently
     };
   }, []);
 
-  // Update map center if it changes
+  // Update map center if it changes and map exists
   useEffect(() => {
-    if (map) {
+    if (map && center) {
       map.setCenter(center);
     }
   }, [center, map]);
@@ -187,7 +203,9 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
           justifyContent: 'center',
           alignItems: 'center',
           backgroundColor: '#F8FAFC',
-          color: '#EF4444'
+          color: '#EF4444',
+          padding: '20px',
+          textAlign: 'center'
         }}>
           <p>{error}</p>
         </div>

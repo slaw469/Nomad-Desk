@@ -62,6 +62,7 @@ export interface PlaceDetailsResult {
   }>;
   wheelchair_accessible_entrance?: boolean;
   has_wifi?: boolean;
+  vicinity: string;
 }
 
 // Interface for nearby search response
@@ -77,6 +78,12 @@ export interface NearbySearchResult {
   vicinity: string;
   rating?: number;
   types: string[];
+  photos?: Array<{
+    photo_reference: string;
+    height: number;
+    width: number;
+    html_attributions: string[];
+  }>;
 }
 
 // Interface for directions response
@@ -122,6 +129,15 @@ const getApiRoute = (path: string) => {
   return usePublicEndpoints ? `/public-maps${path}` : `/maps${path}`;
 };
 
+// Helper to handle API errors
+const handleApiError = (error: any): never => {
+  console.error('API error:', error);
+  if (error instanceof Error) {
+    throw error;
+  }
+  throw new Error('An unexpected API error occurred');
+};
+
 // Generic fetch function for API calls
 const fetchApi = async <T>(
   endpoint: string, 
@@ -153,13 +169,6 @@ const fetchApi = async <T>(
     console.log(`Fetching ${method} ${API_BASE_URL}${endpoint}`);
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
     
-    // If status is 401 Unauthorized and this is a getCurrentUser request,
-    // return null instead of throwing an error
-    if (response.status === 401 && endpoint === '/auth/user') {
-      console.log('User not authenticated, returning null');
-      return null as T;
-    }
-    
     // Try to parse response as JSON
     let responseData;
     try {
@@ -177,12 +186,7 @@ const fetchApi = async <T>(
 
     return responseData as T;
   } catch (error) {
-    if (error instanceof Error) {
-      console.error('API fetch error:', error.message);
-      throw error;
-    }
-    console.error('Unexpected API error:', error);
-    throw new Error('An unexpected error occurred');
+    return handleApiError(error);
   }
 };
 
@@ -190,14 +194,24 @@ const fetchApi = async <T>(
 export const mapsService = {
   // Get Google Maps API key
   getApiKey: async (): Promise<string> => {
-    const response = await fetchApi<{ apiKey: string }>(getApiRoute('/api-key'));
-    return response.apiKey;
+    try {
+      const response = await fetchApi<{ apiKey: string }>(getApiRoute('/api-key'));
+      return response.apiKey;
+    } catch (error) {
+      console.error('Failed to get API key:', error);
+      throw error;
+    }
   },
 
   // Geocode an address to get coordinates
   geocodeAddress: async (address: string): Promise<GeocodingResult[]> => {
-    const response = await fetchApi<{ results: GeocodingResult[] }>(getApiRoute(`/geocode?address=${encodeURIComponent(address)}`));
-    return response.results;
+    try {
+      const response = await fetchApi<{ results: GeocodingResult[] }>(getApiRoute(`/geocode?address=${encodeURIComponent(address)}`));
+      return response.results;
+    } catch (error) {
+      console.error('Geocoding error:', error);
+      throw error;
+    }
   },
 
   // Get place autocomplete suggestions
@@ -206,18 +220,23 @@ export const mapsService = {
     types?: string, 
     components?: string
   ): Promise<PlaceAutocompleteResult[]> => {
-    let url = getApiRoute(`/places/autocomplete?input=${encodeURIComponent(input)}`);
-    
-    if (types) {
-      url += `&types=${encodeURIComponent(types)}`;
+    try {
+      let url = getApiRoute(`/places/autocomplete?input=${encodeURIComponent(input)}`);
+      
+      if (types) {
+        url += `&types=${encodeURIComponent(types)}`;
+      }
+      
+      if (components) {
+        url += `&components=${encodeURIComponent(components)}`;
+      }
+      
+      const response = await fetchApi<{ predictions: PlaceAutocompleteResult[] }>(url);
+      return response.predictions;
+    } catch (error) {
+      console.error('Place autocomplete error:', error);
+      throw error;
     }
-    
-    if (components) {
-      url += `&components=${encodeURIComponent(components)}`;
-    }
-    
-    const response = await fetchApi<{ predictions: PlaceAutocompleteResult[] }>(url);
-    return response.predictions;
   },
 
   // Get place details
@@ -225,14 +244,19 @@ export const mapsService = {
     placeId: string, 
     fields?: string
   ): Promise<PlaceDetailsResult> => {
-    let url = getApiRoute(`/places/details?place_id=${encodeURIComponent(placeId)}`);
-    
-    if (fields) {
-      url += `&fields=${encodeURIComponent(fields)}`;
+    try {
+      let url = getApiRoute(`/places/details?place_id=${encodeURIComponent(placeId)}`);
+      
+      if (fields) {
+        url += `&fields=${encodeURIComponent(fields)}`;
+      }
+      
+      const response = await fetchApi<{ result: PlaceDetailsResult }>(url);
+      return response.result;
+    } catch (error) {
+      console.error('Place details error:', error);
+      throw error;
     }
-    
-    const response = await fetchApi<{ result: PlaceDetailsResult }>(url);
-    return response.result;
   },
 
   // Search for places nearby
@@ -242,22 +266,27 @@ export const mapsService = {
     type?: string, 
     keyword?: string
   ): Promise<NearbySearchResult[]> => {
-    const locationStr = typeof location === 'string' 
-      ? location 
-      : `${location.lat},${location.lng}`;
-    
-    let url = getApiRoute(`/places/nearby?location=${encodeURIComponent(locationStr)}&radius=${radius}`);
-    
-    if (type) {
-      url += `&type=${encodeURIComponent(type)}`;
+    try {
+      const locationStr = typeof location === 'string' 
+        ? location 
+        : `${location.lat},${location.lng}`;
+      
+      let url = getApiRoute(`/places/nearby?location=${encodeURIComponent(locationStr)}&radius=${radius}`);
+      
+      if (type) {
+        url += `&type=${encodeURIComponent(type)}`;
+      }
+      
+      if (keyword) {
+        url += `&keyword=${encodeURIComponent(keyword)}`;
+      }
+      
+      const response = await fetchApi<{ results: NearbySearchResult[] }>(url);
+      return response.results || [];
+    } catch (error) {
+      console.error('Nearby search error:', error);
+      throw error;
     }
-    
-    if (keyword) {
-      url += `&keyword=${encodeURIComponent(keyword)}`;
-    }
-    
-    const response = await fetchApi<{ results: NearbySearchResult[] }>(url);
-    return response.results;
   },
 
   // Get directions between two locations
@@ -272,82 +301,107 @@ export const mapsService = {
       units?: 'metric' | 'imperial';
     }
   ): Promise<DirectionsResult> => {
-    const originStr = typeof origin === 'string' 
-      ? origin 
-      : `${origin.lat},${origin.lng}`;
-    
-    const destinationStr = typeof destination === 'string' 
-      ? destination 
-      : `${destination.lat},${destination.lng}`;
-    
-    let url = getApiRoute(`/directions?origin=${encodeURIComponent(originStr)}&destination=${encodeURIComponent(destinationStr)}`);
-    
-    if (options) {
-      if (options.mode) {
-        url += `&mode=${encodeURIComponent(options.mode)}`;
+    try {
+      const originStr = typeof origin === 'string' 
+        ? origin 
+        : `${origin.lat},${origin.lng}`;
+      
+      const destinationStr = typeof destination === 'string' 
+        ? destination 
+        : `${destination.lat},${destination.lng}`;
+      
+      let url = getApiRoute(`/directions?origin=${encodeURIComponent(originStr)}&destination=${encodeURIComponent(destinationStr)}`);
+      
+      if (options) {
+        if (options.mode) {
+          url += `&mode=${encodeURIComponent(options.mode)}`;
+        }
+        
+        if (options.waypoints) {
+          url += `&waypoints=${encodeURIComponent(options.waypoints)}`;
+        }
+        
+        if (options.alternatives) {
+          url += `&alternatives=${options.alternatives}`;
+        }
+        
+        if (options.avoid) {
+          url += `&avoid=${encodeURIComponent(options.avoid)}`;
+        }
+        
+        if (options.units) {
+          url += `&units=${encodeURIComponent(options.units)}`;
+        }
       }
       
-      if (options.waypoints) {
-        url += `&waypoints=${encodeURIComponent(options.waypoints)}`;
-      }
-      
-      if (options.alternatives) {
-        url += `&alternatives=${options.alternatives}`;
-      }
-      
-      if (options.avoid) {
-        url += `&avoid=${encodeURIComponent(options.avoid)}`;
-      }
-      
-      if (options.units) {
-        url += `&units=${encodeURIComponent(options.units)}`;
-      }
+      const response = await fetchApi<DirectionsResult>(url);
+      return response;
+    } catch (error) {
+      console.error('Directions error:', error);
+      throw error;
     }
-    
-    const response = await fetchApi<DirectionsResult>(url);
-    return response;
   },
 
   // Generate static map URL
-  getStaticMapUrl: async (
+  getStaticMapUrl: (
     center: string | Location, 
     zoom: number, 
     size: string, 
     markers?: string, 
     path?: string, 
     format?: string
-  ): Promise<string> => {
-    const centerStr = typeof center === 'string' 
-      ? center 
-      : `${center.lat},${center.lng}`;
-    
-    let url = getApiRoute(`/static?center=${encodeURIComponent(centerStr)}&zoom=${zoom}&size=${encodeURIComponent(size)}`);
-    
-    if (markers) {
-      url += `&markers=${encodeURIComponent(markers)}`;
+  ): string => {
+    try {
+      const centerStr = typeof center === 'string' 
+        ? center 
+        : `${center.lat},${center.lng}`;
+      
+      let url = getApiRoute(`/static?center=${encodeURIComponent(centerStr)}&zoom=${zoom}&size=${encodeURIComponent(size)}`);
+      
+      if (markers) {
+        url += `&markers=${encodeURIComponent(markers)}`;
+      }
+      
+      if (path) {
+        url += `&path=${encodeURIComponent(path)}`;
+      }
+      
+      if (format) {
+        url += `&format=${encodeURIComponent(format)}`;
+      }
+      
+      // Return the full URL to the static map
+      return `${API_BASE_URL}${url}`;
+    } catch (error) {
+      console.error('Static map URL error:', error);
+      throw error;
     }
-    
-    if (path) {
-      url += `&path=${encodeURIComponent(path)}`;
-    }
-    
-    if (format) {
-      url += `&format=${encodeURIComponent(format)}`;
-    }
-    
-    // Return the full URL to the static map
-    return `${API_BASE_URL}${url}`;
   },
 
   // Get a photo URL for a photo reference
-  getPhotoUrl: (reference: string, maxWidth: number = 400, maxHeight?: number): string => {
-    let url = getApiRoute(`/photo?reference=${encodeURIComponent(reference)}&maxwidth=${maxWidth}`);
+  getPhotoUrl: (photoReference: string, maxWidth: number = 400, maxHeight?: number): string => {
+    if (!photoReference) {
+      return `${API_BASE_URL}/placeholder/400/300?text=No+Image`;
+    }
+    
+    let url = getApiRoute(`/photo?reference=${encodeURIComponent(photoReference)}&maxwidth=${maxWidth}`);
     
     if (maxHeight) {
       url += `&maxheight=${maxHeight}`;
     }
     
     return `${API_BASE_URL}${url}`;
+  },
+  
+  // Test if API is available
+  testConnection: async (): Promise<boolean> => {
+    try {
+      await mapsService.getApiKey();
+      return true;
+    } catch (error) {
+      console.error('Maps API connection test failed:', error);
+      return false;
+    }
   }
 };
 

@@ -50,11 +50,13 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     
     // Handle script load event
     script.onload = () => {
+      console.log("Google Maps script loaded successfully");
       setIsScriptLoaded(true);
     };
     
     // Handle script error
     script.onerror = () => {
+      console.error("Failed to load Google Maps API script");
       setScriptError('Failed to load Google Maps API');
     };
     
@@ -64,7 +66,10 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 
   // Initialize Autocomplete
   const initializeAutocomplete = () => {
-    if (!inputRef.current || !window.google || !window.google.maps || !window.google.maps.places) return;
+    if (!inputRef.current || !window.google || !window.google.maps || !window.google.maps.places) {
+      console.warn("Unable to initialize autocomplete: missing dependencies");
+      return;
+    }
     
     try {
       // Create autocomplete instance
@@ -78,6 +83,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       
       // Add place_changed event listener
       autocomplete.addListener('place_changed', handlePlaceChanged);
+      console.log("Autocomplete initialized successfully");
     } catch (err) {
       console.error('Error initializing autocomplete:', err);
       setScriptError('Failed to initialize location search');
@@ -86,12 +92,15 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 
   // Handle place changed event
   const handlePlaceChanged = () => {
-    if (!autocompleteRef.current) return;
+    if (!autocompleteRef.current) {
+      console.warn("Autocomplete reference is null");
+      return;
+    }
     
     const place = autocompleteRef.current.getPlace();
     
     if (!place.geometry || !place.geometry.location) {
-      console.error('No geometry found for this place');
+      console.error('No geometry found for this place:', place);
       return;
     }
     
@@ -112,12 +121,12 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     
     // Cleanup function
     return () => {
-      if (autocompleteRef.current) {
+      if (autocompleteRef.current && window.google && window.google.maps && window.google.maps.event) {
         // Remove event listeners if necessary
-        // google.maps.event.clearInstanceListeners(autocompleteRef.current);
+        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
       }
     };
-  }, []);
+  }, [apiKey]);
 
   // Initialize autocomplete when script is loaded
   useEffect(() => {

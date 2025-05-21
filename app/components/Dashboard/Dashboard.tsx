@@ -230,7 +230,7 @@ const Dashboard: React.FC = () => {
             <CalendarIcon />
             <span>My Bookings</span>
           </Link>
-          <Link to="/workspaces" className={styles.sidebarLink}>
+          <Link to="/search" className={styles.sidebarLink}>
             <MapPinIcon />
             <span>Find Spaces</span>
           </Link>
@@ -362,7 +362,7 @@ const Dashboard: React.FC = () => {
               </div>
               <h3 className={styles.emptyStateTitle}>No upcoming bookings</h3>
               <p className={styles.emptyStateMessage}>Time to discover and book your next productive workspace!</p>
-              <Link to="/workspaces" className={`${styles.ctaButton} ${styles.primaryButton}`}>Find Spaces</Link>
+              <Link to="/search" className={`${styles.ctaButton} ${styles.primaryButton}`}>Find Spaces</Link>
             </div>
           )}
         </div>
@@ -407,7 +407,7 @@ const Dashboard: React.FC = () => {
                       ))}
                     </div>
                   </div>
-                  <Link to={`/workspaces/${space.id}`} className={styles.bookSpaceButton}>Book Now</Link>
+                  <Link to={`/search/${space.id}`} className={styles.bookSpaceButton}>Book Now</Link>
                 </div>
               </div>
             ))}

@@ -45,6 +45,9 @@ const determineAmenities = (types: string[], placeDetails?: PlaceDetailsResult):
   if (types.includes('cafe') || types.includes('restaurant')) {
     amenities.push('Refreshments', 'Food');
   }
+  if (types.includes('book_store')) {
+    amenities.push('Reading Area');
+  }
 
   // Add amenities based on place details
   if (placeDetails) {
@@ -62,6 +65,7 @@ const determineAmenities = (types: string[], placeDetails?: PlaceDetailsResult):
 // Helper function to determine price based on workspace type
 const determinePrice = (types: string[]): string => {
   if (types.includes('library')) return 'Free';
+  if (types.includes('book_store')) return 'Purchase Required';
   if (types.includes('cafe') || types.includes('restaurant')) return '$5/hr min';
   return '$15/hr';
 };
@@ -71,33 +75,58 @@ export const workspaceService = {
   // Search for workspaces near a location
   searchWorkspaces: async (params: WorkspaceSearchParams): Promise<Workspace[]> => {
     try {
+      console.log("Searching for workspaces with params:", params);
       // Determine search parameters based on workspace type
       let results: NearbySearchResult[] = [];
       
       if (!params.type || params.type === 'all') {
-        // Search for all workspace types
-        const libraryResults = await mapsService.searchNearbyPlaces(
-          params.location,
-          params.radius,
-          'library'
-        );
+        // Search for all workspace types in parallel
+        const [libraryResults, cafeResults, coworkingResults, bookstoreResults] = await Promise.all([
+          // Libraries
+          mapsService.searchNearbyPlaces(
+            params.location,
+            params.radius,
+            'library'
+          ).catch(err => {
+            console.error('Error fetching libraries:', err);
+            return [];
+          }),
+          
+          // Cafes
+          mapsService.searchNearbyPlaces(
+            params.location,
+            params.radius,
+            'cafe',
+            'study OR work'
+          ).catch(err => {
+            console.error('Error fetching cafes:', err);
+            return [];
+          }),
+          
+          // Co-working spaces (generic establishments with coworking keyword)
+          mapsService.searchNearbyPlaces(
+            params.location,
+            params.radius,
+            'establishment',
+            'coworking OR workspace'
+          ).catch(err => {
+            console.error('Error fetching coworking spaces:', err);
+            return [];
+          }),
+          
+          // Bookstores
+          mapsService.searchNearbyPlaces(
+            params.location,
+            params.radius,
+            'book_store'
+          ).catch(err => {
+            console.error('Error fetching bookstores:', err);
+            return [];
+          })
+        ]);
         
-        const cafeResults = await mapsService.searchNearbyPlaces(
-          params.location,
-          params.radius,
-          'cafe',
-          'study OR work'
-        );
-        
-        const coworkingResults = await mapsService.searchNearbyPlaces(
-          params.location,
-          params.radius,
-          'establishment',
-          'coworking OR workspace'
-        );
-        
-        // Combine results
-        results = [...libraryResults, ...cafeResults, ...coworkingResults];
+        // Combine all results
+        results = [...libraryResults, ...cafeResults, ...coworkingResults, ...bookstoreResults];
       } else {
         // Search for specific workspace type
         results = await mapsService.searchNearbyPlaces(
@@ -113,6 +142,8 @@ export const workspaceService = {
         new Map(results.map(item => [item.place_id, item])).values()
       );
       
+      console.log(`Found ${uniqueResults.length} unique workspaces`);
+      
       // Transform to workspace format
       return uniqueResults.map(result => ({
         id: result.place_id,
@@ -125,7 +156,8 @@ export const workspaceService = {
         },
         amenities: determineAmenities(result.types),
         price: determinePrice(result.types),
-        rating: result.rating
+        rating: result.rating,
+        photos: result.photos?.map(photo => photo.photo_reference) || []
       }));
     } catch (error) {
       console.error('Error searching for workspaces:', error);
@@ -155,7 +187,7 @@ export const workspaceService = {
         rating: placeDetails.rating,
         openingHours: placeDetails.opening_hours?.weekday_text,
         photos: placeDetails.photos ? 
-          placeDetails.photos.slice(0, 5).map(photo => photo.photo_reference) : 
+          placeDetails.photos.map(photo => photo.photo_reference) : 
           undefined
       };
     } catch (error) {
@@ -167,6 +199,7 @@ export const workspaceService = {
   // Get similar workspaces near a specific workspace
   getSimilarWorkspaces: async (workspace: Workspace, limit: number = 4): Promise<Workspace[]> => {
     try {
+      // First, find all nearby places of the same type
       const results = await mapsService.searchNearbyPlaces(
         workspace.coordinates,
         2000, // 2km radius
@@ -191,7 +224,8 @@ export const workspaceService = {
         },
         amenities: determineAmenities(result.types),
         price: determinePrice(result.types),
-        rating: result.rating
+        rating: result.rating,
+        photos: result.photos?.map(photo => photo.photo_reference) || []
       }));
     } catch (error) {
       console.error('Error fetching similar workspaces:', error);
