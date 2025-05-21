@@ -384,13 +384,17 @@ export const mapsService = {
       return `${API_BASE_URL}/placeholder/400/300?text=No+Image`;
     }
     
-    let url = getApiRoute(`/photo?reference=${encodeURIComponent(photoReference)}&maxwidth=${maxWidth}`);
+    // Make sure to handle different API_BASE_URL formats
+    const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+    
+    // Use public-maps endpoint for better compatibility
+    let url = `/public-maps/photo?reference=${encodeURIComponent(photoReference)}&maxwidth=${maxWidth}`;
     
     if (maxHeight) {
       url += `&maxheight=${maxHeight}`;
     }
     
-    return `${API_BASE_URL}${url}`;
+    return `${baseUrl}${url}`;
   },
   
   // Test if API is available
