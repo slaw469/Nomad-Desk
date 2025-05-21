@@ -260,6 +260,62 @@ router.get('/static', auth, async (req, res) => {
 });
 
 /**
+ * @route   GET api/maps/photo
+ * @desc    Get a place photo using the photo_reference
+ * @access  Private
+ */
+router.get('/photo', auth, async (req, res) => {
+  try {
+    const { reference, maxwidth = 400, maxheight } = req.query;
+    
+    if (!reference) {
+      return res.status(400).json({ message: 'Photo reference is required' });
+    }
+    
+    let url = `https://maps.googleapis.com/maps/api/place/photo?photoreference=${encodeURIComponent(reference)}&key=${GOOGLE_MAPS_API_KEY}&maxwidth=${maxwidth}`;
+    
+    if (maxheight) {
+      url += `&maxheight=${encodeURIComponent(maxheight)}`;
+    }
+    
+    // Proxy the image
+    const response = await axios.get(url, { 
+      responseType: 'arraybuffer',
+      // Handle redirects manually
+      maxRedirects: 0,
+      validateStatus: status => status >= 200 && status < 400
+    });
+    
+    // Check if we received a redirect
+    if (response.status >= 300 && response.status < 400 && response.headers.location) {
+      // Get the image from the redirect URL
+      const redirectResponse = await axios.get(response.headers.location, { 
+        responseType: 'arraybuffer' 
+      });
+      
+      // Set headers
+      res.set('Content-Type', redirectResponse.headers['content-type']);
+      res.set('Content-Length', redirectResponse.headers['content-length']);
+      
+      // Return the image
+      return res.send(redirectResponse.data);
+    }
+    
+    // Set headers
+    res.set('Content-Type', response.headers['content-type']);
+    res.set('Content-Length', response.headers['content-length']);
+    
+    // Return the image
+    res.send(response.data);
+  } catch (error) {
+    console.error('Photo error:', error.message);
+    
+    // If we can't get the photo, return a generic placeholder
+    res.redirect(`/api/placeholder/${req.query.maxwidth || 400}/${req.query.maxheight || 300}`);
+  }
+});
+
+/**
  * @route   GET api/maps/api-key
  * @desc    Get the Google Maps API key (restricted by referer)
  * @access  Private

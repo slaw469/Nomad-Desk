@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 import styles from './workspace.module.css';
-import LocationSearch from '../common/LocationSearch';
-import mapsService, { NearbySearchResult, Location } from '../../services/mapsService';
+import LocationSearch from '../Common/LocationSearch';
+import mapsService, { Location } from '../../services/mapsService';
+import workspaceService, { Workspace, WorkspaceSearchParams } from '../../services/workspaceService';
+import Loading from '../Common/Loading';
 
 interface WorkspaceSearchProps {
   onLocationSelected?: (location: Location, address: string) => void;
@@ -16,7 +18,8 @@ const WorkspaceSearch: React.FC<WorkspaceSearchProps> = ({ onLocationSelected })
   const [searchRadius, setSearchRadius] = useState<number>(1000); // Default 1km
   const [searchLocation, setSearchLocation] = useState<Location | null>(null);
   const [searchAddress, setSearchAddress] = useState<string>('');
-  const [nearbyWorkspaces, setNearbyWorkspaces] = useState<NearbySearchResult[]>([]);
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [activeFilter, setActiveFilter] = useState<string>('all');
 
   // Fetch API key on component mount
   useEffect(() => {
@@ -64,34 +67,29 @@ const WorkspaceSearch: React.FC<WorkspaceSearchProps> = ({ onLocationSelected })
   const searchNearbyWorkspaces = async (location: Location) => {
     setLoading(true);
     setError(null);
+    setWorkspaces([]);
 
     try {
-      // Search for libraries, coffee shops, and coworking spaces
-      const libraryResults = await mapsService.searchNearbyPlaces(
+      // Create search parameters
+      const searchParams: WorkspaceSearchParams = {
         location,
-        searchRadius,
-        'library'
-      );
+        radius: searchRadius,
+        type: activeFilter === 'all' ? undefined : activeFilter
+      };
 
-      const cafeResults = await mapsService.searchNearbyPlaces(
-        location,
-        searchRadius,
-        'cafe',
-        'study OR work'
-      );
+      // Search for workspaces
+      const results = await workspaceService.searchWorkspaces(searchParams);
 
-      const coworkingResults = await mapsService.searchNearbyPlaces(
-        location,
-        searchRadius,
-        undefined,
-        'coworking OR workspace'
-      );
+      // Calculate and add distance to each workspace
+      const workspacesWithDistance = results.map(workspace => {
+        const distance = workspaceService.calculateDistance(location, workspace.coordinates);
+        return {
+          ...workspace,
+          distance: workspaceService.formatDistance(distance)
+        };
+      });
 
-      // Combine and deduplicate results
-      const combinedResults = [...libraryResults, ...cafeResults, ...coworkingResults];
-      const uniqueResults = removeDuplicates(combinedResults, 'place_id');
-
-      setNearbyWorkspaces(uniqueResults);
+      setWorkspaces(workspacesWithDistance);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -101,14 +99,6 @@ const WorkspaceSearch: React.FC<WorkspaceSearchProps> = ({ onLocationSelected })
     } finally {
       setLoading(false);
     }
-  };
-
-  // Utility function to remove duplicates from an array based on a property
-  const removeDuplicates = <T extends Record<string, any>>(
-    array: T[],
-    property: keyof T
-  ): T[] => {
-    return Array.from(new Map(array.map(item => [item[property], item])).values());
   };
 
   // Handle radius change
@@ -122,20 +112,14 @@ const WorkspaceSearch: React.FC<WorkspaceSearchProps> = ({ onLocationSelected })
     }
   };
 
-  // Determine workspace type based on types array
-  const getWorkspaceType = (types: string[]): string => {
-    if (types.includes('library')) return 'Library';
-    if (types.includes('cafe')) return 'Café';
-    if (types.includes('restaurant')) return 'Restaurant';
-    return 'Workspace';
-  };
+  // Handle filter change
+  const handleFilterChange = (filter: string) => {
+    setActiveFilter(filter);
 
-  // Format distance (in meters) to a friendly string
-  const formatDistance = (distance: number): string => {
-    if (distance < 1000) {
-      return `${distance.toFixed(0)} m`;
+    // If we already have a location, search again with the new filter
+    if (searchLocation) {
+      searchNearbyWorkspaces(searchLocation);
     }
-    return `${(distance / 1000).toFixed(1)} km`;
   };
 
   return (
@@ -176,6 +160,33 @@ const WorkspaceSearch: React.FC<WorkspaceSearchProps> = ({ onLocationSelected })
         </div>
       </div>
 
+      <div className={styles.filterButtons}>
+        <button 
+          className={`${styles.filterButton} ${activeFilter === 'all' ? styles.active : ''}`}
+          onClick={() => handleFilterChange('all')}
+        >
+          All Types
+        </button>
+        <button 
+          className={`${styles.filterButton} ${activeFilter === 'library' ? styles.active : ''}`}
+          onClick={() => handleFilterChange('library')}
+        >
+          Libraries
+        </button>
+        <button 
+          className={`${styles.filterButton} ${activeFilter === 'cafe' ? styles.active : ''}`}
+          onClick={() => handleFilterChange('cafe')}
+        >
+          Cafés
+        </button>
+        <button 
+          className={`${styles.filterButton} ${activeFilter === 'establishment' ? styles.active : ''}`}
+          onClick={() => handleFilterChange('establishment')}
+        >
+          Co-working
+        </button>
+      </div>
+
       {error && (
         <div className={styles.errorMessage}>
           <p>{error}</p>
@@ -184,20 +195,22 @@ const WorkspaceSearch: React.FC<WorkspaceSearchProps> = ({ onLocationSelected })
 
       {loading ? (
         <div className={styles.loadingIndicator}>
-          <p>Searching for workspaces...</p>
+          <Loading message="Searching for workspaces..." />
         </div>
       ) : (
         <div className={styles.searchResults}>
-          {nearbyWorkspaces.length > 0 ? (
+          {workspaces.length > 0 ? (
             <>
               <h3>Workspaces near {searchAddress}</h3>
               <div className={styles.workspaceGrid}>
-                {nearbyWorkspaces.map((workspace) => (
-                  <div key={workspace.place_id} className={styles.workspaceCard}>
+                {workspaces.map((workspace) => (
+                  <div key={workspace.id} className={styles.workspaceCard}>
                     <div className={styles.cardImage}>
-                      <Link to={`/workspaces/map/${workspace.place_id}`}>
+                      <Link to={`/workspaces/map/${workspace.id}`}>
                         <img 
-                          src={`/api/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`} 
+                          src={workspace.photos && workspace.photos.length > 0 
+                            ? `/api/maps/photo?reference=${workspace.photos[0]}&maxwidth=400`
+                            : `/api/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`} 
                           alt={workspace.name} 
                         />
                       </Link>
@@ -208,30 +221,20 @@ const WorkspaceSearch: React.FC<WorkspaceSearchProps> = ({ onLocationSelected })
                       </div>
                     </div>
                     <div className={styles.cardContent}>
-                      <Link to={`/workspaces/map/${workspace.place_id}`} className={styles.cardTitle}>
+                      <Link to={`/workspaces/map/${workspace.id}`} className={styles.cardTitle}>
                         {workspace.name}
                       </Link>
-                      <p className={styles.cardLocation}>{workspace.vicinity}</p>
+                      <p className={styles.cardLocation}>
+                        {workspace.distance} • {workspace.address.split(',')[0]}
+                      </p>
                       <div className={styles.cardAmenities}>
-                        <span className={styles.cardAmenity}>{getWorkspaceType(workspace.types)}</span>
-                        {workspace.types.includes('wifi') && (
-                          <span className={styles.cardAmenity}>Wi-Fi</span>
-                        )}
+                        <span className={styles.cardAmenity}>{workspace.type}</span>
+                        {workspace.amenities.slice(0, 1).map((amenity, index) => (
+                          <span key={index} className={styles.cardAmenity}>{amenity}</span>
+                        ))}
                       </div>
                       <div className={styles.cardFooter}>
-                        <div className={styles.cardDistance}>
-                          {searchLocation && workspace.geometry?.location && (
-                            formatDistance(
-                              calculateDistance(
-                                searchLocation, 
-                                {
-                                  lat: workspace.geometry.location.lat,
-                                  lng: workspace.geometry.location.lng
-                                }
-                              )
-                            )
-                          )}
-                        </div>
+                        <div className={styles.cardPrice}>{workspace.price}</div>
                         <div className={styles.cardRating}>
                           {workspace.rating ? (
                             <>
@@ -262,21 +265,5 @@ const WorkspaceSearch: React.FC<WorkspaceSearchProps> = ({ onLocationSelected })
     </div>
   );
 };
-
-// Utility function to calculate distance between two points using the Haversine formula
-function calculateDistance(point1: Location, point2: Location): number {
-  const R = 6371e3; // Earth's radius in meters
-  const φ1 = (point1.lat * Math.PI) / 180;
-  const φ2 = (point2.lat * Math.PI) / 180;
-  const Δφ = ((point2.lat - point1.lat) * Math.PI) / 180;
-  const Δλ = ((point2.lng - point1.lng) * Math.PI) / 180;
-
-  const a =
-    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return R * c; // Distance in meters
-}
 
 export default WorkspaceSearch;

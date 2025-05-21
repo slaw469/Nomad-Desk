@@ -50,6 +50,8 @@ require('./config/db');
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/auth', require('./routes/googleAuthRoutes')); // Add Google auth routes
 app.use('/api/maps', require('./routes/mapsRoutes')); // Add Google Maps routes
+app.use('/api/placeholder', require('../routes/placeholderRoutes')); // Add placeholder image routes
+app.use('/api/public-maps', require('./routes/publicMapsRoutes')); // Add public Maps routes for easier testing
 
 // Basic route
 app.get('/', (req, res) => {

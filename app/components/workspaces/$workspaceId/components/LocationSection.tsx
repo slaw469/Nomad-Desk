@@ -1,7 +1,8 @@
 // app/components/workspaces/$workspaceId/components/LocationSection.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from '../../workspace.module.css';
 import GoogleMap from '../../../Common/GoogleMap';
+import mapsService from '../../../../services/mapsService';
 
 interface LocationSectionProps {
   title: string;
@@ -17,22 +18,61 @@ const LocationSection: React.FC<LocationSectionProps> = ({
   address,
   coordinates
 }) => {
-  // This should be stored in environment variables in a real application
-  // For this example, we'll use a placeholder that you should replace with your actual key
-  const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY || 'YOUR_GOOGLE_MAPS_API_KEY';
+  const [apiKey, setApiKey] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // Fetch API key on component mount
+  useEffect(() => {
+    const fetchApiKey = async () => {
+      try {
+        const key = await mapsService.getApiKey();
+        setApiKey(key);
+      } catch (err) {
+        console.error('Failed to load Google Maps API key:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApiKey();
+  }, []);
 
   return (
     <div className={styles.locationSection}>
       <h2 className={styles.sectionTitle}>Location</h2>
       <div className={styles.mapContainer}>
-        <GoogleMap 
-          apiKey={googleMapsApiKey}
-          center={coordinates}
-          markerTitle={title}
-          address={address}
-          height="400px"
-          width="100%"
-        />
+        {loading ? (
+          <div style={{ 
+            height: '400px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            backgroundColor: '#f8fafc',
+            borderRadius: '12px'
+          }}>
+            <p>Loading map...</p>
+          </div>
+        ) : apiKey ? (
+          <GoogleMap 
+            apiKey={apiKey}
+            center={coordinates}
+            markerTitle={title}
+            address={address}
+            height="400px"
+            width="100%"
+          />
+        ) : (
+          <div style={{ 
+            height: '400px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            backgroundColor: '#f8fafc',
+            borderRadius: '12px'
+          }}>
+            <p>Unable to load map</p>
+          </div>
+        )}
         <div className={styles.mapCard}>
           <h3 className={styles.mapCardTitle}>{title}</h3>
           <p className={styles.mapCardAddress}>

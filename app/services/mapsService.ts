@@ -40,6 +40,28 @@ export interface PlaceDetailsResult {
   };
   name: string;
   place_id: string;
+  photos?: Array<{
+    photo_reference: string;
+    height: number;
+    width: number;
+    html_attributions: string[];
+  }>;
+  rating?: number;
+  types: string[];
+  website?: string;
+  formatted_phone_number?: string;
+  opening_hours?: {
+    weekday_text: string[];
+    open_now?: boolean;
+  };
+  reviews?: Array<{
+    author_name: string;
+    rating: number;
+    text: string;
+    time: number;
+  }>;
+  wheelchair_accessible_entrance?: boolean;
+  has_wifi?: boolean;
 }
 
 // Interface for nearby search response
@@ -92,7 +114,15 @@ export interface Location {
   lng: number;
 }
 
-// Fetch API with authentication
+// Flag to determine whether to use public endpoints (for development)
+const usePublicEndpoints = import.meta.env.VITE_USE_PUBLIC_ENDPOINTS === 'true';
+
+// Helper function to get the appropriate API route
+const getApiRoute = (path: string) => {
+  return usePublicEndpoints ? `/public-maps${path}` : `/maps${path}`;
+};
+
+// Generic fetch function for API calls
 const fetchApi = async <T>(
   endpoint: string, 
   method: string = 'GET', 
@@ -108,7 +138,7 @@ const fetchApi = async <T>(
   } else {
     // Try to get token from localStorage
     const storedToken = localStorage.getItem('token');
-    if (storedToken) {
+    if (storedToken && !usePublicEndpoints) {
       headers['x-auth-token'] = storedToken;
     }
   }
@@ -120,27 +150,38 @@ const fetchApi = async <T>(
   };
 
   try {
+    console.log(`Fetching ${method} ${API_BASE_URL}${endpoint}`);
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
     
+    // If status is 401 Unauthorized and this is a getCurrentUser request,
+    // return null instead of throwing an error
+    if (response.status === 401 && endpoint === '/auth/user') {
+      console.log('User not authenticated, returning null');
+      return null as T;
+    }
+    
+    // Try to parse response as JSON
+    let responseData;
+    try {
+      responseData = await response.json();
+    } catch (e) {
+      // If response is not JSON, use an empty object
+      responseData = {};
+    }
+    
     if (!response.ok) {
-      let errorMessage = `Error: ${response.status} ${response.statusText}`;
-      
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorMessage;
-      } catch (e) {
-        // If response is not JSON, use the default error message
-      }
-      
+      const errorMessage = responseData.message || `Error: ${response.status} ${response.statusText}`;
+      console.error('API error:', errorMessage);
       throw new Error(errorMessage);
     }
 
-    return await response.json() as T;
+    return responseData as T;
   } catch (error) {
     if (error instanceof Error) {
       console.error('API fetch error:', error.message);
       throw error;
     }
+    console.error('Unexpected API error:', error);
     throw new Error('An unexpected error occurred');
   }
 };
@@ -149,13 +190,13 @@ const fetchApi = async <T>(
 export const mapsService = {
   // Get Google Maps API key
   getApiKey: async (): Promise<string> => {
-    const response = await fetchApi<{ apiKey: string }>('/maps/api-key');
+    const response = await fetchApi<{ apiKey: string }>(getApiRoute('/api-key'));
     return response.apiKey;
   },
 
   // Geocode an address to get coordinates
   geocodeAddress: async (address: string): Promise<GeocodingResult[]> => {
-    const response = await fetchApi<{ results: GeocodingResult[] }>(`/maps/geocode?address=${encodeURIComponent(address)}`);
+    const response = await fetchApi<{ results: GeocodingResult[] }>(getApiRoute(`/geocode?address=${encodeURIComponent(address)}`));
     return response.results;
   },
 
@@ -165,7 +206,7 @@ export const mapsService = {
     types?: string, 
     components?: string
   ): Promise<PlaceAutocompleteResult[]> => {
-    let url = `/maps/places/autocomplete?input=${encodeURIComponent(input)}`;
+    let url = getApiRoute(`/places/autocomplete?input=${encodeURIComponent(input)}`);
     
     if (types) {
       url += `&types=${encodeURIComponent(types)}`;
@@ -184,7 +225,7 @@ export const mapsService = {
     placeId: string, 
     fields?: string
   ): Promise<PlaceDetailsResult> => {
-    let url = `/maps/places/details?place_id=${encodeURIComponent(placeId)}`;
+    let url = getApiRoute(`/places/details?place_id=${encodeURIComponent(placeId)}`);
     
     if (fields) {
       url += `&fields=${encodeURIComponent(fields)}`;
@@ -205,7 +246,7 @@ export const mapsService = {
       ? location 
       : `${location.lat},${location.lng}`;
     
-    let url = `/maps/places/nearby?location=${encodeURIComponent(locationStr)}&radius=${radius}`;
+    let url = getApiRoute(`/places/nearby?location=${encodeURIComponent(locationStr)}&radius=${radius}`);
     
     if (type) {
       url += `&type=${encodeURIComponent(type)}`;
@@ -239,7 +280,7 @@ export const mapsService = {
       ? destination 
       : `${destination.lat},${destination.lng}`;
     
-    let url = `/maps/directions?origin=${encodeURIComponent(originStr)}&destination=${encodeURIComponent(destinationStr)}`;
+    let url = getApiRoute(`/directions?origin=${encodeURIComponent(originStr)}&destination=${encodeURIComponent(destinationStr)}`);
     
     if (options) {
       if (options.mode) {
@@ -280,7 +321,7 @@ export const mapsService = {
       ? center 
       : `${center.lat},${center.lng}`;
     
-    let url = `/maps/static?center=${encodeURIComponent(centerStr)}&zoom=${zoom}&size=${encodeURIComponent(size)}`;
+    let url = getApiRoute(`/static?center=${encodeURIComponent(centerStr)}&zoom=${zoom}&size=${encodeURIComponent(size)}`);
     
     if (markers) {
       url += `&markers=${encodeURIComponent(markers)}`;
@@ -295,6 +336,17 @@ export const mapsService = {
     }
     
     // Return the full URL to the static map
+    return `${API_BASE_URL}${url}`;
+  },
+
+  // Get a photo URL for a photo reference
+  getPhotoUrl: (reference: string, maxWidth: number = 400, maxHeight?: number): string => {
+    let url = getApiRoute(`/photo?reference=${encodeURIComponent(reference)}&maxwidth=${maxWidth}`);
+    
+    if (maxHeight) {
+      url += `&maxheight=${maxHeight}`;
+    }
+    
     return `${API_BASE_URL}${url}`;
   }
 };
