@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import styles from './workspace.module.css';
 import WorkspaceSearch from './WorkspaceSearch';
-import GoogleMap from '../common/GoogleMap';
+import GoogleMap from '../Common/GoogleMap';
 import { Location } from '../../services/mapsService';
 
 const WorkspaceSearchPage: React.FC = () => {

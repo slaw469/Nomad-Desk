@@ -165,7 +165,7 @@ const MapWorkspaceDetail: React.FC = () => {
                       width="16" 
                       height="16" 
                       viewBox="0 0 24 24" 
-                      fill={i < Math.floor(workspace.rating) ? "#4A6FDC" : "none"} 
+                      fill={i < Math.floor(workspace.rating ?? 0) ? "#4A6FDC" : "none"} 
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <path 
