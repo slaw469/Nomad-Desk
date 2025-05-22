@@ -1,4 +1,4 @@
-// nomad-desk-backend/server.js - Debug Version
+// nomad-desk-backend/server.js - FIXED VERSION
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -81,6 +81,9 @@ console.log('✅ Network routes registered');
 app.use('/api/bookings', require('./routes/bookingRoutes'));
 console.log('✅ Booking routes registered');
 
+app.use('/api/favorites', require('./routes/favoritesRoutes'));
+console.log('✅ Favorites routes registered');
+
 app.use('/api/maps', require('./routes/mapsRoutes'));
 console.log('✅ Maps routes registered');
 
@@ -123,11 +126,6 @@ app.use((req, res) => {
   console.log(`\n❌ 404 - Route not found: ${req.method} ${req.url}`);
   res.status(404).json({ message: 'Route not found' });
 });
-// Add this line to nomad-desk-backend/server.js
-// After the existing route registrations:
-
-app.use('/api/favorites', require('./routes/favoritesRoutes'));
-console.log('✅ Favorites routes registered');
 
 // Start server
 const PORT = process.env.PORT || 5001;
@@ -143,5 +141,8 @@ app.listen(PORT, () => {
   console.log('  POST /api/bookings');
   console.log('  GET  /api/bookings/upcoming');
   console.log('  GET  /api/bookings/past');
+  console.log('  GET  /api/favorites');
+  console.log('  POST /api/favorites');
+  console.log('  GET  /api/favorites/check/:workspaceId');
   console.log('\n👀 Watching for requests...\n');
 });
