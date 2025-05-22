@@ -1,4 +1,4 @@
-// app/components/workspaces/WorkspaceSearch.tsx
+// app/components/workspaces/WorkspaceSearch.tsx - Updated to remove redundant header
 import React, { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 import styles from './workspace.module.css';
@@ -129,17 +129,13 @@ const WorkspaceSearch: React.FC<WorkspaceSearchProps> = ({ onLocationSelected })
 
   return (
     <div className={styles.workspaceSearchContainer}>
-      <div className={styles.searchHeader}>
-        <h2>Find Workspaces Near You</h2>
-        <p>Search for libraries, cafés, and coworking spaces in your area</p>
-      </div>
-
+      {/* Streamlined search controls */}
       <div className={styles.searchControls}>
         <div className={styles.locationSearch}>
           {apiKey ? (
             <LocationSearch
               apiKey={apiKey}
-              placeholder="Enter a location"
+              placeholder="Enter a city, address, or landmark"
               onPlaceSelected={handlePlaceSelected}
               className={styles.locationSearchInput}
             />
@@ -149,54 +145,51 @@ const WorkspaceSearch: React.FC<WorkspaceSearchProps> = ({ onLocationSelected })
         </div>
 
         <div className={styles.radiusSelector}>
-          <label htmlFor="radius">Search radius:</label>
+          <label htmlFor="radius">Within:</label>
           <select
             id="radius"
             value={searchRadius}
             onChange={handleRadiusChange}
             className={styles.radiusSelect}
           >
-            <option value="500">500 m</option>
-            <option value="1000">1 km</option>
-            <option value="2000">2 km</option>
-            <option value="5000">5 km</option>
-            <option value="10000">10 km</option>
+            <option value="500">500m</option>
+            <option value="1000">1km</option>
+            <option value="2000">2km</option>
+            <option value="5000">5km</option>
+            <option value="10000">10km</option>
           </select>
         </div>
       </div>
 
-      <div className={styles.filterButtons}>
-        <button 
-          className={`${styles.filterButton} ${activeFilter === 'all' ? styles.active : ''}`}
-          onClick={() => handleFilterChange('all')}
-        >
-          All Types
-        </button>
-        <button 
-          className={`${styles.filterButton} ${activeFilter === 'library' ? styles.active : ''}`}
-          onClick={() => handleFilterChange('library')}
-        >
-          Libraries
-        </button>
-        <button 
-          className={`${styles.filterButton} ${activeFilter === 'cafe' ? styles.active : ''}`}
-          onClick={() => handleFilterChange('cafe')}
-        >
-          Cafés
-        </button>
-        <button 
-          className={`${styles.filterButton} ${activeFilter === 'establishment' ? styles.active : ''}`}
-          onClick={() => handleFilterChange('establishment')}
-        >
-          Co-working
-        </button>
-        <button
-          className={`${styles.filterButton} ${activeFilter === 'book_store' ? styles.active : ''}`}
-          onClick={() => handleFilterChange('book_store')}
-        >
-          Bookstores
-        </button>
-      </div>
+      {/* Quick filter buttons for search results */}
+      {searchLocation && (
+        <div className={styles.quickFilters}>
+          <button 
+            className={`${styles.quickFilterButton} ${activeFilter === 'all' ? styles.active : ''}`}
+            onClick={() => handleFilterChange('all')}
+          >
+            All
+          </button>
+          <button 
+            className={`${styles.quickFilterButton} ${activeFilter === 'library' ? styles.active : ''}`}
+            onClick={() => handleFilterChange('library')}
+          >
+            Libraries
+          </button>
+          <button 
+            className={`${styles.quickFilterButton} ${activeFilter === 'cafe' ? styles.active : ''}`}
+            onClick={() => handleFilterChange('cafe')}
+          >
+            Cafés
+          </button>
+          <button 
+            className={`${styles.quickFilterButton} ${activeFilter === 'establishment' ? styles.active : ''}`}
+            onClick={() => handleFilterChange('establishment')}
+          >
+            Co-working
+          </button>
+        </div>
+      )}
 
       {error && (
         <div className={styles.errorMessage}>
@@ -212,7 +205,10 @@ const WorkspaceSearch: React.FC<WorkspaceSearchProps> = ({ onLocationSelected })
         <div className={styles.searchResults}>
           {workspaces.length > 0 ? (
             <>
-              <h3>Workspaces near {searchAddress}</h3>
+              <div className={styles.resultsHeader}>
+                <h3>Found {workspaces.length} workspaces near {searchAddress.split(',')[0]}</h3>
+                <p>Sorted by distance and rating</p>
+              </div>
               <div className={styles.workspaceGrid}>
                 {workspaces.map((workspace) => (
                   <div key={workspace.id} className={styles.workspaceCard}>
@@ -271,7 +267,8 @@ const WorkspaceSearch: React.FC<WorkspaceSearchProps> = ({ onLocationSelected })
           ) : (
             searchLocation && (
               <div className={styles.noResults}>
-                <p>No workspaces found near this location. Try increasing the search radius or searching in a different area.</p>
+                <p>No {activeFilter === 'all' ? 'workspaces' : activeFilter === 'establishment' ? 'co-working spaces' : `${activeFilter}s`} found in this area.</p>
+                <p>Try expanding your search radius or exploring a different location.</p>
               </div>
             )
           )}
