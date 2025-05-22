@@ -104,9 +104,13 @@ export default function BookingCard({
         return;
       }
 
-      // Create booking data
+      // Create booking data - NOW INCLUDING WORKSPACE DETAILS
       const bookingData: BookingRequest = {
         workspaceId,
+        workspaceName, // NEW: Pass the real workspace name
+        workspaceAddress, // NEW: Pass the real workspace address  
+        workspaceType, // NEW: Pass the real workspace type
+        workspacePhoto, // NEW: Pass the workspace photo URL
         date,
         startTime,
         endTime,

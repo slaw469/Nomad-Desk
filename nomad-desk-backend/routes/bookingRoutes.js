@@ -1,46 +1,11 @@
-// nomad-desk-backend/routes/bookingRoutes.js - FIXED ROUTE ORDER
+// nomad-desk-backend/routes/bookingRoutes.js - FIXED FOR REAL WORKSPACE IDS
 const express = require('express');
 const auth = require('../middleware/auth');
 const Booking = require('../models/Booking');
 const User = require('../models/User');
 const router = express.Router();
 
-// Helper functions for mock workspace data
-function getWorkspaceName(workspaceId) {
-  const workspaceNames = {
-    '1': 'Central Library Workspace',
-    '2': 'University Library',
-    '3': 'Downtown Café',
-    '4': 'Innovation Hub',
-    '5': 'Community Center'
-  };
-  return workspaceNames[workspaceId] || `Workspace ${workspaceId}`;
-}
-
-function getWorkspaceAddress(workspaceId) {
-  const workspaceAddresses = {
-    '1': '123 Main Street, Downtown',
-    '2': '456 University Ave, Campus',
-    '3': '789 Coffee Lane, Business District',
-    '4': '321 Innovation Drive, Tech Quarter',
-    '5': '654 Community Road, Residential Area'
-  };
-  return workspaceAddresses[workspaceId] || `Address for Workspace ${workspaceId}`;
-}
-
-function getWorkspaceType(workspaceId) {
-  const workspaceTypes = {
-    '1': 'Library',
-    '2': 'Library',
-    '3': 'Café',
-    '4': 'Co-working',
-    '5': 'Community'
-  };
-  return workspaceTypes[workspaceId] || 'Workspace';
-}
-
-// IMPORTANT: Specific routes MUST come before parameterized routes
-// These routes must be defined BEFORE the /:id route
+// NO MORE MOCK DATA - We'll use the real workspace data from the request
 
 /**
  * @route   GET api/bookings/availability
@@ -267,7 +232,7 @@ router.get('/', auth, async (req, res) => {
 
 /**
  * @route   POST api/bookings
- * @desc    Create a new booking
+ * @desc    Create a new booking - UPDATED TO ACCEPT REAL WORKSPACE DATA
  * @access  Private
  */
 router.post('/', auth, async (req, res) => {
@@ -277,6 +242,10 @@ router.post('/', auth, async (req, res) => {
   try {
     const {
       workspaceId,
+      workspaceName,
+      workspaceAddress, 
+      workspaceType,
+      workspacePhoto,
       date,
       startTime,
       endTime,
@@ -286,9 +255,9 @@ router.post('/', auth, async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!workspaceId || !date || !startTime || !endTime || !roomType) {
+    if (!workspaceId || !workspaceName || !workspaceAddress || !date || !startTime || !endTime || !roomType) {
       return res.status(400).json({ 
-        message: 'Missing required fields: workspaceId, date, startTime, endTime, roomType' 
+        message: 'Missing required fields: workspaceId, workspaceName, workspaceAddress, date, startTime, endTime, roomType' 
       });
     }
 
@@ -311,13 +280,13 @@ router.post('/', auth, async (req, res) => {
       });
     }
 
-    // Create workspace object with mock data
+    // Create workspace object with REAL data from frontend
     const workspaceData = {
       id: workspaceId,
-      name: getWorkspaceName(workspaceId),
-      address: getWorkspaceAddress(workspaceId),
-      photo: `/api/placeholder/300/200?text=${encodeURIComponent(getWorkspaceName(workspaceId))}`,
-      type: getWorkspaceType(workspaceId)
+      name: workspaceName,
+      address: workspaceAddress,
+      photo: workspacePhoto || `/api/placeholder/300/200?text=${encodeURIComponent(workspaceName)}`,
+      type: workspaceType || 'Workspace'
     };
 
     // Create new booking

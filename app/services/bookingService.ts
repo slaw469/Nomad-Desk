@@ -42,14 +42,18 @@ export interface Booking {
 }
 
 export interface BookingRequest {
-  workspaceId: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  roomType: string;
-  numberOfPeople: number;
-  specialRequests?: string;
-}
+    workspaceId: string;
+    workspaceName: string; // NEW: Required workspace name
+    workspaceAddress: string; // NEW: Required workspace address
+    workspaceType?: string; // NEW: Optional workspace type
+    workspacePhoto?: string; // NEW: Optional workspace photo URL
+    date: string;
+    startTime: string;
+    endTime: string;
+    roomType: string;
+    numberOfPeople: number;
+    specialRequests?: string;
+  }
 
 export interface BookingStats {
   upcoming: number;

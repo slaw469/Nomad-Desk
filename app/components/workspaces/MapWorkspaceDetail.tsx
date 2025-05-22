@@ -6,6 +6,7 @@ import GoogleMap from '../Common/GoogleMap';
 import Loading from '../Common/Loading';
 import mapsService, { Location } from '../../services/mapsService';
 import workspaceService from '../../services/workspaceService';
+import BookingCard from './$workspaceId/components/BookingCard';
 
 interface WorkspaceDetails {
   id: string;
@@ -547,123 +548,19 @@ const MapWorkspaceDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Booking Card */}
-        <div className={styles.bookingCard}>
-          <div className={styles.priceSection}>
-            <div className={styles.priceDisplay}>
-              <span className={styles.price}>
-                {getWorkspaceType(workspace.types) === 'Library' ? 'Free' : 
+        {/* Booking Card - UPDATED TO USE COMPONENT WITH REAL WORKSPACE DATA */}
+        <BookingCard 
+          workspaceId={workspace.id}
+          workspaceName={workspace.name}
+          workspaceAddress={workspace.address}
+          workspaceType={getWorkspaceType(workspace.types)}
+          workspacePhoto={workspace.photos && workspace.photos.length > 0 ? getPhotoUrl(workspace.photos[0]) : undefined}
+          price={getWorkspaceType(workspace.types) === 'Library' ? 'Free' : 
                  getWorkspaceType(workspace.types) === 'Café' ? '$5' : '$15'}
-              </span>
-              <span className={styles.pricePeriod}>
-                {getWorkspaceType(workspace.types) === 'Library' ? '' : '/hr'}
-              </span>
-            </div>
-            {workspace.rating && (
-              <div className={styles.priceRating}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="#4A6FDC" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="#4A6FDC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span>{workspace.rating.toFixed(1)} · {workspace.reviews ? workspace.reviews.length : 0} reviews</span>
-              </div>
-            )}
-          </div>
-          
-          <form className={styles.bookingForm}>
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Date</label>
-                <input 
-                  type="date" 
-                  className={styles.formControl} 
-                  min={new Date().toISOString().split('T')[0]} 
-                  required
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Number of People</label>
-                <select className={styles.formControl}>
-                  <option>1 person</option>
-                  <option>2 people</option>
-                  <option>3 people</option>
-                  <option>4 people</option>
-                  <option>5+ people</option>
-                </select>
-              </div>
-            </div>
-            
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>From</label>
-                <select className={styles.formControl}>
-                  {[...Array(12)].map((_, i) => (
-                    <option key={i}>{`${i + 8 > 12 ? i - 4 : i + 8}:00 ${i + 8 >= 12 ? 'PM' : 'AM'}`}</option>
-                  ))}
-                </select>
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>To</label>
-                <select className={styles.formControl}>
-                  {[...Array(13)].map((_, i) => (
-                    <option key={i}>{`${i + 9 > 12 ? i - 3 : i + 9}:00 ${i + 9 >= 12 ? 'PM' : 'AM'}`}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Space Type</label>
-              <select className={styles.formControl}>
-                <option>Individual Desk</option>
-                <option>Group Study Room (2-4 people)</option>
-                <option>Private Study Room</option>
-                <option>Computer Station</option>
-                <option>Reading Area</option>
-              </select>
-            </div>
-            
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Special Requests (Optional)</label>
-              <textarea 
-                className={styles.formControl} 
-                rows={3} 
-                placeholder="Any specific requirements or preferences?"
-              ></textarea>
-            </div>
-            
-            <button type="submit" className={styles.bookButton}>
-              Reserve Now
-            </button>
-          </form>
-          
-          <div className={styles.bookingSummary}>
-            <div className={styles.summaryRow}>
-              <span>Base Price</span>
-              <span>
-                {getWorkspaceType(workspace.types) === 'Library' ? 'Free' : 
-                 getWorkspaceType(workspace.types) === 'Café' ? '$5.00' : '$15.00'}
-              </span>
-            </div>
-            {getWorkspaceType(workspace.types) !== 'Library' && (
-              <div className={styles.summaryRow}>
-                <span>Service fee</span>
-                <span>$0.50</span>
-              </div>
-            )}
-            <div className={styles.summaryTotal}>
-              <span>Total</span>
-              <span>
-                {getWorkspaceType(workspace.types) === 'Library' ? 'Free' : 
-                 getWorkspaceType(workspace.types) === 'Café' ? '$5.50' : '$15.50'}
-              </span>
-            </div>
-          </div>
-          
-          <div className={styles.workspaceContact}>
-            <p className={styles.contactText}>Have questions about this space?</p>
-            <button className={styles.contactHost}>Contact Workspace Host</button>
-          </div>
-        </div>
+          priceDescription={getWorkspaceType(workspace.types) === 'Library' ? '' : '/hr'}
+          rating={workspace.rating || 4.5} 
+          reviewCount={workspace.reviews ? workspace.reviews.length : 0} 
+        />
       </div>
 
       {/* Similar Workspaces Section */}
