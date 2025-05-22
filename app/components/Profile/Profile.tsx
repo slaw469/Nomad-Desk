@@ -27,7 +27,8 @@ import {
   XIcon,
   PlusIcon,
   GlobeIcon,
-  SettingsIcon
+  SettingsIcon,
+  MessageIcon
 } from './ProfileIcons';
 
 const Profile: React.FC = () => {
@@ -52,26 +53,118 @@ const Profile: React.FC = () => {
       setError(null);
       
       try {
-        // Fetch profile data
-        const profileData = await profileService.getCurrentProfile();
-        setProfile(profileData);
-        setFormProfile(profileData);
+        // For now, create a mock profile based on the authenticated user
+        // Replace this with actual API calls when backend is ready
+        const mockProfile: UserProfile = {
+          id: user?.id || '1',
+          name: user?.name || 'Your Name',
+          email: user?.email || 'your.email@example.com',
+          avatar: user?.avatar,
+          bio: 'Remote worker passionate about finding productive spaces to work from anywhere.',
+          profession: 'UX Designer',
+          location: 'San Francisco, CA',
+          timezone: 'PST (UTC-8)',
+          interests: ['Design', 'Coffee', 'Productivity', 'Remote Work'],
+          education: [
+            {
+              institution: 'University of California',
+              degree: 'Bachelor of Science',
+              field: 'Computer Science',
+              startYear: 2018,
+              endYear: 2022,
+              current: false
+            }
+          ],
+          socialLinks: {
+            linkedin: '',
+            twitter: '',
+            github: '',
+            website: ''
+          },
+          preferences: {
+            privateProfile: false,
+            emailNotifications: true,
+            pushNotifications: true
+          }
+        };
         
-        // Fetch network stats
-        const stats = await networkService.getConnectionStats();
+        setProfile(mockProfile);
+        setFormProfile(mockProfile);
+        
+        // Mock network stats
         setNetworkStats({
-          totalConnections: stats.totalConnections,
-          pendingRequests: stats.pendingRequests
+          totalConnections: 3,
+          pendingRequests: 1
         });
         
-        // Fetch connections
-        const connectionsData = await networkService.getConnections();
-        setConnections(connectionsData);
+        // Mock connections
+        setConnections([
+          {
+            id: '1',
+            user: {
+              id: '1',
+              name: 'Alex Johnson',
+              profession: 'Software Engineer',
+              avatar: null
+            },
+            mutualConnections: 3,
+            lastActive: '2 days ago'
+          },
+          {
+            id: '2',
+            user: {
+              id: '2',
+              name: 'Sara Williams',
+              profession: 'Content Writer',
+              avatar: null
+            },
+            mutualConnections: 5,
+            lastActive: '5 hours ago'
+          }
+        ]);
         
-        // Fetch study sessions
-        const upcomingSessions = await studySessionService.getUpcomingStudySessions();
-        const pastSessions = await studySessionService.getPastStudySessions();
-        setStudySessions([...upcomingSessions, ...pastSessions]);
+        // Mock study sessions
+        setStudySessions([
+          {
+            id: '1',
+            title: 'UX Research Collaboration',
+            description: 'Collaborative session for UX research',
+            host: {
+              id: user?.id || '1',
+              name: user?.name || 'You',
+              avatar: user?.avatar
+            },
+            workspace: {
+              id: '1',
+              name: 'Central Library Workspace',
+              address: '123 Main St, San Francisco, CA',
+              photo: ''
+            },
+            date: '2025-04-15',
+            startTime: '14:00',
+            endTime: '16:00',
+            participants: [
+              {
+                id: '1',
+                name: 'Alex Johnson',
+                avatar: '',
+                status: 'accepted'
+              },
+              {
+                id: '2',
+                name: 'Sara Williams',
+                avatar: '', 
+                status: 'pending'
+              }
+            ],
+            maxParticipants: 6,
+            topics: ['UX Research', 'Design Thinking'],
+            status: 'upcoming',
+            createdAt: '2025-01-20T10:00:00Z',
+            updatedAt: '2025-01-20T10:00:00Z'
+          }
+        ]);
+        
       } catch (err) {
         console.error('Error fetching profile data:', err);
         setError(err instanceof Error ? err.message : 'Failed to load profile data');
@@ -81,7 +174,7 @@ const Profile: React.FC = () => {
     };
     
     fetchProfileData();
-  }, []);
+  }, [user]);
 
   // Toggle editing state
   const toggleEditing = async () => {
@@ -89,8 +182,9 @@ const Profile: React.FC = () => {
       // Save profile changes
       try {
         setLoading(true);
-        const updatedProfile = await profileService.updateProfile(formProfile);
-        setProfile(updatedProfile);
+        // For now, just update local state
+        // Replace with actual API call: const updatedProfile = await profileService.updateProfile(formProfile);
+        setProfile(prev => ({ ...prev, ...formProfile } as UserProfile));
         setIsEditing(false);
       } catch (err) {
         console.error('Error updating profile:', err);
@@ -122,6 +216,9 @@ const Profile: React.FC = () => {
       setFormProfile({
         ...formProfile,
         preferences: {
+          privateProfile: false,
+          emailNotifications: true,
+          pushNotifications: true,
           ...formProfile.preferences,
           [preferenceName]: checked
         }
@@ -209,10 +306,12 @@ const Profile: React.FC = () => {
     
     try {
       setLoading(true);
-      const result = await profileService.uploadAvatar(file);
+      // For now, create a URL for preview
+      // Replace with actual upload: const result = await profileService.uploadAvatar(file);
+      const avatarUrl = URL.createObjectURL(file);
       
-      setProfile(prev => prev ? { ...prev, avatar: result.avatarUrl } : null);
-      setFormProfile(prev => ({ ...prev, avatar: result.avatarUrl }));
+      setProfile(prev => prev ? { ...prev, avatar: avatarUrl } : null);
+      setFormProfile(prev => ({ ...prev, avatar: avatarUrl }));
     } catch (err) {
       console.error('Error uploading avatar:', err);
       setError(err instanceof Error ? err.message : 'Failed to upload avatar');
@@ -710,9 +809,7 @@ const Profile: React.FC = () => {
               </div>
               <div className={styles.connectionActions}>
                 <Link to={`/messages/${connection.user.id}`} className={styles.messageButton}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-                  </svg>
+                  <MessageIcon />
                   <span>Message</span>
                 </Link>
               </div>
@@ -892,7 +989,6 @@ const Profile: React.FC = () => {
       <div className={styles.profileHeader}>
         <div className={styles.profileHeaderContent}>
           <div className={styles.profileBanner}>
-            {/* Profile banner background */}
             <label htmlFor="banner-upload" className={styles.editBannerButton}>
               <CameraIcon />
               <input 
@@ -991,6 +1087,18 @@ const Profile: React.FC = () => {
           <div className={styles.profileStats}>
             <h3>Profile Stats</h3>
             <div className={styles.statItem}>
+              <span className={styles.statLabel}>Profile Views</span>
+              <span className={styles.statValue}>124</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>Network</span>
+              <span className={styles.statValue}>{networkStats.totalConnections}</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>Study Sessions</span>
+              <span className={styles.statValue}>{studySessions.length}</span>
+            </div>
+            <div className={styles.statItem}>
               <span className={styles.statLabel}>Workspaces Visited</span>
               <span className={styles.statValue}>8</span>
             </div>
@@ -1018,16 +1126,4 @@ const Profile: React.FC = () => {
   );
 };
 
-export default Profile;Profile Views</span>
-              <span className={styles.statValue}>124</span>
-            </div>
-            <div className={styles.statItem}>
-              <span className={styles.statLabel}>Network</span>
-              <span className={styles.statValue}>{networkStats.totalConnections}</span>
-            </div>
-            <div className={styles.statItem}>
-              <span className={styles.statLabel}>Study Sessions</span>
-              <span className={styles.statValue}>{studySessions.length}</span>
-            </div>
-            <div className={styles.statItem}>
-              <span className={styles.statLabel}></span>
+export default Profile;

@@ -1,11 +1,10 @@
-// app/components/network/Network.tsx
+// app/components/Dashboard/SideBar/Network.tsx
 import React, { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useAuth } from "../../../contexts/AuthContext";
 import styles from './sidebarstyles/network.module.css';
 
-// Icons
-
+// Icons (you can replace these with your preferred icon library)
 const UserIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -89,7 +88,7 @@ const Network: React.FC = () => {
   
   // Load mock connections data
   useEffect(() => {
-    // This would typically be an API call
+    // This would typically be an API call to networkService.getConnections()
     const mockConnections: Connection[] = [
       {
         id: '1',
@@ -232,9 +231,11 @@ const Network: React.FC = () => {
 
   // Send a connection request
   const sendRequest = (id: string) => {
-    // In a real app, this would send a request to the backend
-    alert(`Connection request sent to ${connections.find(c => c.id === id)?.name}`);
-    setConnections(connections.filter(connection => connection.id !== id));
+    const connection = connections.find(c => c.id === id);
+    if (connection) {
+      alert(`Connection request sent to ${connection.name}`);
+      setConnections(connections.filter(connection => connection.id !== id));
+    }
   };
 
   // Toggle interest filter
@@ -416,7 +417,6 @@ const Network: React.FC = () => {
                       <button
                         className={styles.scheduleButton}
                         onClick={() => {
-                          // Navigate to schedule page or open modal in a real app
                           alert(`Schedule session with ${connection.name}`);
                         }}
                       >

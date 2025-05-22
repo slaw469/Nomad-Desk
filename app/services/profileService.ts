@@ -37,11 +37,11 @@ export interface SocialLinks {
 }
 
 export interface UserPreferences {
-  privateProfile: boolean;
-  emailNotifications: boolean;
-  pushNotifications: boolean;
-  studyPreferences?: StudyPreferences;
-}
+    privateProfile?: boolean;
+    emailNotifications?: boolean;
+    pushNotifications?: boolean;
+    studyPreferences?: StudyPreferences;
+  }
 
 export interface StudyPreferences {
   preferredEnvironments: string[];

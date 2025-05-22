@@ -11,7 +11,6 @@ dotenv.config();
 const app = express();
 
 // CORS middleware with proper configuration
-// Update this to allow requests from your actual frontend origin
 app.use(cors({
   origin: function(origin, callback) {
     // Allow requests from these origins
@@ -48,18 +47,35 @@ require('./config/db');
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/auth', require('./routes/googleAuthRoutes')); // Add Google auth routes
-app.use('/api/maps', require('./routes/mapsRoutes')); // Add Google Maps routes
-app.use('/api/placeholder', require('./routes/placeHolderRoutes')); // Add placeholder image routes
-app.use('/api/public-maps', require('./routes/publicMapsRoutes')); // Add public Maps routes for easier testing
+app.use('/api/auth', require('./routes/googleAuthRoutes')); // Google auth routes
+app.use('/api/profile', require('./routes/profileRoutes')); // Profile routes
+app.use('/api/network', require('./routes/networkRoutes')); // Network routes
+app.use('/api/maps', require('./routes/mapsRoutes')); // Google Maps routes
+app.use('/api/placeholder', require('./routes/placeHolderRoutes')); // Placeholder image routes
+app.use('/api/public-maps', require('./routes/publicMapsRoutes')); // Public Maps routes
 
 // Basic route
 app.get('/', (req, res) => {
   res.send('Nomad Desk API is running');
 });
 
+// Error handling middleware
+app.use((error, req, res, next) => {
+  console.error('Server error:', error);
+  res.status(500).json({ 
+    message: 'Something went wrong!',
+    error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+  });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route not found' });
+});
+
 // Start server
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });

@@ -9,7 +9,7 @@ import WorkspaceSearchPage from '../app/components/workspaces/WorkspaceSearchPag
 import MapWorkspaceDetail from '../app/components/workspaces/MapWorkspaceDetail';
 import FeaturesPage from '../app/components/Features/FeaturesPage';
 import Dashboard from '../app/components/dashboard/Dashboard';
-import Profile from '../app/components/dashboard/sidebar/Profile';
+import Profile from '../app/components/Profile/Profile'; // Fixed import path
 import Settings from '../app/components/dashboard/sidebar/Settings';
 import Notifications from '../app/components/dashboard/sidebar/Notifications';
 import Network from '../app/components/dashboard/sidebar/Network';
@@ -42,7 +42,7 @@ const indexRoute = new Route({
 // Define the dashboard route (protected)
 const dashboardRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: 'dashboard',
+  path: '/dashboard',
   component: () => (
     <ProtectedRoute>
       <Dashboard />
@@ -53,7 +53,7 @@ const dashboardRoute = new Route({
 // Define all the other protected routes
 const profileRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: 'profile',
+  path: '/profile',
   component: () => (
     <ProtectedRoute>
       <Profile />
@@ -63,7 +63,7 @@ const profileRoute = new Route({
 
 const settingsRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: 'settings',
+  path: '/settings',
   component: () => (
     <ProtectedRoute>
       <Settings />
@@ -73,7 +73,7 @@ const settingsRoute = new Route({
 
 const notificationsRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: 'notifications',
+  path: '/notifications',
   component: () => (
     <ProtectedRoute>
       <Notifications />
@@ -83,7 +83,7 @@ const notificationsRoute = new Route({
 
 const networkRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: 'network',
+  path: '/network',
   component: () => (
     <ProtectedRoute>
       <Network />
@@ -94,7 +94,7 @@ const networkRoute = new Route({
 // Workspace routes
 const workspacesRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: 'workspaces',
+  path: '/workspaces',
   component: () => (
     <ProtectedRoute>
       <WorkspaceList />
@@ -104,7 +104,7 @@ const workspacesRoute = new Route({
 
 const workspaceDetailRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: 'workspaces/$workspaceId',
+  path: '/workspaces/$workspaceId',
   component: () => (
     <ProtectedRoute>
       <WorkspaceDetail />
@@ -115,7 +115,7 @@ const workspaceDetailRoute = new Route({
 // New workspace search route
 const workspaceSearchRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: 'search',
+  path: '/search',
   component: () => (
     <ProtectedRoute>
       <WorkspaceSearchPage />
@@ -126,7 +126,7 @@ const workspaceSearchRoute = new Route({
 // New map-based workspace detail route
 const mapWorkspaceDetailRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: 'workspaces/map/$placeId',
+  path: '/workspaces/map/$placeId',
   component: () => (
     <ProtectedRoute>
       <MapWorkspaceDetail />
@@ -137,45 +137,108 @@ const mapWorkspaceDetailRoute = new Route({
 // Define additional public routes
 const howItWorksRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: 'how-it-works',
+  path: '/how-it-works',
   component: PlaceholderPage,
 });
 
 const featuresRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: 'features',
+  path: '/features',
   component: FeaturesPage,
 });
 
 const aboutRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: 'about',
+  path: '/about',
   component: NomadDeskAbout,
 });
 
 // Auth routes
 const loginRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: 'login',
+  path: '/login',
   component: WrappedLSPage,
 });
 
 const signupRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: 'signup',
+  path: '/signup',
   component: WrappedLSPage,
 });
 
 // OAuth callback route
 const oauthCallbackRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: 'oauth-callback',
+  path: '/oauth-callback',
   component: OAuthCallback,
 });
 
 const createGroupRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: 'create-group',
+  path: '/create-group',
+  component: () => (
+    <ProtectedRoute>
+      <PlaceholderPage />
+    </ProtectedRoute>
+  ),
+});
+
+// Study sessions routes
+const studySessionsRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/study-sessions',
+  component: () => (
+    <ProtectedRoute>
+      <PlaceholderPage />
+    </ProtectedRoute>
+  ),
+});
+
+const createStudySessionRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/study-sessions/create',
+  component: () => (
+    <ProtectedRoute>
+      <PlaceholderPage />
+    </ProtectedRoute>
+  ),
+});
+
+const studySessionDetailRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/study-sessions/$sessionId',
+  component: () => (
+    <ProtectedRoute>
+      <PlaceholderPage />
+    </ProtectedRoute>
+  ),
+});
+
+// Messages routes
+const messagesRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/messages',
+  component: () => (
+    <ProtectedRoute>
+      <PlaceholderPage />
+    </ProtectedRoute>
+  ),
+});
+
+const messageDetailRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/messages/$userId',
+  component: () => (
+    <ProtectedRoute>
+      <PlaceholderPage />
+    </ProtectedRoute>
+  ),
+});
+
+// Favorites route
+const favoritesRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/favorites',
   component: () => (
     <ProtectedRoute>
       <PlaceholderPage />
@@ -202,6 +265,12 @@ const routeTree = rootRoute.addChildren([
   signupRoute,
   oauthCallbackRoute,
   createGroupRoute,
+  studySessionsRoute,
+  createStudySessionRoute,
+  studySessionDetailRoute,
+  messagesRoute,
+  messageDetailRoute,
+  favoritesRoute,
 ]);
 
 // Create the router

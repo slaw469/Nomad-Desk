@@ -1,8 +1,14 @@
 // app/components/Profile/ProfileIcons.tsx
 import React from 'react';
 
+// Interface for icon props
+interface IconProps {
+  size?: number;
+  color?: string;
+}
+
 // Function to create an icon component with default sizing
-const createIcon = (path: JSX.Element): React.FC<{ size?: number, color?: string }> => {
+const createIcon = (path: React.ReactElement): React.FC<IconProps> => {
   return ({ size = 20, color = 'currentColor' }) => (
     <svg 
       xmlns="http://www.w3.org/2000/svg" 
