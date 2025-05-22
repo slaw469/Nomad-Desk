@@ -1,3 +1,4 @@
+// app/components/workspaces/$workspaceId/WSindex.tsx
 import React from 'react';
 import { useParams } from '@tanstack/react-router';
 import styles from '../workspace.module.css';
@@ -234,6 +235,11 @@ export default function WorkspaceDetail() {
         />
         
         <BookingCard 
+          workspaceId={workspace.id}
+          workspaceName={workspace.title}
+          workspaceAddress={workspace.address}
+          workspaceType={workspace.type}
+          workspacePhoto={workspace.photos[0]?.url}
           price="Free" 
           priceDescription="Public Library" 
           rating={workspace.rating} 

@@ -1,10 +1,13 @@
-// app/components/dashboard/Dashboard.tsx
+// app/components/Dashboard/Dashboard.tsx
 import React, { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useAuth } from "../../contexts/AuthContext";
-import styles from './dashboard.module.css';
+import styles from './Dashboard.module.css';
+import Loading from '../Common/Loading';
+import { bookingService, type Booking } from '../../services/bookingService';
+import networkService, { type Connection } from '../../services/networkService';
 
-// Import icons (using the same icons you already have)
+// Import icons (keeping your existing icon components)
 const NetworkIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -12,7 +15,8 @@ const NetworkIcon = () => (
       <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
       <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
     </svg>
-  );
+);
+
 const CalendarIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -22,7 +26,6 @@ const CalendarIcon = () => (
   </svg>
 );
 
-// Import other icons as in your original code...
 const MapPinIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
@@ -63,10 +66,57 @@ const BookmarkIcon = () => (
   </svg>
 );
 
+// Extended workspace interface for favorites
+interface FavoriteWorkspace {
+  id: string;
+  name: string;
+  type: string;
+  address: string;
+  distance?: string;
+  amenities: string[];
+  photos?: string[];
+  price?: string;
+  rating?: number;
+  lastVisited?: string;
+  timesVisited?: number;
+}
+
+interface RecentlyViewedWorkspace {
+  id: string;
+  name: string;
+  type: string;
+  distance?: string;
+  photos?: string[];
+}
+
+// Dashboard stats interface
+interface DashboardStats {
+  upcomingBookings: number;
+  pastBookings: number;
+  totalConnections: number;
+  favoriteSpaces: number;
+  pendingRequests?: number;
+}
+
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('upcoming');
   const { user, logout } = useAuth();
   
+  // State for real data
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([]);
+  const [pastBookings, setPastBookings] = useState<Booking[]>([]);
+  const [favoriteSpaces, setFavoriteSpaces] = useState<FavoriteWorkspace[]>([]);
+  const [recentlyViewed, setRecentlyViewed] = useState<RecentlyViewedWorkspace[]>([]);
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
+    upcomingBookings: 0,
+    pastBookings: 0,
+    totalConnections: 0,
+    favoriteSpaces: 0,
+    pendingRequests: 0
+  });
+
   // Get user initials for avatar
   const getUserInitials = () => {
     if (!user || !user.name) return 'U';
@@ -76,129 +126,212 @@ const Dashboard: React.FC = () => {
     return (nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0)).toUpperCase();
   };
 
-  // Your mock data can remain the same as in your original component
-  // Mock data for upcoming bookings
-  const upcomingBookings = [
-    {
-      id: '1',
-      space: 'Central Library Workspace',
-      date: 'Monday, April 15, 2025',
-      time: '9:00 AM - 1:00 PM',
-      type: 'Study Room',
-      imageUrl: '/api/placeholder/300/200'
-    },
-    {
-      id: '2',
-      space: 'Downtown Café',
-      date: 'Wednesday, April 17, 2025',
-      time: '2:00 PM - 5:00 PM',
-      type: 'Individual Desk',
-      imageUrl: '/api/placeholder/300/200'
+  // Fetch all dashboard data
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch data in parallel
+      const [
+        upcomingBookingsData,
+        pastBookingsData,
+        connectionsData,
+        networkStats
+      ] = await Promise.all([
+        bookingService.getUpcomingBookings().catch(err => {
+          console.warn('Failed to fetch upcoming bookings:', err);
+          return [];
+        }),
+        bookingService.getPastBookings().catch(err => {
+          console.warn('Failed to fetch past bookings:', err);
+          return [];
+        }),
+        networkService.getConnections().catch(err => {
+          console.warn('Failed to fetch connections:', err);
+          return [];
+        }),
+        networkService.getConnectionStats().catch(err => {
+          console.warn('Failed to fetch network stats:', err);
+          return { totalConnections: 0, pendingRequests: 0, mutualConnections: {} };
+        })
+      ]);
+
+      // Update state with fetched data
+      setUpcomingBookings(upcomingBookingsData);
+      setPastBookings(pastBookingsData);
+
+      // Update dashboard stats
+      setDashboardStats({
+        upcomingBookings: upcomingBookingsData.length,
+        pastBookings: pastBookingsData.length,
+        totalConnections: networkStats.totalConnections,
+        favoriteSpaces: 0, // Will be updated when we implement favorites
+        pendingRequests: networkStats.pendingRequests
+      });
+
+      // TODO: Implement favorites and recently viewed when backend supports it
+      // For now, we'll keep empty arrays or add fallback data
+      setFavoriteSpaces([]);
+      setRecentlyViewed([]);
+
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  // Mock data for past bookings
-  const pastBookings = [
-    {
-      id: '3',
-      space: 'Innovation Hub Coworking',
-      date: 'Monday, April 8, 2025',
-      time: '10:00 AM - 4:00 PM',
-      type: 'Meeting Room',
-      imageUrl: '/api/placeholder/300/200'
-    },
-    {
-      id: '4',
-      space: 'Sunny Corner Cafe',
-      date: 'Friday, April 5, 2025',
-      time: '9:00 AM - 12:00 PM',
-      type: 'Individual Desk',
-      imageUrl: '/api/placeholder/300/200'
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  // Format date for display
+  const formatDate = (dateString: string): string => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  // Format time for display
+  const formatTime = (timeString: string): string => {
+    return new Date(`1970-01-01T${timeString}`).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
+  // Handle booking modification
+  const handleModifyBooking = async (bookingId: string) => {
+    // TODO: Implement booking modification
+    console.log('Modify booking:', bookingId);
+  };
+
+  // Handle booking cancellation
+  const handleCancelBooking = async (bookingId: string) => {
+    try {
+      await bookingService.cancelBooking(bookingId);
+      // Refresh bookings
+      fetchDashboardData();
+    } catch (err) {
+      console.error('Failed to cancel booking:', err);
     }
-  ];
+  };
 
-  // Mock data for favorite spaces
-  const favoriteSpaces = [
-    {
-      id: '5',
-      name: 'Central Library Workspace',
-      type: 'Library',
-      distance: '2.1 miles away',
-      rating: 4.98,
-      amenities: ['Free Wi-Fi', 'Power Outlets'],
-      imageUrl: '/api/placeholder/300/200'
-    },
-    {
-      id: '6',
-      name: 'Innovation Hub Coworking',
-      type: 'Co-working',
-      distance: '1.2 miles away',
-      rating: 4.9,
-      amenities: ['Meeting Rooms', 'High-Speed Wi-Fi'],
-      imageUrl: '/api/placeholder/300/200'
-    },
-    {
-      id: '7',
-      name: 'Downtown Café',
-      type: 'Café',
-      distance: '0.8 miles away',
-      rating: 4.7,
-      amenities: ['Great Coffee', 'Wi-Fi'],
-      imageUrl: '/api/placeholder/300/200'
-    }
-  ];
+  // Handle booking again
+  const handleBookAgain = (booking: Booking) => {
+    // Navigate to workspace booking page
+    window.location.href = `/workspaces/${booking.workspace.id}`;
+  };
 
-  // Define the interface for booking objects
-  interface Booking {
-    id: string;
-    space: string;
-    date: string;
-    time: string;
-    type: string;
-    imageUrl: string;
-  }
-
-  // Function to render upcoming or past bookings
+  // Function to render bookings
   const renderBookings = (bookings: Booking[]) => {
+    if (bookings.length === 0) {
+      return (
+        <div className={styles.emptyState}>
+          <div className={styles.emptyStateIcon}>
+            <CalendarIcon />
+          </div>
+          <h3 className={styles.emptyStateTitle}>
+            {activeTab === 'upcoming' ? 'No upcoming bookings' : 'No past bookings'}
+          </h3>
+          <p className={styles.emptyStateMessage}>
+            {activeTab === 'upcoming' 
+              ? 'Time to discover and book your next productive workspace!' 
+              : 'Your booking history will appear here once you start using workspaces.'}
+          </p>
+          {activeTab === 'upcoming' && (
+            <Link to="/search" className={`${styles.ctaButton} ${styles.primaryButton}`}>
+              Find Spaces
+            </Link>
+          )}
+        </div>
+      );
+    }
+
     return (
       <div className={styles.bookingsGrid}>
         {bookings.map(booking => (
           <div key={booking.id} className={styles.bookingCard}>
             <div className={styles.bookingImage}>
-              <img src={booking.imageUrl} alt={booking.space} />
+              <img 
+                src={booking.workspace.photo || '/api/placeholder/300/200'} 
+                alt={booking.workspace.name}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/api/placeholder/300/200';
+                }}
+              />
             </div>
             <div className={styles.bookingContent}>
-              <h3 className={styles.bookingTitle}>{booking.space}</h3>
+              <h3 className={styles.bookingTitle}>{booking.workspace.name}</h3>
               <div className={styles.bookingDetails}>
                 <div className={styles.bookingDetail}>
                   <CalendarIcon />
-                  <span>{booking.date}</span>
+                  <span>{formatDate(booking.date)}</span>
                 </div>
                 <div className={styles.bookingDetail}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
                     <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                   </svg>
-                  <span>{booking.time}</span>
+                  <span>{formatTime(booking.startTime)} - {formatTime(booking.endTime)}</span>
                 </div>
                 <div className={styles.bookingDetail}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" />
                     <path d="M3 9h18" stroke="currentColor" strokeWidth="2" />
                   </svg>
-                  <span>{booking.type}</span>
+                  <span>{booking.roomType}</span>
                 </div>
+                {booking.numberOfPeople > 1 && (
+                  <div className={styles.bookingDetail}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>{booking.numberOfPeople} people</span>
+                  </div>
+                )}
               </div>
               <div className={styles.bookingActions}>
                 {activeTab === 'upcoming' ? (
                   <>
-                    <button className={`${styles.actionButton} ${styles.primaryButton}`}>Modify</button>
-                    <button className={`${styles.actionButton} ${styles.secondaryButton}`}>Cancel</button>
+                    <button 
+                      className={`${styles.actionButton} ${styles.primaryButton}`}
+                      onClick={() => handleModifyBooking(booking.id)}
+                    >
+                      Modify
+                    </button>
+                    <button 
+                      className={`${styles.actionButton} ${styles.secondaryButton}`}
+                      onClick={() => handleCancelBooking(booking.id)}
+                    >
+                      Cancel
+                    </button>
                   </>
                 ) : (
                   <>
-                    <button className={`${styles.actionButton} ${styles.primaryButton}`}>Book Again</button>
-                    <button className={`${styles.actionButton} ${styles.secondaryButton}`}>Review</button>
+                    <button 
+                      className={`${styles.actionButton} ${styles.primaryButton}`}
+                      onClick={() => handleBookAgain(booking)}
+                    >
+                      Book Again
+                    </button>
+                    <Link 
+                      to={`/workspaces/${booking.workspace.id}`}
+                      className={`${styles.actionButton} ${styles.secondaryButton}`}
+                    >
+                      Review
+                    </Link>
                   </>
                 )}
               </div>
@@ -211,8 +344,28 @@ const Dashboard: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    // No need to navigate as the logout function will handle it
   };
+
+  if (loading) {
+    return <Loading message="Loading your dashboard..." fullScreen={true} />;
+  }
+
+  if (error) {
+    return (
+      <div className={styles.dashboardContainer}>
+        <div className={styles.errorMessage}>
+          <h2>Error Loading Dashboard</h2>
+          <p>{error}</p>
+          <button 
+            onClick={fetchDashboardData}
+            className={`${styles.actionButton} ${styles.primaryButton}`}
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.dashboardContainer}>
@@ -239,9 +392,9 @@ const Dashboard: React.FC = () => {
             <span>Favorites</span>
           </Link>
           <Link to="/network" className={styles.sidebarLink}>
-        <NetworkIcon />
+            <NetworkIcon />
             <span>My Network</span>
-        </Link>
+          </Link>
           <Link to="/notifications" className={styles.sidebarLink}>
             <BellIcon />
             <span>Notifications</span>
@@ -276,19 +429,21 @@ const Dashboard: React.FC = () => {
             </div>
             <button className={styles.notificationButton}>
               <BellIcon />
-              <span className={styles.notificationBadge}>3</span>
+              {(dashboardStats.pendingRequests || 0) > 0 && (
+                <span className={styles.notificationBadge}>{dashboardStats.pendingRequests}</span>
+              )}
             </button>
           </div>
         </div>
         
-        {/* Booking Summary Cards */}
+        {/* Summary Cards with Real Data */}
         <div className={styles.summaryCards}>
           <div className={styles.summaryCard}>
             <div className={styles.summaryIconWrapper}>
               <CalendarIcon />
             </div>
             <div className={styles.summaryInfo}>
-              <h3 className={styles.summaryValue}>2</h3>
+              <h3 className={styles.summaryValue}>{dashboardStats.upcomingBookings}</h3>
               <p className={styles.summaryLabel}>Upcoming Bookings</p>
             </div>
           </div>
@@ -306,33 +461,33 @@ const Dashboard: React.FC = () => {
               </svg>
             </div>
             <div className={styles.summaryInfo}>
-              <h3 className={styles.summaryValue}>15</h3>
+              <h3 className={styles.summaryValue}>{dashboardStats.pastBookings}</h3>
               <p className={styles.summaryLabel}>Past Bookings</p>
             </div>
           </div>
           
           <div className={styles.summaryCard}>
-  <div className={styles.summaryIconWrapper}>
-    <NetworkIcon />
-  </div>
-  <div className={styles.summaryInfo}>
-    <h3 className={styles.summaryValue}>6</h3>
-    <p className={styles.summaryLabel}>Connections</p>
-  </div>
-</div>
+            <div className={styles.summaryIconWrapper}>
+              <NetworkIcon />
+            </div>
+            <div className={styles.summaryInfo}>
+              <h3 className={styles.summaryValue}>{dashboardStats.totalConnections}</h3>
+              <p className={styles.summaryLabel}>Connections</p>
+            </div>
+          </div>
           
           <div className={styles.summaryCard}>
             <div className={styles.summaryIconWrapper}>
               <BookmarkIcon />
             </div>
             <div className={styles.summaryInfo}>
-              <h3 className={styles.summaryValue}>3</h3>
+              <h3 className={styles.summaryValue}>{dashboardStats.favoriteSpaces}</h3>
               <p className={styles.summaryLabel}>Favorite Spaces</p>
             </div>
           </div>
         </div>
         
-        {/* Bookings Section with Tabs */}
+        {/* Bookings Section with Real Data */}
         <div className={styles.contentSection}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>My Bookings</h2>
@@ -341,77 +496,88 @@ const Dashboard: React.FC = () => {
                 className={`${styles.tabButton} ${activeTab === 'upcoming' ? styles.activeTab : ''}`}
                 onClick={() => setActiveTab('upcoming')}
               >
-                Upcoming
+                Upcoming ({dashboardStats.upcomingBookings})
               </button>
               <button 
                 className={`${styles.tabButton} ${activeTab === 'past' ? styles.activeTab : ''}`}
                 onClick={() => setActiveTab('past')}
               >
-                Past
+                Past ({dashboardStats.pastBookings})
               </button>
             </div>
           </div>
           
           {activeTab === 'upcoming' && renderBookings(upcomingBookings)}
           {activeTab === 'past' && renderBookings(pastBookings)}
-          
-          {upcomingBookings.length === 0 && activeTab === 'upcoming' && (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyStateIcon}>
-                <CalendarIcon />
-              </div>
-              <h3 className={styles.emptyStateTitle}>No upcoming bookings</h3>
-              <p className={styles.emptyStateMessage}>Time to discover and book your next productive workspace!</p>
-              <Link to="/search" className={`${styles.ctaButton} ${styles.primaryButton}`}>Find Spaces</Link>
-            </div>
-          )}
         </div>
         
-        {/* Favorite Spaces Section */}
+        {/* Favorite Spaces Section - Will show message until backend is implemented */}
         <div className={styles.contentSection}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>My Favorite Spaces</h2>
             <Link to="/favorites" className={styles.viewAllLink}>View All</Link>
           </div>
           
-          <div className={styles.favoriteSpacesGrid}>
-            {favoriteSpaces.map(space => (
-              <div key={space.id} className={styles.favoriteSpaceCard}>
-                <div className={styles.favoriteSpaceImage}>
-                  <img src={space.imageUrl} alt={space.name} />
-                  <button className={styles.favoriteButton}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#FF7E5F" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M20.84 4.61C20.3292 4.099 19.7228 3.69364 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69364 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.57831 8.50903 2.99871 7.05 2.99871C5.59096 2.99871 4.19169 3.57831 3.16 4.61C2.1283 5.64169 1.54871 7.04097 1.54871 8.5C1.54871 9.95903 2.1283 11.3583 3.16 12.39L4.22 13.45L12 21.23L19.78 13.45L20.84 12.39C21.351 11.8792 21.7563 11.2728 22.0329 10.6054C22.3095 9.93792 22.4518 9.22252 22.4518 8.5C22.4518 7.77748 22.3095 7.06208 22.0329 6.39464C21.7563 5.7272 21.351 5.12076 20.84 4.61Z" stroke="#FF7E5F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
-                </div>
-                <div className={styles.favoriteSpaceContent}>
-                  <div className={styles.favoriteSpaceHeader}>
-                    <h3 className={styles.favoriteSpaceName}>{space.name}</h3>
-                    <div className={styles.favoriteSpaceRating}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="#4A6FDC" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="#4A6FDC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      <span>{space.rating}</span>
-                    </div>
-                  </div>
-                  <div className={styles.favoriteSpaceInfo}>
-                    <div className={styles.favoriteSpaceType}>
-                      <span>{space.type}</span>
-                      <span className={styles.favoriteSpaceDot}>•</span>
-                      <span>{space.distance}</span>
-                    </div>
-                    <div className={styles.favoriteSpaceAmenities}>
-                      {space.amenities.map((amenity, index) => (
-                        <span key={index} className={styles.favoriteSpaceAmenity}>{amenity}</span>
-                      ))}
-                    </div>
-                  </div>
-                  <Link to={`/search/${space.id}`} className={styles.bookSpaceButton}>Book Now</Link>
-                </div>
+          {favoriteSpaces.length === 0 ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyStateIcon}>
+                <BookmarkIcon />
               </div>
-            ))}
-          </div>
+              <h3 className={styles.emptyStateTitle}>No favorite spaces yet</h3>
+              <p className={styles.emptyStateMessage}>
+                Start exploring workspaces and save your favorites for quick access!
+              </p>
+              <Link to="/search" className={`${styles.ctaButton} ${styles.primaryButton}`}>
+                Find Spaces
+              </Link>
+            </div>
+          ) : (
+            <div className={styles.favoriteSpacesGrid}>
+              {favoriteSpaces.map(space => (
+                <div key={space.id} className={styles.favoriteSpaceCard}>
+                  <div className={styles.favoriteSpaceImage}>
+                    <img 
+                      src={space.photos?.[0] || '/api/placeholder/300/200'} 
+                      alt={space.name}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/api/placeholder/300/200';
+                      }}
+                    />
+                    <button className={styles.favoriteButton}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="#FF7E5F" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20.84 4.61C20.3292 4.099 19.7228 3.69364 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69364 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.57831 8.50903 2.99871 7.05 2.99871C5.59096 2.99871 4.19169 3.57831 3.16 4.61C2.1283 5.64169 1.54871 7.04097 1.54871 8.5C1.54871 9.95903 2.1283 11.3583 3.16 12.39L4.22 13.45L12 21.23L19.78 13.45L20.84 12.39C21.351 11.8792 21.7563 11.2728 22.0329 10.6054C22.3095 9.93792 22.4518 9.22252 22.4518 8.5C22.4518 7.77748 22.3095 7.06208 22.0329 6.39464C21.7563 5.7272 21.351 5.12076 20.84 4.61Z" stroke="#FF7E5F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <div className={styles.favoriteSpaceContent}>
+                    <div className={styles.favoriteSpaceHeader}>
+                      <h3 className={styles.favoriteSpaceName}>{space.name}</h3>
+                      <div className={styles.favoriteSpaceRating}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="#4A6FDC" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="#4A6FDC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        <span>{space.rating?.toFixed(1) || '4.5'}</span>
+                      </div>
+                    </div>
+                    <div className={styles.favoriteSpaceInfo}>
+                      <div className={styles.favoriteSpaceType}>
+                        <span>{space.type}</span>
+                        <span className={styles.favoriteSpaceDot}>•</span>
+                        <span>{space.distance}</span>
+                      </div>
+                      <div className={styles.favoriteSpaceAmenities}>
+                        {space.amenities.slice(0, 2).map((amenity, index) => (
+                          <span key={index} className={styles.favoriteSpaceAmenity}>{amenity}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <Link to={`/workspaces/${space.id}`} className={styles.bookSpaceButton}>Book Now</Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         
         {/* Recently Viewed Section */}
@@ -420,46 +586,48 @@ const Dashboard: React.FC = () => {
             <h2 className={styles.sectionTitle}>Recently Viewed</h2>
           </div>
           
-          <div className={styles.recentlyViewedList}>
-            <div className={styles.recentlyViewedItem}>
-              <img 
-                src="/api/placeholder/80/80" 
-                alt="University Library" 
-                className={styles.recentlyViewedImage} 
-              />
-              <div className={styles.recentlyViewedInfo}>
-                <h4 className={styles.recentlyViewedName}>University Library</h4>
-                <p className={styles.recentlyViewedDetail}>Library • 3.5 miles away</p>
+          {recentlyViewed.length === 0 ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyStateIcon}>
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
+                </svg>
               </div>
-              <Link to="/workspaces/2" className={styles.recentlyViewedAction}>View</Link>
+              <h3 className={styles.emptyStateTitle}>No recently viewed workspaces</h3>
+              <p className={styles.emptyStateMessage}>
+                Start exploring workspaces to see your viewing history here.
+              </p>
+              <Link to="/search" className={`${styles.ctaButton} ${styles.primaryButton}`}>
+                Browse Workspaces
+              </Link>
             </div>
-            
-            <div className={styles.recentlyViewedItem}>
-              <img 
-                src="/api/placeholder/80/80" 
-                alt="Artisan Coffee Study Hub" 
-                className={styles.recentlyViewedImage} 
-              />
-              <div className={styles.recentlyViewedInfo}>
-                <h4 className={styles.recentlyViewedName}>Artisan Coffee Study Hub</h4>
-                <p className={styles.recentlyViewedDetail}>Café • 1.2 miles away</p>
-              </div>
-              <Link to="/workspaces/8" className={styles.recentlyViewedAction}>View</Link>
+          ) : (
+            <div className={styles.recentlyViewedList}>
+              {recentlyViewed.map(workspace => (
+                <div key={workspace.id} className={styles.recentlyViewedItem}>
+                  <img 
+                    src={workspace.photos?.[0] || '/api/placeholder/80/80'} 
+                    alt={workspace.name} 
+                    className={styles.recentlyViewedImage}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/api/placeholder/80/80';
+                    }}
+                  />
+                  <div className={styles.recentlyViewedInfo}>
+                    <h4 className={styles.recentlyViewedName}>{workspace.name}</h4>
+                    <p className={styles.recentlyViewedDetail}>
+                      {workspace.type} • {workspace.distance || 'Unknown distance'}
+                    </p>
+                  </div>
+                  <Link to={`/workspaces/${workspace.id}`} className={styles.recentlyViewedAction}>
+                    View
+                  </Link>
+                </div>
+              ))}
             </div>
-            
-            <div className={styles.recentlyViewedItem}>
-              <img 
-                src="/api/placeholder/80/80" 
-                alt="Community Center" 
-                className={styles.recentlyViewedImage} 
-              />
-              <div className={styles.recentlyViewedInfo}>
-                <h4 className={styles.recentlyViewedName}>Community Center</h4>
-                <p className={styles.recentlyViewedDetail}>Community • 2.5 miles away</p>
-              </div>
-              <Link to="/workspaces/5" className={styles.recentlyViewedAction}>View</Link>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

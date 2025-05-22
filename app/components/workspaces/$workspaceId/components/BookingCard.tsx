@@ -1,8 +1,16 @@
-// app/routes/workspaces/$workspaceId/components/BookingCard.tsx
+// app/components/workspaces/$workspaceId/components/BookingCard.tsx
 import React, { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import styles from '../../workspace.module.css';
+import { bookingService, type BookingRequest } from '../../../../services/bookingService';
+import Loading from '../../../Common/Loading';
 
 interface BookingCardProps {
+  workspaceId: string;
+  workspaceName: string;
+  workspaceAddress: string;
+  workspaceType: string;
+  workspacePhoto?: string;
   price: string;
   priceDescription: string;
   rating: number;
@@ -10,34 +18,156 @@ interface BookingCardProps {
 }
 
 export default function BookingCard({
+  workspaceId,
+  workspaceName,
+  workspaceAddress,
+  workspaceType,
+  workspacePhoto,
   price,
   priceDescription,
   rating,
   reviewCount
 }: BookingCardProps) {
+  const navigate = useNavigate();
   const [date, setDate] = useState('');
   const [numPeople, setNumPeople] = useState('1 person');
-  const [startTime, setStartTime] = useState('8:00 AM');
-  const [endTime, setEndTime] = useState('9:00 AM');
+  const [startTime, setStartTime] = useState('08:00');
+  const [endTime, setEndTime] = useState('09:00');
   const [roomType, setRoomType] = useState('Individual Desk');
   const [requests, setRequests] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   
-  const handleSubmit = (e: React.FormEvent) => {
+  // Helper function to convert "X people" to number
+  const parseNumPeople = (numPeopleStr: string): number => {
+    if (numPeopleStr.includes('5+')) return 5;
+    const match = numPeopleStr.match(/(\d+)/);
+    return match ? parseInt(match[1]) : 1;
+  };
+
+  // Helper function to format time for API (24-hour format)
+  const formatTimeForApi = (time12h: string): string => {
+    const [time, period] = time12h.split(' ');
+    let [hours, minutes] = time.split(':');
+    let hour = parseInt(hours);
+    
+    if (period === 'PM' && hour !== 12) {
+      hour += 12;
+    } else if (period === 'AM' && hour === 12) {
+      hour = 0;
+    }
+    
+    return `${hour.toString().padStart(2, '0')}:${minutes}`;
+  };
+
+  // Generate time options
+  const generateTimeOptions = (isEndTime = false) => {
+    const options = [];
+    const startHour = isEndTime ? 9 : 8; // End time starts at 9 AM
+    const endHour = isEndTime ? 21 : 20; // End time goes to 9 PM
+    
+    for (let i = startHour; i <= endHour; i++) {
+      const hour12 = i > 12 ? i - 12 : i === 0 ? 12 : i;
+      const period = i >= 12 ? 'PM' : 'AM';
+      const displayTime = `${hour12}:00 ${period}`;
+      const value = `${i.toString().padStart(2, '0')}:00`;
+      options.push({ display: displayTime, value });
+    }
+    return options;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // In a real app, you would send this data to your backend
-    const bookingData = {
-      date,
-      numPeople,
-      startTime,
-      endTime,
-      roomType,
-      requests
-    };
+    if (!date) {
+      setError('Please select a date');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+    setSuccess(false);
     
-    console.log('Booking submitted:', bookingData);
-    // You would typically show a confirmation or error message here
+    try {
+      // Check availability first
+      const availability = await bookingService.checkAvailability(
+        workspaceId,
+        date,
+        startTime,
+        endTime
+      );
+
+      if (!availability.available) {
+        setError('This time slot is not available. Please choose a different time.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Create booking data
+      const bookingData: BookingRequest = {
+        workspaceId,
+        date,
+        startTime,
+        endTime,
+        roomType,
+        numberOfPeople: parseNumPeople(numPeople),
+        specialRequests: requests.trim() || undefined
+      };
+      
+      // Create the booking
+      const newBooking = await bookingService.createBooking(bookingData);
+      
+      console.log('Booking created successfully:', newBooking);
+      setSuccess(true);
+      
+      // Show success message for 2 seconds, then redirect to dashboard
+      setTimeout(() => {
+        navigate({ to: '/dashboard' });
+      }, 2000);
+      
+    } catch (err) {
+      console.error('Booking error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to create booking. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  // Calculate total price (for display purposes)
+  const calculateTotalPrice = (): string => {
+    if (price === 'Free') return 'Free';
+    
+    // Extract price per hour
+    const priceMatch = price.match(/\$(\d+)/);
+    if (!priceMatch) return price;
+    
+    const pricePerHour = parseInt(priceMatch[1]);
+    const startHour = parseInt(startTime.split(':')[0]);
+    const endHour = parseInt(endTime.split(':')[0]);
+    const duration = endHour - startHour;
+    
+    const totalPrice = pricePerHour * duration;
+    return `$${totalPrice.toFixed(2)}`;
+  };
+  
+  if (success) {
+    return (
+      <div className={styles.bookingCard}>
+        <div className={styles.successMessage}>
+          <div className={styles.successIcon}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" fill="#10B981"/>
+              <path d="M9 12l2 2 4-4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <h3>Booking Confirmed!</h3>
+          <p>Your workspace has been reserved successfully.</p>
+          <p>Redirecting to your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className={styles.bookingCard}>
@@ -54,6 +184,12 @@ export default function BookingCard({
         </div>
       </div>
       
+      {error && (
+        <div className={styles.errorMessage}>
+          <p>{error}</p>
+        </div>
+      )}
+      
       <form className={styles.bookingForm} onSubmit={handleSubmit}>
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
@@ -65,6 +201,7 @@ export default function BookingCard({
               value={date}
               onChange={(e) => setDate(e.target.value)}
               required
+              disabled={isSubmitting}
             />
           </div>
           <div className={styles.formGroup}>
@@ -73,6 +210,7 @@ export default function BookingCard({
               className={styles.formControl}
               value={numPeople}
               onChange={(e) => setNumPeople(e.target.value)}
+              disabled={isSubmitting}
             >
               <option>1 person</option>
               <option>2 people</option>
@@ -90,9 +228,12 @@ export default function BookingCard({
               className={styles.formControl}
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
+              disabled={isSubmitting}
             >
-              {[...Array(12)].map((_, i) => (
-                <option key={i}>{`${i + 8 > 12 ? i - 4 : i + 8}:00 ${i + 8 >= 12 ? 'PM' : 'AM'}`}</option>
+              {generateTimeOptions().map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.display}
+                </option>
               ))}
             </select>
           </div>
@@ -102,9 +243,12 @@ export default function BookingCard({
               className={styles.formControl}
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
+              disabled={isSubmitting}
             >
-              {[...Array(13)].map((_, i) => (
-                <option key={i}>{`${i + 9 > 12 ? i - 3 : i + 9}:00 ${i + 9 >= 12 ? 'PM' : 'AM'}`}</option>
+              {generateTimeOptions(true).map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.display}
+                </option>
               ))}
             </select>
           </div>
@@ -116,6 +260,7 @@ export default function BookingCard({
             className={styles.formControl}
             value={roomType}
             onChange={(e) => setRoomType(e.target.value)}
+            disabled={isSubmitting}
           >
             <option>Individual Desk</option>
             <option>Group Study Room (2-4 people)</option>
@@ -133,18 +278,30 @@ export default function BookingCard({
             placeholder="Any specific requirements or preferences?"
             value={requests}
             onChange={(e) => setRequests(e.target.value)}
+            disabled={isSubmitting}
           ></textarea>
         </div>
         
-        <button type="submit" className={styles.bookButton}>
-          Reserve Now
+        <button 
+          type="submit" 
+          className={styles.bookButton}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <>
+              <Loading message="" />
+              <span style={{ marginLeft: '8px' }}>Creating Booking...</span>
+            </>
+          ) : (
+            'Reserve Now'
+          )}
         </button>
       </form>
       
       <div className={styles.bookingSummary}>
         <div className={styles.summaryRow}>
           <span>{roomType}</span>
-          <span>{price}</span>
+          <span>{calculateTotalPrice()}</span>
         </div>
         <div className={styles.summaryRow}>
           <span>Service fee</span>
@@ -152,13 +309,13 @@ export default function BookingCard({
         </div>
         <div className={styles.summaryTotal}>
           <span>Total</span>
-          <span>{price}</span>
+          <span>{calculateTotalPrice()}</span>
         </div>
       </div>
       
       <div className={styles.workspaceContact}>
         <p className={styles.contactText}>Have questions about this space?</p>
-        <button className={styles.contactHost}>Contact Workspace Host</button>
+        <button className={styles.contactHost} type="button">Contact Workspace Host</button>
       </div>
     </div>
   );

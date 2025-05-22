@@ -3,7 +3,7 @@
 // Base API URL from environment or fallback
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
 
-// Booking interfaces
+// Updated booking interfaces to match backend model
 export interface Booking {
   id: string;
   user: string;
@@ -14,16 +14,31 @@ export interface Booking {
     photo?: string;
     type: string;
   };
-  date: string;
-  startTime: string;
-  endTime: string;
+  date: string; // YYYY-MM-DD format
+  startTime: string; // HH:MM format (24-hour)
+  endTime: string; // HH:MM format (24-hour)
   roomType: string;
-  status: 'confirmed' | 'pending' | 'cancelled' | 'completed';
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no-show';
   numberOfPeople: number;
   specialRequests?: string;
   totalPrice?: number;
+  paymentStatus?: 'pending' | 'paid' | 'refunded' | 'failed';
+  paymentMethod?: 'free' | 'card' | 'cash' | 'points';
+  checkInTime?: string;
+  checkOutTime?: string;
+  rating?: number;
+  review?: string;
+  cancellationReason?: string;
+  cancellationDate?: string;
   createdAt: string;
   updatedAt: string;
+  // Virtual fields from backend
+  durationMinutes?: number;
+  formattedDate?: string;
+  formattedTimeRange?: string;
+  isActive?: boolean;
+  isUpcoming?: boolean;
+  isPast?: boolean;
 }
 
 export interface BookingRequest {
@@ -36,7 +51,22 @@ export interface BookingRequest {
   specialRequests?: string;
 }
 
-// Study session interfaces
+export interface BookingStats {
+  upcoming: number;
+  past: number;
+  total: number;
+  cancelled: number;
+}
+
+export interface AvailabilityResponse {
+  available: boolean;
+  availableSlots?: Array<{
+    startTime: string;
+    endTime: string;
+  }>;
+}
+
+// Study session interfaces (keeping your existing ones)
 export interface StudySession {
   id: string;
   title: string;
@@ -77,7 +107,7 @@ export interface StudySessionRequest {
   endTime: string;
   maxParticipants: number;
   topics?: string[];
-  invitedParticipants?: string[]; // array of user IDs
+  invitedParticipants?: string[];
 }
 
 // Generic fetch function for API calls
@@ -163,78 +193,129 @@ export const bookingService = {
     return fetchApi<{ message: string }>(`/bookings/${bookingId}/cancel`, 'PUT');
   },
   
+  // Delete booking
+  deleteBooking: async (bookingId: string): Promise<{ message: string }> => {
+    return fetchApi<{ message: string }>(`/bookings/${bookingId}`, 'DELETE');
+  },
+  
   // Check workspace availability
   checkAvailability: async (
     workspaceId: string, 
     date: string, 
     startTime: string, 
     endTime: string
-  ): Promise<{
-    available: boolean;
-    availableSlots?: { startTime: string; endTime: string }[];
-  }> => {
-    return fetchApi<{
-      available: boolean;
-      availableSlots?: { startTime: string; endTime: string }[];
-    }>(`/bookings/availability?workspaceId=${workspaceId}&date=${date}&startTime=${startTime}&endTime=${endTime}`);
+  ): Promise<AvailabilityResponse> => {
+    const params = new URLSearchParams({
+      workspaceId,
+      date,
+      startTime,
+      endTime
+    });
+    return fetchApi<AvailabilityResponse>(`/bookings/availability?${params}`);
+  },
+
+  // Get booking statistics
+  getBookingStats: async (): Promise<BookingStats> => {
+    return fetchApi<BookingStats>('/bookings/stats');
+  },
+
+  // Helper function to format date for API
+  formatDateForApi: (date: Date): string => {
+    return date.toISOString().split('T')[0];
+  },
+
+  // Helper function to format time for API
+  formatTimeForApi: (date: Date): string => {
+    return date.toTimeString().split(' ')[0].substring(0, 5);
+  },
+
+  // Helper function to parse API date
+  parseApiDate: (dateString: string): Date => {
+    return new Date(dateString);
+  },
+
+  // Helper function to check if booking can be cancelled
+  canCancelBooking: (booking: Booking): boolean => {
+    const now = new Date();
+    const bookingDate = new Date(booking.date);
+    return bookingDate >= now && booking.status !== 'cancelled' && booking.status !== 'completed';
+  },
+
+  // Helper function to check if booking can be modified
+  canModifyBooking: (booking: Booking): boolean => {
+    const now = new Date();
+    const bookingDate = new Date(booking.date);
+    return bookingDate >= now && booking.status !== 'cancelled' && booking.status !== 'completed';
   }
 };
 
-// Study Session Service methods
+// Study Session Service methods (keeping existing implementation but making them no-ops for now)
 export const studySessionService = {
   // Get all study sessions
   getAllStudySessions: async (): Promise<StudySession[]> => {
-    return fetchApi<StudySession[]>('/study-sessions');
+    // TODO: Implement when backend supports study sessions
+    console.warn('Study sessions not yet implemented in backend');
+    return [];
   },
   
   // Get hosted study sessions
   getHostedStudySessions: async (): Promise<StudySession[]> => {
-    return fetchApi<StudySession[]>('/study-sessions/hosted');
+    console.warn('Study sessions not yet implemented in backend');
+    return [];
   },
   
   // Get upcoming study sessions
   getUpcomingStudySessions: async (): Promise<StudySession[]> => {
-    return fetchApi<StudySession[]>('/study-sessions/upcoming');
+    console.warn('Study sessions not yet implemented in backend');
+    return [];
   },
   
   // Get past study sessions
   getPastStudySessions: async (): Promise<StudySession[]> => {
-    return fetchApi<StudySession[]>('/study-sessions/past');
+    console.warn('Study sessions not yet implemented in backend');
+    return [];
   },
   
   // Get study session by ID
   getStudySessionById: async (sessionId: string): Promise<StudySession> => {
-    return fetchApi<StudySession>(`/study-sessions/${sessionId}`);
+    console.warn('Study sessions not yet implemented in backend');
+    throw new Error('Study sessions not yet implemented');
   },
   
   // Create a new study session
   createStudySession: async (sessionData: StudySessionRequest): Promise<StudySession> => {
-    return fetchApi<StudySession>('/study-sessions', 'POST', sessionData);
+    console.warn('Study sessions not yet implemented in backend');
+    throw new Error('Study sessions not yet implemented');
   },
   
   // Update study session
   updateStudySession: async (sessionId: string, sessionData: Partial<StudySessionRequest>): Promise<StudySession> => {
-    return fetchApi<StudySession>(`/study-sessions/${sessionId}`, 'PUT', sessionData);
+    console.warn('Study sessions not yet implemented in backend');
+    throw new Error('Study sessions not yet implemented');
   },
   
   // Cancel study session
   cancelStudySession: async (sessionId: string): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>(`/study-sessions/${sessionId}/cancel`, 'PUT');
+    console.warn('Study sessions not yet implemented in backend');
+    throw new Error('Study sessions not yet implemented');
   },
   
   // Join a study session
   joinStudySession: async (sessionId: string): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>(`/study-sessions/${sessionId}/join`, 'PUT');
+    console.warn('Study sessions not yet implemented in backend');
+    throw new Error('Study sessions not yet implemented');
   },
   
   // Leave a study session
   leaveStudySession: async (sessionId: string): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>(`/study-sessions/${sessionId}/leave`, 'PUT');
+    console.warn('Study sessions not yet implemented in backend');
+    throw new Error('Study sessions not yet implemented');
   },
   
   // Invite people to a study session
   inviteToStudySession: async (sessionId: string, userIds: string[]): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>(`/study-sessions/${sessionId}/invite`, 'POST', { userIds });
+    console.warn('Study sessions not yet implemented in backend');
+    throw new Error('Study sessions not yet implemented');
   },
   
   // Respond to study session invitation
@@ -242,7 +323,8 @@ export const studySessionService = {
     sessionId: string, 
     response: 'accept' | 'decline'
   ): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>(`/study-sessions/${sessionId}/respond`, 'PUT', { response });
+    console.warn('Study sessions not yet implemented in backend');
+    throw new Error('Study sessions not yet implemented');
   },
   
   // Get public study sessions nearby
@@ -251,14 +333,14 @@ export const studySessionService = {
     longitude: number, 
     radiusInKm: number = 5
   ): Promise<StudySession[]> => {
-    return fetchApi<StudySession[]>(
-      `/study-sessions/nearby?lat=${latitude}&lng=${longitude}&radius=${radiusInKm}`
-    );
+    console.warn('Study sessions not yet implemented in backend');
+    return [];
   },
   
   // Search study sessions by topic, title, etc.
   searchStudySessions: async (query: string): Promise<StudySession[]> => {
-    return fetchApi<StudySession[]>(`/study-sessions/search?q=${encodeURIComponent(query)}`);
+    console.warn('Study sessions not yet implemented in backend');
+    return [];
   }
 };
 

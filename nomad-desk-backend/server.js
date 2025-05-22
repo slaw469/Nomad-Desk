@@ -50,6 +50,7 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/auth', require('./routes/googleAuthRoutes')); // Google auth routes
 app.use('/api/profile', require('./routes/profileRoutes')); // Profile routes
 app.use('/api/network', require('./routes/networkRoutes')); // Network routes
+app.use('/api/bookings', require('./routes/bookingRoutes')); // Booking routes
 app.use('/api/maps', require('./routes/mapsRoutes')); // Google Maps routes
 app.use('/api/placeholder', require('./routes/placeHolderRoutes')); // Placeholder image routes
 app.use('/api/public-maps', require('./routes/publicMapsRoutes')); // Public Maps routes
