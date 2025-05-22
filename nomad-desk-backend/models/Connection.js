@@ -27,13 +27,13 @@ const ConnectionSchema = new mongoose.Schema({
   }
 });
 
-// Prevent duplicate connections
-ConnectionSchema.index({ requester: 1, recipient: 1 }, { unique: true });
-
 // Update the updatedAt field before saving
 ConnectionSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
 });
+
+// Ensure a user can't send multiple requests to the same person
+ConnectionSchema.index({ requester: 1, recipient: 1 }, { unique: true });
 
 module.exports = mongoose.model('Connection', ConnectionSchema);

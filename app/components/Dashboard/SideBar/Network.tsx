@@ -4,7 +4,7 @@ import { Link } from '@tanstack/react-router';
 import { useAuth } from "../../../contexts/AuthContext";
 import styles from './sidebarstyles/network.module.css';
 
-// Icons (you can replace these with your preferred icon library)
+// Icons
 const UserIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -73,113 +73,186 @@ interface Connection {
   interests?: string[];
 }
 
+// Type for active tab
+type ActiveTab = 'all' | 'requests' | 'suggestions' | 'discover';
+
 const Network: React.FC = () => {
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'all' | 'requests' | 'suggestions'>('all');
+  const { user: currentUser } = useAuth();
+  const [activeTab, setActiveTab] = useState<ActiveTab>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [connections, setConnections] = useState<Connection[]>([]);
+  const [allUsers, setAllUsers] = useState<Connection[]>([]);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [selectedProfessions, setSelectedProfessions] = useState<string[]>([]);
-  
+  const [loading, setLoading] = useState(false);
+
   // Filter options
   const allInterests = ['Design', 'Development', 'Marketing', 'Business', 'Education', 'Remote Work', 'Productivity', 'Writing', 'Entrepreneurship'];
   const allProfessions = ['UX Designer', 'Software Engineer', 'Product Manager', 'Marketing Specialist', 'Content Writer', 'Data Scientist', 'Educator', 'Entrepreneur'];
-  
-  // Load mock connections data
+
+  // Load real connection data from APIs
   useEffect(() => {
-    // This would typically be an API call to networkService.getConnections()
-    const mockConnections: Connection[] = [
-      {
-        id: '1',
-        name: 'Alex Johnson',
-        profession: 'Software Engineer',
-        location: 'San Francisco, CA',
-        imageUrl: '/api/placeholder/80/80',
-        mutualConnections: 3,
-        status: 'connected',
-        lastActive: '2 days ago',
-        interests: ['Development', 'Remote Work']
-      },
-      {
-        id: '2',
-        name: 'Sara Williams',
-        profession: 'Content Writer',
-        location: 'New York, NY',
-        imageUrl: '/api/placeholder/80/80',
-        mutualConnections: 5,
-        status: 'connected',
-        lastActive: '5 hours ago',
-        interests: ['Writing', 'Remote Work']
-      },
-      {
-        id: '3',
-        name: 'Taylor Chen',
-        profession: 'Marketing Specialist',
-        location: 'Chicago, IL',
-        imageUrl: '/api/placeholder/80/80',
-        mutualConnections: 2,
-        status: 'pending',
-        interests: ['Marketing', 'Business']
-      },
-      {
-        id: '4',
-        name: 'Jordan Smith',
-        profession: 'UX Designer',
-        location: 'Austin, TX',
-        imageUrl: '/api/placeholder/80/80',
-        mutualConnections: 4,
-        status: 'pending',
-        interests: ['Design', 'Productivity']
-      },
-      {
-        id: '5',
-        name: 'Morgan Davis',
-        profession: 'Product Manager',
-        location: 'Seattle, WA',
-        imageUrl: '/api/placeholder/80/80',
-        mutualConnections: 6,
-        status: 'suggestion',
-        interests: ['Business', 'Productivity']
-      },
-      {
-        id: '6',
-        name: 'Jamie Wilson',
-        profession: 'Data Scientist',
-        location: 'Boston, MA',
-        imageUrl: '/api/placeholder/80/80',
-        mutualConnections: 3,
-        status: 'suggestion',
-        interests: ['Development', 'Education']
-      },
-      {
-        id: '7',
-        name: 'Riley Cooper',
-        profession: 'Educator',
-        location: 'Portland, OR',
-        imageUrl: '/api/placeholder/80/80',
-        mutualConnections: 1,
-        status: 'suggestion',
-        interests: ['Education', 'Remote Work']
-      },
-      {
-        id: '8',
-        name: 'Casey Turner',
-        profession: 'Entrepreneur',
-        location: 'Miami, FL',
-        imageUrl: '/api/placeholder/80/80',
-        mutualConnections: 2,
-        status: 'suggestion',
-        interests: ['Entrepreneurship', 'Business']
+    const fetchNetworkData = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          console.error('No auth token found');
+          setLoading(false);
+          return;
+        }
+
+        const API_BASE = 'http://localhost:5001/api';
+
+        // Get user's connections
+        const connectionsResponse = await fetch(`${API_BASE}/network/connections`, {
+          headers: {
+            'x-auth-token': token
+          }
+        });
+
+        if (connectionsResponse.ok) {
+          const connectionsData = await connectionsResponse.json();
+          const formattedConnections = connectionsData.map((conn: any) => ({
+            id: conn.id,
+            name: conn.user.name,
+            profession: conn.user.profession || 'Not specified',
+            location: conn.user.location || 'Location not provided',
+            imageUrl: conn.user.avatar || '/api/placeholder/80/80',
+            mutualConnections: conn.mutualConnections || 0,
+            status: 'connected' as const,
+            lastActive: conn.updatedAt,
+            interests: conn.user.interests || []
+          }));
+          setConnections(formattedConnections);
+        }
+
+        // Get pending requests
+        const requestsResponse = await fetch(`${API_BASE}/network/requests`, {
+          headers: {
+            'x-auth-token': token
+          }
+        });
+
+        if (requestsResponse.ok) {
+          const requestsData = await requestsResponse.json();
+          const pendingConnections = requestsData.map((req: any) => ({
+            id: req.id,
+            name: req.sender.name,
+            profession: req.sender.profession || 'Not specified',
+            location: req.sender.location || 'Location not provided',
+            imageUrl: req.sender.avatar || '/api/placeholder/80/80',
+            mutualConnections: req.mutualConnections || 0,
+            status: 'pending' as const,
+            lastActive: req.createdAt,
+            interests: req.sender.interests || []
+          }));
+          
+          setConnections(prev => [...prev, ...pendingConnections]);
+        }
+
+        // Get suggested connections
+        const suggestionsResponse = await fetch(`${API_BASE}/network/suggested`, {
+          headers: {
+            'x-auth-token': token
+          }
+        });
+
+        if (suggestionsResponse.ok) {
+          const suggestionsData = await suggestionsResponse.json();
+          const suggestionConnections = suggestionsData.map((sugg: any) => ({
+            id: sugg.id,
+            name: sugg.user.name,
+            profession: sugg.user.profession || 'Not specified',
+            location: sugg.user.location || 'Location not provided',
+            imageUrl: sugg.user.avatar || '/api/placeholder/80/80',
+            mutualConnections: sugg.mutualConnections || 0,
+            status: 'suggestion' as const,
+            interests: sugg.user.interests || []
+          }));
+          
+          setConnections(prev => [...prev, ...suggestionConnections]);
+        }
+
+      } catch (error) {
+        console.error('Error fetching network data:', error);
+        // Fallback to mock data if API fails
+        setConnections([
+          {
+            id: '1',
+            name: 'API Connection Failed',
+            profession: 'Using Mock Data',
+            location: 'Check Backend Server',
+            imageUrl: '/api/placeholder/80/80',
+            mutualConnections: 0,
+            status: 'connected',
+            interests: ['Backend', 'API']
+          }
+        ]);
+      } finally {
+        setLoading(false);
       }
-    ];
-    
-    setConnections(mockConnections);
+    };
+
+    fetchNetworkData();
   }, []);
 
+  // Fetch users for discovery (search all users)
+  const searchAllUsers = async (query: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await fetch(`http://localhost:5001/api/profile/search?q=${encodeURIComponent(query)}&limit=20`, {
+        headers: {
+          'x-auth-token': token
+        }
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        const discoveredUsers = userData.map((user: any) => ({
+          id: user._id,
+          name: user.name,
+          profession: user.profession || 'Not specified',
+          location: user.location || 'Location not provided', 
+          imageUrl: user.avatar || '/api/placeholder/80/80',
+          mutualConnections: 0,
+          status: 'suggestion' as const,
+          interests: user.interests || []
+        }));
+
+        setAllUsers(discoveredUsers);
+      }
+    } catch (error) {
+      console.error('Error searching users:', error);
+    }
+  };
+
+  // Update search effect to trigger API calls
+  useEffect(() => {
+    if (activeTab === 'discover' && searchQuery.length > 2) {
+      const timeoutId = setTimeout(() => {
+        searchAllUsers(searchQuery);
+      }, 500);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [searchQuery, activeTab]);
+
   // Filter connections based on active tab, search query, and filters
-  const filteredConnections = connections
-    .filter(connection => {
+  const getFilteredConnections = (): Connection[] => {
+    let dataToFilter = connections;
+
+    // For discover tab, use all users
+    if (activeTab === 'discover') {
+      dataToFilter = allUsers.filter((user: Connection) => 
+        !connections.some((conn: Connection) => conn.id === user.id) && user.status === 'suggestion'
+      );
+    }
+
+    return dataToFilter.filter((connection: Connection) => {
       // Filter by tab
       if (activeTab === 'requests' && connection.status !== 'pending') {
         return false;
@@ -190,58 +263,132 @@ const Network: React.FC = () => {
       if (activeTab === 'all' && connection.status === 'suggestion') {
         return false;
       }
-      
+
       // Filter by search query
       if (searchQuery && !connection.name.toLowerCase().includes(searchQuery.toLowerCase()) && 
           !connection.profession.toLowerCase().includes(searchQuery.toLowerCase())) {
         return false;
       }
-      
+
       // Filter by selected interests
       if (selectedInterests.length > 0 && 
-          !connection.interests?.some(interest => selectedInterests.includes(interest))) {
+          !connection.interests?.some((interest: string) => selectedInterests.includes(interest))) {
         return false;
       }
-      
+
       // Filter by selected professions
       if (selectedProfessions.length > 0 && 
           !selectedProfessions.includes(connection.profession)) {
         return false;
       }
-      
+
       return true;
     });
+  };
 
   // Accept a connection request
-  const acceptRequest = (id: string) => {
-    setConnections(connections.map(connection => 
-      connection.id === id ? { ...connection, status: 'connected' } : connection
-    ));
+  const acceptRequest = async (id: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5001/api/network/request/${id}/accept`, {
+        method: 'PUT',
+        headers: {
+          'x-auth-token': token || ''
+        }
+      });
+
+      if (response.ok) {
+        setConnections(connections.map((connection: Connection) => 
+          connection.id === id ? { ...connection, status: 'connected' } : connection
+        ));
+      } else {
+        alert('Failed to accept connection request');
+      }
+    } catch (error) {
+      console.error('Error accepting request:', error);
+      alert('Error accepting connection request');
+    }
   };
 
   // Reject a connection request
-  const rejectRequest = (id: string) => {
-    setConnections(connections.filter(connection => connection.id !== id));
+  const rejectRequest = async (id: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5001/api/network/request/${id}/reject`, {
+        method: 'PUT',
+        headers: {
+          'x-auth-token': token || ''
+        }
+      });
+
+      if (response.ok) {
+        setConnections(connections.filter((connection: Connection) => connection.id !== id));
+      } else {
+        alert('Failed to reject connection request');
+      }
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+      alert('Error rejecting connection request');
+    }
   };
 
   // Remove a connection
-  const removeConnection = (id: string) => {
-    setConnections(connections.filter(connection => connection.id !== id));
+  const removeConnection = async (id: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5001/api/network/connection/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'x-auth-token': token || ''
+        }
+      });
+
+      if (response.ok) {
+        setConnections(connections.filter((connection: Connection) => connection.id !== id));
+      } else {
+        alert('Failed to remove connection');
+      }
+    } catch (error) {
+      console.error('Error removing connection:', error);
+      alert('Error removing connection');
+    }
   };
 
   // Send a connection request
-  const sendRequest = (id: string) => {
-    const connection = connections.find(c => c.id === id);
-    if (connection) {
-      alert(`Connection request sent to ${connection.name}`);
-      setConnections(connections.filter(connection => connection.id !== id));
+  const sendRequest = async (id: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5001/api/network/request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token || ''
+        },
+        body: JSON.stringify({ userId: id })
+      });
+
+      if (response.ok) {
+        const connection = [...connections, ...allUsers].find((c: Connection) => c.id === id);
+        if (connection) {
+          alert(`Connection request sent to ${connection.name}`);
+          // Remove from current view
+          setConnections(connections.filter((connection: Connection) => connection.id !== id));
+          setAllUsers(allUsers.filter((user: Connection) => user.id !== id));
+        }
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to send connection request: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error('Error sending request:', error);
+      alert('Error sending connection request');
     }
   };
 
   // Toggle interest filter
   const toggleInterest = (interest: string) => {
     if (selectedInterests.includes(interest)) {
-      setSelectedInterests(selectedInterests.filter(i => i !== interest));
+      setSelectedInterests(selectedInterests.filter((i: string) => i !== interest));
     } else {
       setSelectedInterests([...selectedInterests, interest]);
     }
@@ -250,7 +397,7 @@ const Network: React.FC = () => {
   // Toggle profession filter
   const toggleProfession = (profession: string) => {
     if (selectedProfessions.includes(profession)) {
-      setSelectedProfessions(selectedProfessions.filter(p => p !== profession));
+      setSelectedProfessions(selectedProfessions.filter((p: string) => p !== profession));
     } else {
       setSelectedProfessions([...selectedProfessions, profession]);
     }
@@ -264,12 +411,19 @@ const Network: React.FC = () => {
   };
 
   // Get counts
-  const getConnectionCount = (status?: 'connected' | 'pending' | 'suggestion') => {
-    if (!status) {
-      return connections.filter(c => c.status !== 'suggestion').length;
+  const getConnectionCount = (status?: 'connected' | 'pending' | 'suggestion' | 'discover'): number => {
+    if (status === 'discover') {
+      return allUsers.filter((user: Connection) => 
+        !connections.some((conn: Connection) => conn.id === user.id) && user.status === 'suggestion'
+      ).length;
     }
-    return connections.filter(c => c.status === status).length;
+    if (!status) {
+      return connections.filter((c: Connection) => c.status !== 'suggestion').length;
+    }
+    return connections.filter((c: Connection) => c.status === status).length;
   };
+
+  const filteredConnections = getFilteredConnections();
 
   return (
     <div className={styles.networkContainer}>
@@ -281,7 +435,7 @@ const Network: React.FC = () => {
               <SearchIcon />
               <input
                 type="text"
-                placeholder="Search connections..."
+                placeholder={activeTab === 'discover' ? 'Search for new people...' : 'Search connections...'}
                 value={searchQuery}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
                 className={styles.searchInput}
@@ -309,13 +463,13 @@ const Network: React.FC = () => {
             </button>
           </div>
         </div>
-        
+
         {showFilters && (
           <div className={styles.filtersPanel}>
             <div className={styles.filterSection}>
               <h3 className={styles.filterTitle}>Interests</h3>
               <div className={styles.filterOptions}>
-                {allInterests.map(interest => (
+                {allInterests.map((interest: string) => (
                   <button
                     key={interest}
                     className={`${styles.filterOption} ${selectedInterests.includes(interest) ? styles.selectedFilter : ''}`}
@@ -330,7 +484,7 @@ const Network: React.FC = () => {
             <div className={styles.filterSection}>
               <h3 className={styles.filterTitle}>Profession</h3>
               <div className={styles.filterOptions}>
-                {allProfessions.map(profession => (
+                {allProfessions.map((profession: string) => (
                   <button
                     key={profession}
                     className={`${styles.filterOption} ${selectedProfessions.includes(profession) ? styles.selectedFilter : ''}`}
@@ -352,7 +506,7 @@ const Network: React.FC = () => {
             </div>
           </div>
         )}
-        
+
         <div className={styles.tabsContainer}>
           <button
             className={`${styles.tabButton} ${activeTab === 'all' ? styles.activeTab : ''}`}
@@ -375,13 +529,28 @@ const Network: React.FC = () => {
             Suggestions
             <span className={styles.tabCount}>{getConnectionCount('suggestion')}</span>
           </button>
+          <button
+            className={`${styles.tabButton} ${activeTab === 'discover' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('discover')}
+          >
+            🔍 Discover People
+            <span className={styles.tabCount}>{getConnectionCount('discover')}</span>
+          </button>
         </div>
       </div>
-      
+
       <div className={styles.networkContent}>
-        {filteredConnections.length > 0 ? (
+        {loading ? (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyStateIcon}>
+              <UserIcon />
+            </div>
+            <h2 className={styles.emptyStateTitle}>Loading network data...</h2>
+            <p className={styles.emptyStateMessage}>Please wait while we fetch your connections.</p>
+          </div>
+        ) : filteredConnections.length > 0 ? (
           <div className={styles.connectionsList}>
-            {filteredConnections.map(connection => (
+            {filteredConnections.map((connection: Connection) => (
               <div key={connection.id} className={styles.connectionCard}>
                 <div className={styles.connectionAvatar}>
                   <img src={connection.imageUrl} alt={connection.name} />
@@ -391,9 +560,9 @@ const Network: React.FC = () => {
                   <p className={styles.connectionProfession}>{connection.profession}</p>
                   <p className={styles.connectionLocation}>{connection.location}</p>
                   
-                  {connection.interests && (
+                  {connection.interests && connection.interests.length > 0 && (
                     <div className={styles.connectionInterests}>
-                      {connection.interests.map((interest, index) => (
+                      {connection.interests.map((interest: string, index: number) => (
                         <span key={index} className={styles.interestTag}>{interest}</span>
                       ))}
                     </div>
@@ -471,12 +640,14 @@ const Network: React.FC = () => {
             </div>
             <h2 className={styles.emptyStateTitle}>
               {searchQuery || selectedInterests.length > 0 || selectedProfessions.length > 0
-                ? 'No connections match your filters'
+                ? 'No users match your filters'
                 : activeTab === 'requests'
                   ? 'No pending connection requests'
                   : activeTab === 'suggestions'
                     ? 'No connection suggestions right now'
-                    : 'No connections yet'}
+                    : activeTab === 'discover'
+                      ? 'No new people to discover right now'
+                      : 'No connections yet'}
             </h2>
             <p className={styles.emptyStateMessage}>
               {searchQuery || selectedInterests.length > 0 || selectedProfessions.length > 0
@@ -485,7 +656,9 @@ const Network: React.FC = () => {
                   ? 'When you receive connection requests, they will appear here'
                   : activeTab === 'suggestions'
                     ? 'Check back later for new connection suggestions'
-                    : 'Start building your network by connecting with other users'}
+                    : activeTab === 'discover'
+                      ? 'Try searching with different keywords or check back later'
+                      : 'Start building your network by connecting with other users'}
             </p>
             {(searchQuery || selectedInterests.length > 0 || selectedProfessions.length > 0) && (
               <button
@@ -495,7 +668,7 @@ const Network: React.FC = () => {
                 Clear Filters
               </button>
             )}
-            {activeTab === 'all' && getConnectionCount() === 0 && (
+            {activeTab === 'all' && getConnectionCount('connected') === 0 && (
               <button
                 className={styles.findPeopleButton}
                 onClick={() => setActiveTab('suggestions')}
