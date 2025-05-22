@@ -15,6 +15,7 @@ interface BookingCardProps {
   priceDescription: string;
   rating: number;
   reviewCount: number;
+  onContactHost?: () => void; // NEW: Optional callback for contact host
 }
 
 export default function BookingCard({
@@ -26,7 +27,8 @@ export default function BookingCard({
   price,
   priceDescription,
   rating,
-  reviewCount
+  reviewCount,
+  onContactHost // NEW: Destructure the callback
 }: BookingCardProps) {
   const navigate = useNavigate();
   const [date, setDate] = useState('');
@@ -141,8 +143,10 @@ export default function BookingCard({
   // Calculate total price (for display purposes)
   const calculateTotalPrice = (): string => {
     if (price === 'Free') return 'Free';
+    if (price === 'Purchase Recommended') return 'Purchase Recommended';
+    if (price === 'Contact for Pricing') return 'Contact for Pricing';
     
-    // Extract price per hour
+    // Extract price per hour if it's in $X format
     const priceMatch = price.match(/\$(\d+)/);
     if (!priceMatch) return price;
     
@@ -319,7 +323,13 @@ export default function BookingCard({
       
       <div className={styles.workspaceContact}>
         <p className={styles.contactText}>Have questions about this space?</p>
-        <button className={styles.contactHost} type="button">Contact Workspace Host</button>
+        <button 
+          className={styles.contactHost} 
+          type="button"
+          onClick={onContactHost} // NEW: Use the callback
+        >
+          Contact Workspace Host
+        </button>
       </div>
     </div>
   );

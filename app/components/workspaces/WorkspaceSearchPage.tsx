@@ -129,6 +129,27 @@ const WorkspaceSearchPage: React.FC = () => {
 
   return (
     <div className={styles.workspaceSearchPageContainer}>
+      {/* Navigation Header */}
+      <div className={styles.searchNavigation}>
+        <Link to="/dashboard" className={styles.backButton}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Back to Dashboard
+        </Link>
+        
+        <div className={styles.searchBreadcrumb}>
+          <Link to="/dashboard" className={styles.breadcrumbLink}>Dashboard</Link>
+          <span className={styles.breadcrumbSeparator}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </span>
+          <span className={styles.breadcrumbCurrent}>Search Workspaces</span>
+        </div>
+      </div>
+
       {/* Streamlined Header */}
       <div className={styles.searchPageHeader}>
         <h1>Find Your Perfect Workspace</h1>

@@ -2322,3 +2322,1206 @@
     font-size: 1.8rem;
   }
 }
+
+/* Updated CSS additions for improved WorkspaceSearchPage */
+
+/* Navigation Header */
+.searchNavigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  margin-bottom: 30px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: var(--white);
+  border: 2px solid var(--light-gray);
+  border-radius: 12px;
+  color: var(--dark-gray);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.backButton:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(74, 111, 220, 0.2);
+}
+
+.backButton svg {
+  transition: transform 0.3s ease;
+}
+
+.backButton:hover svg {
+  transform: translateX(-3px);
+}
+
+.searchBreadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.breadcrumbLink {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.breadcrumbLink:hover {
+  color: var(--secondary);
+}
+
+.breadcrumbSeparator {
+  color: var(--gray);
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumbCurrent {
+  color: var(--dark-gray);
+  font-weight: 600;
+}
+
+/* Workspace Search Container - Simplified */
+.workspaceSearchContainer {
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  margin-bottom: 0;
+}
+
+/* Improved search controls */
+.searchControls {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.locationSearch {
+  flex: 1;
+  min-width: 280px;
+}
+
+.locationSearchInput {
+  width: 100%;
+  padding: 16px 20px;
+  border: 2px solid var(--light-gray);
+  border-radius: 12px;
+  font-size: 1rem;
+  color: var(--dark);
+  transition: all 0.3s ease;
+  background: var(--white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.locationSearchInput:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 4px 20px rgba(74, 111, 220, 0.2);
+  transform: translateY(-1px);
+}
+
+.loadingSearch {
+  width: 100%;
+  padding: 16px 20px;
+  border: 2px solid var(--light-gray);
+  border-radius: 12px;
+  font-size: 1rem;
+  color: var(--gray);
+  background: var(--light);
+  text-align: center;
+}
+
+.radiusSelector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+}
+
+.radiusSelector label {
+  font-size: 1rem;
+  color: var(--dark-gray);
+  font-weight: 500;
+}
+
+.radiusSelect {
+  padding: 16px 20px;
+  border: 2px solid var(--light-gray);
+  border-radius: 12px;
+  font-size: 1rem;
+  color: var(--dark);
+  background: var(--white);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 100px;
+}
+
+.radiusSelect:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 4px 20px rgba(74, 111, 220, 0.2);
+}
+
+/* Quick filters for search results */
+.quickFilters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.quickFilterButton {
+  padding: 8px 16px;
+  background: var(--white);
+  border: 1px solid var(--light-gray);
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--dark-gray);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.quickFilterButton:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.quickFilterButton.active {
+  background: var(--primary);
+  color: var(--white);
+  border-color: var(--primary);
+}
+
+/* Results header */
+.resultsHeader {
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.resultsHeader h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--dark);
+  margin-bottom: 5px;
+}
+
+.resultsHeader p {
+  color: var(--dark-gray);
+  font-size: 0.95rem;
+}
+
+/* Main search section styling */
+.mainSearchSection {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 60px;
+  background: var(--white);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: var(--shadow-md);
+}
+
+.searchColumn {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Improved search page header */
+.searchPageHeader {
+  text-align: center;
+  margin-bottom: 50px;
+  padding: 60px 20px 40px;
+  background: linear-gradient(135deg, rgba(74, 111, 220, 0.05) 0%, rgba(45, 212, 191, 0.05) 100%);
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.searchPageHeader::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(74,111,220,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+  opacity: 0.3;
+}
+
+.searchPageHeader h1 {
+  font-size: 3.2rem;
+  font-weight: 800;
+  margin-bottom: 15px;
+  color: var(--dark);
+  position: relative;
+  z-index: 2;
+}
+
+.searchPageHeader p {
+  font-size: 1.2rem;
+  color: var(--dark-gray);
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+  line-height: 1.6;
+}
+
+/* Category filters styling */
+.categoryFilters {
+  margin-bottom: 60px;
+  background: var(--white);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(74, 111, 220, 0.1);
+}
+
+.categoryHeader {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.categoryHeader h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 10px;
+}
+
+.categoryHeader p {
+  color: var(--dark-gray);
+  font-size: 1.05rem;
+}
+
+.filterButtons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.filterButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 25px;
+  background: var(--white);
+  border: 2px solid var(--light-gray);
+  border-radius: 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--dark-gray);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+  position: relative;
+  overflow: hidden;
+}
+
+.filterButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(74, 111, 220, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.filterButton:hover::before {
+  left: 100%;
+}
+
+.filterButton:hover {
+  border-color: var(--primary);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(74, 111, 220, 0.2);
+}
+
+.filterButton.active {
+  background: var(--gradient-bg);
+  color: var(--white);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(74, 111, 220, 0.3);
+}
+
+.filterIcon {
+  font-size: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.filterButton:hover .filterIcon,
+.filterButton.active .filterIcon {
+  transform: scale(1.1);
+}
+
+/* Popular workspaces section */
+.popularWorkspaces {
+  margin-bottom: 40px;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.sectionHeader h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 10px;
+}
+
+.sectionSubtitle {
+  color: var(--dark-gray);
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+/* Improved workspace grid */
+.workspaceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 25px;
+}
+
+.workspaceCard {
+  background: var(--white);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.workspaceCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-bg);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.workspaceCard:hover::before {
+  transform: scaleX(1);
+}
+
+.workspaceCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Loading and no results styling */
+.loadingIndicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 20px;
+  background: var(--light);
+  border-radius: 16px;
+  margin: 40px 0;
+}
+
+.noResults {
+  text-align: center;
+  padding: 80px 40px;
+  background: var(--light);
+  border-radius: 16px;
+  margin: 40px 0;
+}
+
+.noResults p {
+  color: var(--dark-gray);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.noResults p:last-child {
+  margin-bottom: 0;
+}
+
+/* Map styling improvements */
+.mapColumn {
+  flex: 1;
+  height: 500px;
+  position: relative;
+  display: none;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.mapVisible {
+  display: block;
+}
+
+.mapToggle {
+  position: absolute;
+  top: -50px;
+  right: 0;
+  background: var(--white);
+  border: 2px solid var(--primary);
+  border-radius: 12px;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+  box-shadow: var(--shadow-sm);
+}
+
+.mapToggle:hover {
+  background: var(--primary);
+  color: var(--white);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.mapContainer {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Error message improvements */
+.errorMessage {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.errorMessage p {
+  color: #B91C1C;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Search results section */
+.searchResults {
+  margin-top: 30px;
+}
+
+/* Responsive improvements */
+@media (max-width: 992px) {
+  .mainSearchSection {
+    flex-direction: column;
+  }
+  
+  .mapColumn {
+    height: 400px;
+    display: block;
+  }
+  
+  .mapToggle {
+    position: relative;
+    top: 0;
+    right: 0;
+    margin-bottom: 20px;
+    width: fit-content;
+  }
+
+  .searchPageHeader h1 {
+    font-size: 2.5rem;
+  }
+
+  .categoryHeader h2 {
+    font-size: 1.8rem;
+  }
+
+  .filterButtons {
+    gap: 12px;
+  }
+
+  .filterButton {
+    min-width: 120px;
+    padding: 16px 20px;
+  }
+
+  .searchControls {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .locationSearch {
+    min-width: auto;
+  }
+
+  .radiusSelector {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .searchNavigation {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px 0;
+  }
+
+  .searchBreadcrumb {
+    order: -1;
+    font-size: 0.85rem;
+  }
+
+  .backButton {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+
+  .searchPageHeader {
+    padding: 40px 20px 30px;
+  }
+
+  .searchPageHeader h1 {
+    font-size: 2.2rem;
+  }
+
+  .searchPageHeader p {
+    font-size: 1.1rem;
+  }
+
+  .mainSearchSection {
+    padding: 20px;
+    margin-bottom: 40px;
+  }
+
+  .categoryFilters {
+    padding: 30px 20px;
+    margin-bottom: 40px;
+  }
+
+  .filterButtons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .filterButton {
+    width: 100%;
+    max-width: 280px;
+    flex-direction: row;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  .workspaceGrid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .quickFilters {
+    justify-content: center;
+  }
+
+  .resultsHeader h3 {
+    font-size: 1.2rem;
+  }
+
+  .noResults {
+    padding: 60px 30px;
+  }
+}
+
+@media (max-width: 576px) {
+  .workspaceSearchPageContainer {
+    padding: 20px 15px;
+  }
+
+  .searchPageHeader h1 {
+    font-size: 1.9rem;
+  }
+
+  .categoryHeader h2 {
+    font-size: 1.6rem;
+  }
+
+  .sectionHeader h2 {
+    font-size: 1.8rem;
+  }
+
+  .locationSearchInput,
+  .radiusSelect {
+    padding: 14px 16px;
+    font-size: 0.95rem;
+  }
+
+  .quickFilterButton {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  .resultsHeader h3 {
+    font-size: 1.1rem;
+  }
+
+  .noResults {
+    padding: 50px 20px;
+  }
+
+  .noResults p {
+    font-size: 1rem;
+  }
+}/* Updated CSS additions for improved WorkspaceSearchPage */
+
+/* Main search section styling */
+.mainSearchSection {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 60px;
+  background: var(--white);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: var(--shadow-md);
+}
+
+.searchColumn {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Improved search page header */
+.searchPageHeader {
+  text-align: center;
+  margin-bottom: 50px;
+  padding: 60px 20px 40px;
+  background: linear-gradient(135deg, rgba(74, 111, 220, 0.05) 0%, rgba(45, 212, 191, 0.05) 100%);
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.searchPageHeader::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(74,111,220,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+  opacity: 0.3;
+}
+
+.searchPageHeader h1 {
+  font-size: 3.2rem;
+  font-weight: 800;
+  margin-bottom: 15px;
+  color: var(--dark);
+  position: relative;
+  z-index: 2;
+}
+
+.searchPageHeader p {
+  font-size: 1.2rem;
+  color: var(--dark-gray);
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+  line-height: 1.6;
+}
+
+/* Category filters styling */
+.categoryFilters {
+  margin-bottom: 60px;
+  background: var(--white);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(74, 111, 220, 0.1);
+}
+
+.categoryHeader {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.categoryHeader h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 10px;
+}
+
+.categoryHeader p {
+  color: var(--dark-gray);
+  font-size: 1.05rem;
+}
+
+.filterButtons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.filterButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 25px;
+  background: var(--white);
+  border: 2px solid var(--light-gray);
+  border-radius: 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--dark-gray);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+  position: relative;
+  overflow: hidden;
+}
+
+.filterButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(74, 111, 220, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.filterButton:hover::before {
+  left: 100%;
+}
+
+.filterButton:hover {
+  border-color: var(--primary);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(74, 111, 220, 0.2);
+}
+
+.filterButton.active {
+  background: var(--gradient-bg);
+  color: var(--white);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(74, 111, 220, 0.3);
+}
+
+.filterIcon {
+  font-size: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.filterButton:hover .filterIcon,
+.filterButton.active .filterIcon {
+  transform: scale(1.1);
+}
+
+/* Popular workspaces section */
+.popularWorkspaces {
+  margin-bottom: 40px;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.sectionHeader h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 10px;
+}
+
+.sectionSubtitle {
+  color: var(--dark-gray);
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+/* Improved workspace grid */
+.workspaceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 25px;
+}
+
+.workspaceCard {
+  background: var(--white);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.workspaceCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-bg);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.workspaceCard:hover::before {
+  transform: scaleX(1);
+}
+
+.workspaceCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Loading and no results styling */
+.loadingIndicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 20px;
+  background: var(--light);
+  border-radius: 16px;
+  margin: 40px 0;
+}
+
+.noResults {
+  text-align: center;
+  padding: 80px 40px;
+  background: var(--light);
+  border-radius: 16px;
+  margin: 40px 0;
+}
+
+.noResults p {
+  color: var(--dark-gray);
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+/* Map styling improvements */
+.mapColumn {
+  flex: 1;
+  height: 500px;
+  position: relative;
+  display: none;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.mapVisible {
+  display: block;
+}
+
+.mapToggle {
+  position: absolute;
+  top: -50px;
+  right: 0;
+  background: var(--white);
+  border: 2px solid var(--primary);
+  border-radius: 12px;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+  box-shadow: var(--shadow-sm);
+}
+
+.mapToggle:hover {
+  background: var(--primary);
+  color: var(--white);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.mapContainer {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive improvements */
+@media (max-width: 992px) {
+  .mainSearchSection {
+    flex-direction: column;
+  }
+  
+  .mapColumn {
+    height: 400px;
+    display: block;
+  }
+  
+  .mapToggle {
+    position: relative;
+    top: 0;
+    right: 0;
+    margin-bottom: 20px;
+    width: fit-content;
+  }
+
+  .searchPageHeader h1 {
+    font-size: 2.5rem;
+  }
+
+  .categoryHeader h2 {
+    font-size: 1.8rem;
+  }
+
+  .filterButtons {
+    gap: 12px;
+  }
+
+  .filterButton {
+    min-width: 120px;
+    padding: 16px 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .searchPageHeader {
+    padding: 40px 20px 30px;
+  }
+
+  .searchPageHeader h1 {
+    font-size: 2.2rem;
+  }
+
+  .searchPageHeader p {
+    font-size: 1.1rem;
+  }
+
+  .mainSearchSection {
+    padding: 20px;
+    margin-bottom: 40px;
+  }
+
+  .categoryFilters {
+    padding: 30px 20px;
+    margin-bottom: 40px;
+  }
+
+  .filterButtons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .filterButton {
+    width: 100%;
+    max-width: 280px;
+    flex-direction: row;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  .workspaceGrid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 576px) {
+  .workspaceSearchPageContainer {
+    padding: 20px 15px;
+  }
+
+  .searchPageHeader h1 {
+    font-size: 1.9rem;
+  }
+
+  .categoryHeader h2 {
+    font-size: 1.6rem;
+  }
+
+  .sectionHeader h2 {
+    font-size: 1.8rem;
+  }
+}
+/* Additional CSS to add to workspace.module.css */
+
+/* Favorited state styling */
+.actionButton.favorited {
+  background-color: var(--secondary);
+  color: var(--white);
+  border-color: var(--secondary);
+}
+
+.actionButton.favorited:hover {
+  background-color: #E55347;
+  transform: translateY(-2px);
+}
+
+/* Hours container styling */
+.hoursContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.hourRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--light-gray);
+  font-size: 0.9rem;
+}
+
+.hourRow:last-child {
+  border-bottom: none;
+}
+
+.dayName {
+  font-weight: 600;
+  color: var(--dark);
+  min-width: 100px;
+}
+
+.dayHours {
+  color: var(--dark-gray);
+}
+
+/* Additional info styling */
+.additionalInfoItem {
+  display: flex;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.infoLabel {
+  font-weight: 600;
+  color: var(--dark);
+  min-width: 80px;
+  margin-right: 10px;
+}
+
+.infoValue {
+  color: var(--dark-gray);
+  text-decoration: none;
+}
+
+.infoValue:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+/* Location map container */
+.locationMapContainer {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+/* Clickable gallery items */
+.galleryItem {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.galleryItem:hover {
+  transform: scale(1.02);
+}
+
+.galleryItem img {
+  transition: transform 0.3s ease;
+}
+
+.galleryItem:hover img {
+  transform: scale(1.05);
+}
+
+/* Back button specific overrides if needed */
+.backButton {
+  margin-bottom: 20px;
+}
+
+/* Responsive adjustments for new features */
+@media (max-width: 768px) {
+  .hoursContainer {
+    gap: 6px;
+  }
+  
+  .hourRow {
+    padding: 6px 0;
+    font-size: 0.85rem;
+  }
+  
+  .dayName {
+    min-width: 80px;
+  }
+  
+  .additionalInfoItem {
+    flex-direction: column;
+    margin-bottom: 12px;
+  }
+  
+  .infoLabel {
+    min-width: auto;
+    margin-bottom: 4px;
+  }
+  
+  .actionButton {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 576px) {
+  .workspaceActions {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+  
+  .actionButton {
+    width: 100%;
+    justify-content: center;
+  }
+}

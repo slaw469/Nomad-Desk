@@ -123,6 +123,11 @@ app.use((req, res) => {
   console.log(`\n❌ 404 - Route not found: ${req.method} ${req.url}`);
   res.status(404).json({ message: 'Route not found' });
 });
+// Add this line to nomad-desk-backend/server.js
+// After the existing route registrations:
+
+app.use('/api/favorites', require('./routes/favoritesRoutes'));
+console.log('✅ Favorites routes registered');
 
 // Start server
 const PORT = process.env.PORT || 5001;

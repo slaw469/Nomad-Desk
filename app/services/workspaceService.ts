@@ -1,4 +1,4 @@
-// app/services/workspaceService.ts
+// app/services/workspaceService.ts - Updated pricing logic
 import mapsService, { Location, NearbySearchResult, PlaceDetailsResult } from './mapsService';
 
 // Interface for workspace data
@@ -62,12 +62,25 @@ const determineAmenities = (types: string[], placeDetails?: PlaceDetailsResult):
   return [...new Set(amenities)]; // Remove duplicates
 };
 
-// Helper function to determine price based on workspace type
+// UPDATED: Helper function to determine price based on workspace type
 const determinePrice = (types: string[]): string => {
-  if (types.includes('library')) return 'Free';
-  if (types.includes('book_store')) return 'Purchase Required';
-  if (types.includes('cafe') || types.includes('restaurant')) return '$5/hr min';
-  return '$15/hr';
+  // Libraries and universities are always free to use
+  if (types.includes('library') || types.includes('university')) {
+    return 'Free';
+  }
+  
+  // Cafés, restaurants, and bookstores typically expect a purchase
+  if (types.includes('cafe') || types.includes('restaurant') || types.includes('book_store')) {
+    return 'Purchase Recommended';
+  }
+  
+  // Co-working spaces might have fees (but we don't charge through our platform)
+  if (types.includes('establishment')) {
+    return 'Contact for Pricing';
+  }
+  
+  // Default fallback
+  return 'Free';
 };
 
 // Workspace Service methods
@@ -155,7 +168,7 @@ export const workspaceService = {
           lng: result.geometry.location.lng
         },
         amenities: determineAmenities(result.types),
-        price: determinePrice(result.types),
+        price: determinePrice(result.types), // UPDATED: Uses new pricing logic
         rating: result.rating,
         photos: result.photos?.map(photo => photo.photo_reference) || []
       }));
@@ -183,7 +196,7 @@ export const workspaceService = {
           lng: placeDetails.geometry.location.lng
         },
         amenities: determineAmenities(placeDetails.types, placeDetails),
-        price: determinePrice(placeDetails.types),
+        price: determinePrice(placeDetails.types), // UPDATED: Uses new pricing logic
         rating: placeDetails.rating,
         openingHours: placeDetails.opening_hours?.weekday_text,
         photos: placeDetails.photos ? 
@@ -223,7 +236,7 @@ export const workspaceService = {
           lng: result.geometry.location.lng
         },
         amenities: determineAmenities(result.types),
-        price: determinePrice(result.types),
+        price: determinePrice(result.types), // UPDATED: Uses new pricing logic
         rating: result.rating,
         photos: result.photos?.map(photo => photo.photo_reference) || []
       }));

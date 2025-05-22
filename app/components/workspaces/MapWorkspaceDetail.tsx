@@ -1,11 +1,16 @@
-// app/components/workspaces/MapWorkspaceDetail.tsx
+// app/components/workspaces/MapWorkspaceDetail.tsx - CLEAN VERSION
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from '@tanstack/react-router';
 import styles from './workspace.module.css';
 import GoogleMap from '../Common/GoogleMap';
 import Loading from '../Common/Loading';
+import BackButton from '../Common/BackButton';
+import ContactModal from '../Common/ContactModal';
+import PhotoGalleryModal from '../Common/PhotoGalleryModal';
 import mapsService, { Location } from '../../services/mapsService';
 import workspaceService from '../../services/workspaceService';
+import favoritesService from '../../services/favoritesService';
+import shareService from '../../services/shareService';
 import BookingCard from './$workspaceId/components/BookingCard';
 
 interface WorkspaceDetails {
@@ -26,18 +31,19 @@ interface WorkspaceDetails {
     time: number;
   }>;
 }
+
 interface SimilarWorkspace {
-    id: string;
-    name: string;
-    type: string;
-    address: string;
-    coordinates: Location;
-    distance?: string;
-    amenities: string[];
-    photos?: string[];
-    price?: string;
-    rating?: number;
-  }
+  id: string;
+  name: string;
+  type: string;
+  address: string;
+  coordinates: Location;
+  distance?: string;
+  amenities: string[];
+  photos?: string[];
+  price?: string;
+  rating?: number;
+}
 
 const MapWorkspaceDetail: React.FC = () => {
   const { placeId } = useParams({ strict: false });
@@ -47,6 +53,137 @@ const MapWorkspaceDetail: React.FC = () => {
   const [apiKey, setApiKey] = useState<string>('');
   const [similarWorkspaces, setSimilarWorkspaces] = useState<SimilarWorkspace[]>([]);
   const [activeTab, setActiveTab] = useState<string>('overview');
+  
+  // New state for modals and interactions
+  const [contactModalOpen, setContactModalOpen] = useState<boolean>(false);
+  const [photoGalleryOpen, setPhotoGalleryOpen] = useState<boolean>(false);
+  const [photoGalleryIndex, setPhotoGalleryIndex] = useState<number>(0);
+  const [isFavorited, setIsFavorited] = useState<boolean>(false);
+  const [favoriteLoading, setFavoriteLoading] = useState<boolean>(false);
+  const [shareLoading, setShareLoading] = useState<boolean>(false);
+  const [notification, setNotification] = useState<string | null>(null);
+
+  // Helper function to get workspace type
+  const getWorkspaceType = (types: string[]): string => {
+    if (types.includes('library')) return 'Library';
+    if (types.includes('cafe')) return 'Café';
+    if (types.includes('restaurant')) return 'Restaurant';
+    if (types.includes('book_store')) return 'Bookstore';
+    if (types.includes('establishment') && types.includes('point_of_interest')) return 'Co-working Space';
+    return 'Workspace';
+  };
+
+  // Helper function to get workspace price based on types
+  const getWorkspacePrice = (types: string[]): string => {
+    if (types.includes('library') || types.includes('university')) {
+      return 'Free';
+    }
+    if (types.includes('cafe') || types.includes('restaurant') || types.includes('book_store')) {
+      return 'Purchase Recommended';
+    }
+    if (types.includes('establishment')) {
+      return 'Contact for Pricing';
+    }
+    return 'Free';
+  };
+
+  // Format date from timestamp
+  const formatDate = (timestamp: number): string => {
+    return new Date(timestamp * 1000).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+  
+  // Get photo URL
+  const getPhotoUrl = (photoReference: string, maxWidth: number = 400): string => {
+    return mapsService.getPhotoUrl(photoReference, maxWidth);
+  };
+
+  // Check if workspace is favorited
+  const checkFavoriteStatus = async (workspaceId: string) => {
+    try {
+      const favoriteStatus = await favoritesService.isFavorited(workspaceId);
+      setIsFavorited(favoriteStatus);
+    } catch (err) {
+      console.error('Error checking favorite status:', err);
+    }
+  };
+
+  // Handle favorite toggle
+  const handleFavoriteToggle = async () => {
+    if (!workspace) return;
+    
+    setFavoriteLoading(true);
+    try {
+      const favoriteData = {
+        workspaceName: workspace.name,
+        workspaceAddress: workspace.address,
+        workspaceType: getWorkspaceType(workspace.types),
+        workspacePhoto: workspace.photos.length > 0 ? getPhotoUrl(workspace.photos[0]) : undefined,
+        coordinates: workspace.coordinates,
+        rating: workspace.rating,
+        price: getWorkspacePrice(workspace.types)
+      };
+
+      const result = await favoritesService.toggleFavorite(workspace.id, favoriteData);
+      setIsFavorited(result.isFavorited);
+      showNotification(result.message);
+    } catch (err) {
+      console.error('Error toggling favorite:', err);
+      showNotification('Failed to update favorites');
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
+
+  // Handle share
+  const handleShare = async () => {
+    if (!workspace) return;
+    
+    setShareLoading(true);
+    try {
+      const shareData = shareService.formatWorkspaceShareData(
+        workspace.id,
+        workspace.name,
+        getWorkspaceType(workspace.types),
+        workspace.address
+      );
+
+      const result = await shareService.shareWorkspace(shareData);
+      
+      if (result.success) {
+        if (result.method === 'clipboard') {
+          showNotification('Link copied to clipboard!');
+        } else {
+          showNotification('Shared successfully!');
+        }
+      }
+    } catch (err) {
+      console.error('Error sharing:', err);
+      showNotification('Failed to share workspace');
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  // Show notification
+  const showNotification = (message: string) => {
+    setNotification(message);
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  // Handle photo gallery
+  const handleViewAllPhotos = () => {
+    setPhotoGalleryIndex(0);
+    setPhotoGalleryOpen(true);
+  };
+
+  const handlePhotoClick = (index: number) => {
+    setPhotoGalleryIndex(index);
+    setPhotoGalleryOpen(true);
+  };
 
   useEffect(() => {
     const fetchApiKey = async () => {
@@ -72,13 +209,11 @@ const MapWorkspaceDetail: React.FC = () => {
       try {
         setLoading(true);
         
-        // Get API key first
         const key = await fetchApiKey();
         if (!key) return;
 
         console.log("Fetching place details for ID:", placeId);
 
-        // Fetch place details with all relevant fields
         const placeDetails = await mapsService.getPlaceDetails(
           placeId,
           'name,formatted_address,geometry,photos,rating,types,website,formatted_phone_number,opening_hours,reviews'
@@ -86,7 +221,6 @@ const MapWorkspaceDetail: React.FC = () => {
 
         console.log("Place details retrieved:", placeDetails.name);
 
-        // Transform the data into our workspace format
         const workspaceData: WorkspaceDetails = {
           id: placeId,
           name: placeDetails.name,
@@ -108,7 +242,8 @@ const MapWorkspaceDetail: React.FC = () => {
 
         setWorkspace(workspaceData);
         
-        // Now try to find similar workspaces
+        await checkFavoriteStatus(placeId);
+        
         if (workspaceData) {
           try {
             const workspaceFormatted = {
@@ -121,7 +256,6 @@ const MapWorkspaceDetail: React.FC = () => {
             setSimilarWorkspaces(similar);
           } catch (err) {
             console.error("Error fetching similar workspaces:", err);
-            // Don't set error - this is non-critical
           }
         }
       } catch (err) {
@@ -135,30 +269,6 @@ const MapWorkspaceDetail: React.FC = () => {
     fetchPlaceDetails();
   }, [placeId]);
 
-  // Helper function to get workspace type
-  const getWorkspaceType = (types: string[]): string => {
-    if (types.includes('library')) return 'Library';
-    if (types.includes('cafe')) return 'Café';
-    if (types.includes('restaurant')) return 'Restaurant';
-    if (types.includes('book_store')) return 'Bookstore';
-    if (types.includes('establishment') && types.includes('point_of_interest')) return 'Co-working Space';
-    return 'Workspace';
-  };
-
-  // Format date from timestamp
-  const formatDate = (timestamp: number): string => {
-    return new Date(timestamp * 1000).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-  
-  // Get photo URL
-  const getPhotoUrl = (photoReference: string, maxWidth: number = 400): string => {
-    return mapsService.getPhotoUrl(photoReference, maxWidth);
-  };
-
   if (loading) {
     return <Loading message="Loading workspace details..." />;
   }
@@ -166,6 +276,7 @@ const MapWorkspaceDetail: React.FC = () => {
   if (error) {
     return (
       <div className={styles.workspaceContainer}>
+        <BackButton />
         <div className={styles.errorMessage}>
           <h2>Error Loading Workspace</h2>
           <p>{error}</p>
@@ -180,6 +291,7 @@ const MapWorkspaceDetail: React.FC = () => {
   if (!workspace) {
     return (
       <div className={styles.workspaceContainer}>
+        <BackButton />
         <div className={styles.errorMessage}>
           <h2>Workspace Not Found</h2>
           <p>The workspace you're looking for doesn't exist or couldn't be loaded.</p>
@@ -191,9 +303,32 @@ const MapWorkspaceDetail: React.FC = () => {
     );
   }
 
+  // Prepare photos data for gallery
+  const galleryPhotos = workspace.photos.map((photoRef, index) => ({
+    url: getPhotoUrl(photoRef, 800),
+    alt: `${workspace.name} - Photo ${index + 1}`
+  }));
+
   return (
     <div className={styles.workspaceContainer}>
-      {/* Workspace Header */}
+      <BackButton />
+
+      {notification && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          backgroundColor: '#10B981',
+          color: 'white',
+          padding: '12px 20px',
+          borderRadius: '8px',
+          zIndex: 1000,
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
+        }}>
+          {notification}
+        </div>
+      )}
+
       <div className={styles.workspaceHeader}>
         <div className={styles.workspaceTitle}>
           <h1>{workspace.name}</h1>
@@ -252,26 +387,45 @@ const MapWorkspaceDetail: React.FC = () => {
           </div>
         </div>
         <div className={styles.workspaceActions}>
-          <button className={`${styles.actionButton} ${styles.favorite}`}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20.84 4.61C20.3292 4.099 19.7228 3.69364 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69364 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.57831 8.50903 2.99871 7.05 2.99871C5.59096 2.99871 4.19169 3.57831 3.16 4.61C2.1283 5.64169 1.54871 7.04097 1.54871 8.5C1.54871 9.95903 2.1283 11.3583 3.16 12.39L4.22 13.45L12 21.23L19.78 13.45L20.84 12.39C21.351 11.8792 21.7563 11.2728 22.0329 10.6054C22.3095 9.93792 22.4518 9.22252 22.4518 8.5C22.4518 7.77748 22.3095 7.06208 22.0329 6.39464C21.7563 5.7272 21.351 5.12076 20.84 4.61Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Favorite
+          <button 
+            className={`${styles.actionButton} ${styles.favorite} ${isFavorited ? styles.favorited : ''}`}
+            onClick={handleFavoriteToggle}
+            disabled={favoriteLoading}
+          >
+            {favoriteLoading ? (
+              <div style={{ width: '18px', height: '18px' }}>
+                <Loading message="" />
+              </div>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill={isFavorited ? "currentColor" : "none"} xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.84 4.61C20.3292 4.099 19.7228 3.69364 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69364 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.57831 8.50903 2.99871 7.05 2.99871C5.59096 2.99871 4.19169 3.57831 3.16 4.61C2.1283 5.64169 1.54871 7.04097 1.54871 8.5C1.54871 9.95903 2.1283 11.3583 3.16 12.39L4.22 13.45L12 21.23L19.78 13.45L20.84 12.39C21.351 11.8792 21.7563 11.2728 22.0329 10.6054C22.3095 9.93792 22.4518 9.22252 22.4518 8.5C22.4518 7.77748 22.3095 7.06208 22.0329 6.39464C21.7563 5.7272 21.351 5.12076 20.84 4.61Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+            {isFavorited ? 'Favorited' : 'Favorite'}
           </button>
-          <button className={`${styles.actionButton} ${styles.share}`}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M18 8C19.6569 8 21 6.65685 21 5C21 3.34315 19.6569 2 18 2C16.3431 2 15 3.34315 15 5C15 6.65685 16.3431 8 18 8Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M6 15C7.65685 15 9 13.6569 9 12C9 10.3431 7.65685 9 6 9C4.34315 9 3 10.3431 3 12C3 13.6569 4.34315 15 6 15Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M18 22C19.6569 22 21 20.6569 21 19C21 17.3431 19.6569 16 18 16C16.3431 16 15 17.3431 15 19C15 20.6569 16.3431 22 18 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M8.59 13.51L15.42 17.49" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M15.41 6.51L8.59 10.49" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+          <button 
+            className={`${styles.actionButton} ${styles.share}`}
+            onClick={handleShare}
+            disabled={shareLoading}
+          >
+            {shareLoading ? (
+              <div style={{ width: '18px', height: '18px' }}>
+                <Loading message="" />
+              </div>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 8C19.6569 8 21 6.65685 21 5C21 3.34315 19.6569 2 18 2C16.3431 2 15 3.34315 15 5C15 6.65685 16.3431 8 18 8Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M6 15C7.65685 15 9 13.6569 9 12C9 10.3431 7.65685 9 6 9C4.34315 9 3 10.3431 3 12C3 13.6569 4.34315 15 6 15Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M18 22C19.6569 22 21 20.6569 21 19C21 17.3431 19.6569 16 18 16C16.3431 16 15 17.3431 15 19C15 20.6569 16.3431 22 18 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M8.59 13.51L15.42 17.49" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M15.41 6.51L8.59 10.49" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
             Share
           </button>
         </div>
       </div>
 
-      {/* Map and Photos Section */}
       <div className={styles.workspaceGallery}>
         <div className={`${styles.galleryItem} ${styles.galleryMain}`}>
           {apiKey ? (
@@ -297,7 +451,7 @@ const MapWorkspaceDetail: React.FC = () => {
             </div>
           )}
         </div>
-        <div className={styles.galleryItem}>
+        <div className={styles.galleryItem} onClick={() => handlePhotoClick(0)}>
           <img 
             src={workspace.photos && workspace.photos.length > 0 
               ? getPhotoUrl(workspace.photos[0])
@@ -309,7 +463,7 @@ const MapWorkspaceDetail: React.FC = () => {
             }}
           />
         </div>
-        <div className={styles.galleryItem}>
+        <div className={styles.galleryItem} onClick={() => handlePhotoClick(1)}>
           <img 
             src={workspace.photos && workspace.photos.length > 1 
               ? getPhotoUrl(workspace.photos[1])
@@ -320,13 +474,17 @@ const MapWorkspaceDetail: React.FC = () => {
               target.src = `${import.meta.env.VITE_API_BASE_URL}/placeholder/400/200?text=Interior`;
             }}
           />
-          <button className={styles.viewAllPhotos}>
-            View all photos
-          </button>
+          {workspace.photos.length > 2 && (
+            <button className={styles.viewAllPhotos} onClick={(e) => {
+              e.stopPropagation();
+              handleViewAllPhotos();
+            }}>
+              View all photos
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Main Content */}
       <div className={styles.workspaceContent}>
         <div className={styles.workspaceDetails}>
           <div className={styles.tabs}>
@@ -548,22 +706,20 @@ const MapWorkspaceDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Booking Card - UPDATED TO USE COMPONENT WITH REAL WORKSPACE DATA */}
         <BookingCard 
           workspaceId={workspace.id}
           workspaceName={workspace.name}
           workspaceAddress={workspace.address}
           workspaceType={getWorkspaceType(workspace.types)}
           workspacePhoto={workspace.photos && workspace.photos.length > 0 ? getPhotoUrl(workspace.photos[0]) : undefined}
-          price={getWorkspaceType(workspace.types) === 'Library' ? 'Free' : 
-                 getWorkspaceType(workspace.types) === 'Café' ? '$5' : '$15'}
-          priceDescription={getWorkspaceType(workspace.types) === 'Library' ? '' : '/hr'}
+          price={getWorkspacePrice(workspace.types)}
+          priceDescription={getWorkspacePrice(workspace.types) === 'Free' ? '' : ''}
           rating={workspace.rating || 4.5} 
-          reviewCount={workspace.reviews ? workspace.reviews.length : 0} 
+          reviewCount={workspace.reviews ? workspace.reviews.length : 0}
+          onContactHost={() => setContactModalOpen(true)}
         />
       </div>
 
-      {/* Similar Workspaces Section */}
       <div className={styles.similarWorkspaces}>
         <h2 className={styles.similarTitle}>Similar Workspaces Nearby</h2>
         <div className={styles.workspaceCards}>
@@ -621,7 +777,6 @@ const MapWorkspaceDetail: React.FC = () => {
               </div>
             ))
           ) : (
-            // Display placeholder similar workspaces if none are found
             Array.from({ length: 3 }).map((_, index) => (
               <div key={index} className={styles.workspaceCard}>
                 <div className={styles.cardImage}>
@@ -650,8 +805,7 @@ const MapWorkspaceDetail: React.FC = () => {
                   </div>
                   <div className={styles.cardFooter}>
                     <div className={styles.cardPrice}>
-                      {getWorkspaceType(workspace.types) === 'Library' ? 'Free' : 
-                       getWorkspaceType(workspace.types) === 'Café' ? '$5/hr' : '$15/hr'}
+                      {getWorkspacePrice(workspace.types)}
                     </div>
                     <div className={styles.cardRating}>
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="#4A6FDC" xmlns="http://www.w3.org/2000/svg">
@@ -666,6 +820,23 @@ const MapWorkspaceDetail: React.FC = () => {
           )}
         </div>
       </div>
+
+      <ContactModal
+        isOpen={contactModalOpen}
+        onClose={() => setContactModalOpen(false)}
+        workspaceName={workspace.name}
+        website={workspace.website}
+        phoneNumber={workspace.phoneNumber}
+        address={workspace.address}
+      />
+
+      <PhotoGalleryModal
+        isOpen={photoGalleryOpen}
+        onClose={() => setPhotoGalleryOpen(false)}
+        photos={galleryPhotos}
+        initialIndex={photoGalleryIndex}
+        workspaceName={workspace.name}
+      />
     </div>
   );
 };
