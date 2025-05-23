@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "seed:bookings": "node seeders/bookingSeeder.js",
+    "seed:notifications": "node seeders/notificationSeeder.js"
   },
   "keywords": [],
   "author": "",
@@ -22,7 +24,8 @@
     "mongodb": "^6.16.0",
     "mongoose": "^8.15.0",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "socket.io": "^4.6.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

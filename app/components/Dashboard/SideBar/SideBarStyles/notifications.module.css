@@ -1,542 +1,980 @@
-/* app/components/notifications/notifications.module.css */
+/* app/components/Dashboard/SideBar/SideBarStyles/notifications.module.css */
 :root {
-    --primary: #4A6FDC;
-    --secondary: #FF7E5F;
-    --accent: #2DD4BF;
-    --dark: #2A3347;
-    --light: #F8FAFC;
-    --white: #FFFFFF;
-    --gradient-bg: linear-gradient(135deg, #4A6FDC 0%, #2DD4BF 100%);
-    --light-gray: #E5E7EB;
-    --gray: #9CA3AF;
-    --dark-gray: #4B5563;
-    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 15px 30px rgba(0, 0, 0, 0.15);
-    
-    /* Notification type colors */
-    --message-color: #4A6FDC; /* Primary blue */
-    --booking-color: #2DD4BF; /* Accent teal */
-    --review-color: #FF7E5F; /* Secondary orange */
-    --system-color: #9CA3AF; /* Gray */
-    --connection-color: #8B5CF6; /* Purple */
-    --session-color: #10B981; /* Green */
-  }
+  --primary: #4A6FDC;
+  --primary-dark: #3d5ec7;
+  --primary-light: rgba(74, 111, 220, 0.1);
+  --secondary: #FF7E5F;
+  --accent: #2DD4BF;
+  --dark: #2A3347;
+  --light: #F8FAFC;
+  --white: #FFFFFF;
+  --gradient-bg: linear-gradient(135deg, #4A6FDC 0%, #2DD4BF 100%);
+  --gradient-hover: linear-gradient(135deg, #3d5ec7 0%, #25b9a7 100%);
+  --light-gray: #E5E7EB;
+  --gray: #9CA3AF;
+  --dark-gray: #4B5563;
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 15px 30px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 25px 50px rgba(0, 0, 0, 0.25);
   
-  /* Notifications Container */
+  /* Notification type colors */
+  --message-color: #4A6FDC; /* Primary blue */
+  --booking-color: #2DD4BF; /* Accent teal */
+  --review-color: #FF7E5F; /* Secondary orange */
+  --system-color: #9CA3AF; /* Gray */
+  --connection-color: #8B5CF6; /* Purple */
+  --session-color: #10B981; /* Green */
+  
+  /* Status colors */
+  --success: #10B981;
+  --warning: #F59E0B;
+  --error: #EF4444;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Notifications Container */
+.notificationsContainer {
+  width: 100%;
+  padding: 30px;
+  background-color: var(--light);
+  min-height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Notifications Header */
+.notificationsHeader {
+  background-color: var(--white);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  padding: 25px;
+  margin-bottom: 25px;
+  position: sticky;
+  top: 20px;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(74, 111, 220, 0.1);
+  animation: fadeIn 0.3s ease;
+}
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: var(--light);
+  border: 2px solid var(--light-gray);
+  border-radius: 12px;
+  color: var(--dark-gray);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.backButton:hover {
+  background: var(--white);
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateX(-5px);
+  box-shadow: var(--shadow-sm);
+}
+
+.backButton svg {
+  transition: transform 0.3s ease;
+}
+
+.backButton:hover svg {
+  transform: translateX(-3px);
+}
+
+.refreshButton {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--white);
+  border: 2px solid var(--light-gray);
+  border-radius: 12px;
+  color: var(--dark-gray);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.refreshButton:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: rotate(180deg);
+}
+
+.refreshButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.refreshButton svg {
+  animation: spin 1s linear infinite;
+}
+
+.refreshButton:not(:disabled):hover svg {
+  animation: none;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.notificationsTitle {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--dark);
+  margin: 0;
+  background: var(--gradient-bg);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.notificationsActions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.markAllReadButton {
+  background: var(--gradient-bg);
+  border: none;
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px 20px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(74, 111, 220, 0.3);
+}
+
+.markAllReadButton:hover {
+  background: var(--gradient-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 111, 220, 0.4);
+}
+
+.markAllReadButton:disabled {
+  background: var(--gray);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Success/Error Messages */
+.successMessage,
+.errorMessage {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  font-weight: 500;
+  animation: slideIn 0.3s ease;
+}
+
+.successMessage {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.errorMessage {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.searchContainer {
+  position: relative;
+  width: 280px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 40px 10px 15px;
+  border: 2px solid var(--light-gray);
+  border-radius: 10px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: var(--white);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(74, 111, 220, 0.2);
+}
+
+.searchIcon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray);
+  pointer-events: none;
+}
+
+.clearSearchButton {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  color: var(--gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.clearSearchButton:hover {
+  background: var(--light);
+  color: var(--dark);
+}
+
+/* Filter Tabs */
+.filterTabs {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.statusTabs {
+  display: flex;
+  gap: 15px;
+  border-bottom: 2px solid var(--light-gray);
+  padding-bottom: 15px;
+}
+
+.categoryTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.filterTab, .categoryTab {
+  padding: 10px 18px;
+  border: none;
+  background-color: var(--light);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark-gray);
+  cursor: pointer;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.filterTab::before, .categoryTab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--gradient-bg);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.filterTab:hover, .categoryTab:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.activeTab {
+  background: var(--gradient-bg);
+  color: var(--white);
+}
+
+.activeTab::before {
+  opacity: 1;
+}
+
+.activeTab:hover {
+  background: var(--gradient-hover);
+}
+
+.tabCount {
+  font-size: 12px;
+  font-weight: 700;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: inherit;
+  border-radius: 12px;
+  padding: 2px 8px;
+  min-width: 24px;
+  text-align: center;
+}
+
+/* Category Tab Colors */
+.messageTab.activeTab {
+  background: var(--message-color);
+}
+
+.bookingTab.activeTab {
+  background: var(--booking-color);
+}
+
+.reviewTab.activeTab {
+  background: var(--review-color);
+}
+
+.systemTab.activeTab {
+  background: var(--system-color);
+}
+
+.connectionTab.activeTab {
+  background: var(--connection-color);
+}
+
+.sessionTab.activeTab {
+  background: var(--session-color);
+}
+
+/* Notifications Body */
+.notificationsBody {
+  flex: 1;
+  background-color: var(--white);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  padding: 25px;
+  overflow: hidden;
+  position: relative;
+  animation: fadeIn 0.3s ease;
+}
+
+.loadingState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.notificationsList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.notificationItem {
+  display: flex;
+  padding: 20px;
+  border: 2px solid var(--light-gray);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
+  background: var(--white);
+  animation: fadeIn 0.3s ease;
+}
+
+.notificationItem:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-light);
+}
+
+.unreadNotification {
+  background-color: rgba(74, 111, 220, 0.03);
+  border-color: rgba(74, 111, 220, 0.2);
+}
+
+.unreadNotification::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--gradient-bg);
+  border-radius: 16px 0 0 16px;
+}
+
+.notificationIconContainer {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+  flex-shrink: 0;
+  color: var(--white);
+  position: relative;
+  overflow: hidden;
+}
+
+.notificationIconContainer::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.messageNotification {
+  background: linear-gradient(135deg, var(--message-color), #5B7EE5);
+}
+
+.bookingNotification {
+  background: linear-gradient(135deg, var(--booking-color), #3DDAC6);
+}
+
+.reviewNotification {
+  background: linear-gradient(135deg, var(--review-color), #FF8E70);
+}
+
+.systemNotification {
+  background: linear-gradient(135deg, var(--system-color), #A5ACB8);
+}
+
+.connectionNotification {
+  background: linear-gradient(135deg, var(--connection-color), #9C6FFF);
+}
+
+.sessionNotification {
+  background: linear-gradient(135deg, var(--session-color), #20C790);
+}
+
+.notificationContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notificationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.notificationTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.notificationTime {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--gray);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.notificationTime svg {
+  width: 14px;
+  height: 14px;
+}
+
+.senderInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.senderAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--light);
+}
+
+.senderAvatarPlaceholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gradient-bg);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.senderName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.notificationMessage {
+  font-size: 15px;
+  color: var(--dark-gray);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.relatedInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--light);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--dark-gray);
+}
+
+.relatedInfo svg {
+  width: 16px;
+  height: 16px;
+  color: var(--primary);
+}
+
+.notificationActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 5px;
+}
+
+.actionButton {
+  background: var(--gradient-bg);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.actionButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 111, 220, 0.3);
+}
+
+.deleteButton {
+  background: none;
+  border: 2px solid var(--light-gray);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark-gray);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.deleteButton:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.deleteButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.unreadIndicator {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--gradient-bg);
+  box-shadow: 0 2px 8px rgba(74, 111, 220, 0.5);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Load More */
+.loadMoreContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.loadMoreButton {
+  padding: 12px 30px;
+  background: var(--light);
+  border: 2px solid var(--light-gray);
+  border-radius: 12px;
+  font-weight: 600;
+  color: var(--dark);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.loadMoreButton:hover {
+  background: var(--gradient-bg);
+  color: var(--white);
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.loadMoreButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.emptyStateIcon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(74, 111, 220, 0.1) 0%, rgba(45, 212, 191, 0.1) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 25px;
+  color: var(--primary);
+  position: relative;
+}
+
+.emptyStateIcon::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: linear-gradient(135deg, rgba(74, 111, 220, 0.1) 0%, rgba(45, 212, 191, 0.1) 100%);
+  border-radius: 50%;
+  z-index: -1;
+  opacity: 0.5;
+}
+
+.emptyStateIcon svg {
+  width: 40px;
+  height: 40px;
+}
+
+.emptyStateTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0 0 12px;
+}
+
+.emptyStateMessage {
+  font-size: 15px;
+  color: var(--dark-gray);
+  margin: 0 0 25px;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+.resetButton {
+  background: var(--gradient-bg);
+  color: var(--white);
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(74, 111, 220, 0.3);
+}
+
+.resetButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 111, 220, 0.4);
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
   .notificationsContainer {
-    width: 100%;
-    padding: 30px;
-    background-color: var(--light);
-    min-height: calc(100vh - 60px);
-    display: flex;
-    flex-direction: column;
+    padding: 20px;
   }
   
-  /* Notifications Header */
+  .headerContent {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .notificationsActions {
+    width: 100%;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .searchContainer {
+    width: 100%;
+  }
+  
+  .categoryTabs {
+    overflow-x: auto;
+    padding-bottom: 5px;
+    margin-bottom: -5px;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .categoryTab {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .notificationsContainer {
+    padding: 15px;
+  }
+  
   .notificationsHeader {
-    background-color: var(--white);
-    border-radius: 12px;
-    box-shadow: var(--shadow-sm);
     padding: 20px;
     margin-bottom: 20px;
   }
   
-  .headerContent {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+  .headerTop {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+  
+  .backButton {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .refreshButton {
+    position: absolute;
+    top: 20px;
+    right: 20px;
   }
   
   .notificationsTitle {
     font-size: 24px;
-    font-weight: 700;
-    color: var(--dark);
-    margin: 0;
-  }
-  
-  .notificationsActions {
-    display: flex;
-    align-items: center;
-    gap: 15px;
   }
   
   .markAllReadButton {
-    background: none;
-    border: none;
-    color: var(--primary);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    padding: 0;
-    transition: all 0.3s ease;
-  }
-  
-  .markAllReadButton:hover {
-    color: #3d5ec7;
-    text-decoration: underline;
-  }
-  
-  .markAllReadButton:disabled {
-    color: var(--gray);
-    cursor: not-allowed;
-    text-decoration: none;
-  }
-  
-  .searchContainer {
-    position: relative;
-  }
-  
-  .searchInput {
-    padding: 10px 35px 10px 15px;
-    border: 1px solid var(--light-gray);
-    border-radius: 8px;
-    font-size: 14px;
-    width: 250px;
-    transition: all 0.3s ease;
-  }
-  
-  .searchInput:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(74, 111, 220, 0.2);
-  }
-  
-  .searchIcon {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--gray);
-  }
-  
-  .clearSearchButton {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    color: var(--gray);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .clearSearchButton:hover {
-    color: var(--dark-gray);
-  }
-  
-  /* Filter Tabs */
-  .filterTabs {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .statusTabs {
-    display: flex;
-    gap: 10px;
-    border-bottom: 1px solid var(--light-gray);
-    padding-bottom: 10px;
-  }
-  
-  .categoryTabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  
-  .filterTab, .categoryTab {
-    padding: 8px 15px;
-    border: none;
-    background-color: transparent;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--dark-gray);
-    cursor: pointer;
-    border-radius: 20px;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .filterTab:hover, .categoryTab:hover {
-    background-color: rgba(74, 111, 220, 0.1);
-  }
-  
-  .activeTab {
-    background-color: var(--primary);
-    color: var(--white);
-  }
-  
-  .activeTab:hover {
-    background-color: var(--primary);
-  }
-  
-  .tabCount {
-    font-size: 12px;
-    font-weight: 700;
-    background-color: rgba(255, 255, 255, 0.3);
-    color: inherit;
-    border-radius: 10px;
-    padding: 2px 6px;
-    min-width: 20px;
-    text-align: center;
-  }
-  
-  /* Category Tabs Styling */
-  .messageTab.activeTab {
-    background-color: var(--message-color);
-  }
-  
-  .bookingTab.activeTab {
-    background-color: var(--booking-color);
-  }
-  
-  .reviewTab.activeTab {
-    background-color: var(--review-color);
-  }
-  
-  .systemTab.activeTab {
-    background-color: var(--system-color);
-  }
-  
-  .connectionTab.activeTab {
-    background-color: var(--connection-color);
-  }
-  
-  .sessionTab.activeTab {
-    background-color: var(--session-color);
-  }
-  
-  /* Notifications Body */
-  .notificationsBody {
-    flex: 1;
-    background-color: var(--white);
-    border-radius: 12px;
-    box-shadow: var(--shadow-sm);
-    padding: 20px;
-    overflow: hidden;
-  }
-  
-  .notificationsList {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    width: 100%;
   }
   
   .notificationItem {
-    display: flex;
     padding: 15px;
-    border: 1px solid var(--light-gray);
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    position: relative;
-    cursor: pointer;
-  }
-  
-  .notificationItem:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-  }
-  
-  .unreadNotification {
-    background-color: rgba(74, 111, 220, 0.05);
-    border-color: rgba(74, 111, 220, 0.2);
   }
   
   .notificationIconContainer {
     width: 40px;
     height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     margin-right: 15px;
-    flex-shrink: 0;
-    color: var(--white);
-  }
-  
-  .messageNotification {
-    background-color: var(--message-color);
-  }
-  
-  .bookingNotification {
-    background-color: var(--booking-color);
-  }
-  
-  .reviewNotification {
-    background-color: var(--review-color);
-  }
-  
-  .systemNotification {
-    background-color: var(--system-color);
-  }
-  
-  .connectionNotification {
-    background-color: var(--connection-color);
-  }
-  
-  .sessionNotification {
-    background-color: var(--session-color);
-  }
-  
-  .notificationContent {
-    flex: 1;
-  }
-  
-  .notificationHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 10px;
   }
   
   .notificationTitle {
     font-size: 16px;
-    font-weight: 600;
-    color: var(--dark);
-    margin: 0;
-  }
-  
-  .notificationTime {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 12px;
-    color: var(--gray);
-    white-space: nowrap;
-  }
-  
-  .notificationTime svg {
-    width: 14px;
-    height: 14px;
-  }
-  
-  .senderInfo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  
-  .senderAvatar {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-  
-  .senderName {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--dark);
   }
   
   .notificationMessage {
     font-size: 14px;
-    color: var(--dark-gray);
-    margin: 0 0 15px;
-    line-height: 1.5;
   }
   
-  .notificationActions {
-    display: flex;
-    gap: 10px;
-  }
-  
-  .actionButton {
-    background: var(--gradient-bg);
-    color: var(--white);
-    border: none;
-    border-radius: 6px;
-    padding: 6px 12px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-  }
-  
-  .actionButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(74, 111, 220, 0.3);
-  }
-  
-  .deleteButton {
-    background: none;
-    border: 1px solid var(--light-gray);
-    border-radius: 6px;
-    padding: 6px 12px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--dark-gray);
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  
-  .deleteButton:hover {
-    background-color: rgba(156, 163, 175, 0.1);
-    color: var(--dark);
+  .notificationHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
   
   .unreadIndicator {
-    position: absolute;
     top: 15px;
     right: 15px;
     width: 10px;
     height: 10px;
-    border-radius: 50%;
-    background-color: var(--primary);
   }
   
-  /* Empty State */
-  .emptyState {
-    display: flex;
+  .filterTab, .categoryTab {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  
+  .tabCount {
+    padding: 1px 6px;
+    min-width: 20px;
+    font-size: 11px;
+  }
+  
+  .notificationActions {
     flex-direction: column;
-    align-items: center;
+    width: 100%;
+    gap: 10px;
+  }
+  
+  .actionButton, .deleteButton {
+    width: 100%;
     justify-content: center;
-    padding: 60px 20px;
-    text-align: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .notificationsHeader {
+    padding: 15px;
+  }
+  
+  .notificationsBody {
+    padding: 15px;
+  }
+  
+  .notificationsList {
+    gap: 15px;
+  }
+  
+  .notificationItem {
+    padding: 12px;
+    border-radius: 12px;
+  }
+  
+  .notificationIconContainer {
+    width: 36px;
+    height: 36px;
+    margin-right: 12px;
+  }
+  
+  .notificationIconContainer svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .notificationTitle {
+    font-size: 15px;
+  }
+  
+  .notificationMessage {
+    font-size: 13px;
+  }
+  
+  .notificationTime {
+    font-size: 12px;
+  }
+  
+  .senderAvatar,
+  .senderAvatarPlaceholder {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+  
+  .senderName {
+    font-size: 13px;
+  }
+  
+  .actionButton,
+  .deleteButton {
+    padding: 8px 14px;
+    font-size: 13px;
   }
   
   .emptyStateIcon {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    background-color: rgba(74, 111, 220, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-    color: var(--primary);
+    width: 60px;
+    height: 60px;
+  }
+  
+  .emptyStateIcon svg {
+    width: 30px;
+    height: 30px;
   }
   
   .emptyStateTitle {
     font-size: 18px;
-    font-weight: 600;
-    color: var(--dark);
-    margin: 0 0 10px;
   }
   
   .emptyStateMessage {
     font-size: 14px;
-    color: var(--dark-gray);
-    margin: 0 0 20px;
-    max-width: 400px;
   }
-  
-  .resetButton {
-    background: var(--gradient-bg);
-    color: var(--white);
-    border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  
-  .resetButton:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-  }
-  
-  /* Responsive Styles */
-  @media (max-width: 992px) {
-    .notificationsContainer {
-      padding: 20px;
-    }
-    
-    .headerContent {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 15px;
-    }
-    
-    .notificationsActions {
-      width: 100%;
-      justify-content: space-between;
-    }
-    
-    .searchInput {
-      width: 200px;
-    }
-    
-    .categoryTabs {
-      overflow-x: auto;
-      padding-bottom: 5px;
-      margin-bottom: -5px;
-    }
-    
-    .categoryTab {
-      white-space: nowrap;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .notificationsContainer {
-      padding: 15px;
-    }
-    
-    .notificationItem {
-      flex-direction: column;
-    }
-    
-    .notificationIconContainer {
-      margin-right: 0;
-      margin-bottom: 10px;
-    }
-    
-    .notificationHeader {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 5px;
-    }
-    
-    .unreadIndicator {
-      top: 10px;
-      right: 10px;
-    }
-    
-    .searchInput {
-      width: 100%;
-    }
-  }
-  
-  @media (max-width: 576px) {
-    .notificationsHeader {
-      padding: 15px;
-    }
-    
-    .notificationsBody {
-      padding: 15px;
-    }
-    
-    .filterTab, .categoryTab {
-      padding: 6px 10px;
-      font-size: 12px;
-    }
-    
-    .tabCount {
-      padding: 1px 4px;
-      min-width: 16px;
-    }
-    
-    .notificationActions {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-    }
-    
-    .actionButton, .deleteButton {
-      width: 100%;
-      text-align: center;
-    }
-  }
+}

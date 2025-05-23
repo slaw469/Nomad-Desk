@@ -1,8 +1,10 @@
-// app/components/notifications/Notifications.tsx
-import React, { useState, useEffect } from 'react';
-import { Link } from '@tanstack/react-router';
+// app/components/Dashboard/SideBar/Notifications.tsx
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useAuth } from "../../../contexts/AuthContext";
-import styles from './sidebarstyles/notifications.module.css';
+import styles from './SideBarStyles/notifications.module.css';
+import notificationService, { Notification, NotificationFilters } from '../../../services/notificationService';
+import Loading from '../../Common/Loading';
 
 // Icons
 const MessageIcon = () => (
@@ -57,179 +59,270 @@ const ClockIcon = () => (
   </svg>
 );
 
-// Define notification types
-type NotificationType = 'message' | 'booking' | 'review' | 'system' | 'connection' | 'session';
+const BellIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+  </svg>
+);
 
-// Define notification interface
-interface Notification {
-  id: string;
-  type: NotificationType;
-  title: string;
-  message: string;
-  time: string;
-  date: string;
-  isRead: boolean;
-  actionLink?: string;
-  actionText?: string;
-  sender?: {
-    name: string;
-    avatar: string;
-  };
-}
+const TrashIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6"></polyline>
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+    <line x1="10" y1="11" x2="10" y2="17"></line>
+    <line x1="14" y1="11" x2="14" y2="17"></line>
+  </svg>
+);
+
+const BackIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 12H5"></path>
+    <path d="M12 19l-7-7 7-7"></path>
+  </svg>
+);
+
+const RefreshIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="23 4 23 10 17 10"></polyline>
+    <polyline points="1 20 1 14 7 14"></polyline>
+    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+  </svg>
+);
 
 const Notifications: React.FC = () => {
   const { user } = useAuth();
-  const [activeFilter, setActiveFilter] = useState<'all' | 'unread'>('all');
-  const [activeCategory, setActiveCategory] = useState<NotificationType | 'all'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
-  // Load mock notifications data
+  // Filter states
+  const [activeFilter, setActiveFilter] = useState<'all' | 'unread'>('all');
+  const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchDebounce, setSearchDebounce] = useState('');
+  
+  // Stats
+  const [notificationStats, setNotificationStats] = useState({
+    total: 0,
+    unread: 0,
+    byType: {} as Record<string, number>
+  });
+  
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const ITEMS_PER_PAGE = 20;
+  
+  // Action tracking
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+  const [markingAsRead, setMarkingAsRead] = useState(false);
+  
+  // WebSocket connection
+  const wsConnectionRef = useRef<(() => void) | null>(null);
+  
+  // Search debounce
   useEffect(() => {
-    // This would typically be an API call
-    const mockNotifications: Notification[] = [
-      {
-        id: '1',
-        type: 'booking',
-        title: 'Booking Confirmation',
-        message: 'Your booking for Central Library Workspace on April 15, 2025, has been confirmed.',
-        time: '9:45 AM',
-        date: 'Today',
-        isRead: false,
-        actionLink: '/workspaces/1',
-        actionText: 'View Booking'
-      },
-      {
-        id: '2',
-        type: 'message',
-        title: 'New Message',
-        message: 'Sara Williams sent you a message about your upcoming study session.',
-        time: '11:20 AM',
-        date: 'Today',
-        isRead: false,
-        sender: {
-          name: 'Sara Williams',
-          avatar: '/api/placeholder/40/40'
-        },
-        actionLink: '/messages/2',
-        actionText: 'Reply'
-      },
-      {
-        id: '3',
-        type: 'connection',
-        title: 'Connection Request',
-        message: 'Taylor Chen wants to connect with you.',
-        time: '2:30 PM',
-        date: 'Yesterday',
-        isRead: true,
-        sender: {
-          name: 'Taylor Chen',
-          avatar: '/api/placeholder/40/40'
-        },
-        actionLink: '/profile/network',
-        actionText: 'View Request'
-      },
-      {
-        id: '4',
-        type: 'session',
-        title: 'Study Session Reminder',
-        message: 'Your study session "UX Research Collaboration" is scheduled for tomorrow at 2:00 PM.',
-        time: '4:15 PM',
-        date: 'Yesterday',
-        isRead: true,
-        actionLink: '/sessions/1',
-        actionText: 'View Details'
-      },
-      {
-        id: '5',
-        type: 'review',
-        title: 'Review Request',
-        message: 'Please leave a review for your recent visit to Downtown Café.',
-        time: '10:00 AM',
-        date: 'Apr 10, 2025',
-        isRead: true,
-        actionLink: '/workspaces/3/review',
-        actionText: 'Leave Review'
-      },
-      {
-        id: '6',
-        type: 'system',
-        title: 'Account Security',
-        message: 'A new device was used to log in to your account. If this wasn\'t you, please secure your account.',
-        time: '8:25 AM',
-        date: 'Apr 9, 2025',
-        isRead: true,
-        actionLink: '/settings/security',
-        actionText: 'Review Activity'
-      },
-      {
-        id: '7',
-        type: 'booking',
-        title: 'Booking Modification',
-        message: 'Your booking for Innovation Hub Coworking has been modified as requested.',
-        time: '3:40 PM',
-        date: 'Apr 8, 2025',
-        isRead: true,
-        actionLink: '/workspaces/2',
-        actionText: 'View Details'
-      },
-      {
-        id: '8',
-        type: 'system',
-        title: 'New Feature Available',
-        message: 'Try our new group booking feature - now you can book workspaces for your entire team!',
-        time: '11:15 AM',
-        date: 'Apr 7, 2025',
-        isRead: true,
-        actionLink: '/features/group-booking',
-        actionText: 'Learn More'
-      },
-    ];
+    const timer = setTimeout(() => {
+      setSearchDebounce(searchQuery);
+      setPage(1); // Reset pagination on search
+    }, 300);
     
-    setNotifications(mockNotifications);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Fetch notifications
+  const fetchNotifications = useCallback(async (append = false) => {
+    try {
+      if (!append) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+      setError(null);
+      
+      const filters: NotificationFilters = {
+        status: activeFilter,
+        type: activeCategory === 'all' ? undefined : activeCategory,
+        search: searchDebounce || undefined,
+        limit: ITEMS_PER_PAGE,
+        offset: append ? (page - 1) * ITEMS_PER_PAGE : 0
+      };
+      
+      const [notificationsData, statsData] = await Promise.all([
+        notificationService.getNotifications(filters),
+        notificationService.getNotificationStats()
+      ]);
+      
+      if (append) {
+        setNotifications(prev => [...prev, ...notificationsData]);
+      } else {
+        setNotifications(notificationsData);
+      }
+      
+      setNotificationStats(statsData);
+      setHasMore(notificationsData.length === ITEMS_PER_PAGE);
+      
+    } catch (err) {
+      console.error('Error fetching notifications:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load notifications');
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+      setRefreshing(false);
+    }
+  }, [activeFilter, activeCategory, searchDebounce, page]);
+
+  // Initial load and filter changes
+  useEffect(() => {
+    setPage(1);
+    fetchNotifications();
+  }, [activeFilter, activeCategory, searchDebounce]);
+
+  // Load more when page changes
+  useEffect(() => {
+    if (page > 1) {
+      fetchNotifications(true);
+    }
+  }, [page]);
+
+  // Set up WebSocket connection
+  useEffect(() => {
+    // Subscribe to real-time notifications
+    wsConnectionRef.current = notificationService.subscribeToRealTimeNotifications((notification) => {
+      setNotifications(prev => [notification, ...prev]);
+      setNotificationStats(prev => ({
+        ...prev,
+        total: prev.total + 1,
+        unread: !notification.isRead ? prev.unread + 1 : prev.unread,
+        byType: {
+          ...prev.byType,
+          [notification.type]: (prev.byType[notification.type] || 0) + 1
+        }
+      }));
+      
+      // Show browser notification if enabled
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(notification.title, {
+          body: notification.message,
+          icon: '/favicon.ico'
+        });
+      }
+    });
+    
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+    
+    return () => {
+      if (wsConnectionRef.current) {
+        wsConnectionRef.current();
+      }
+    };
   }, []);
 
-  // Filter notifications based on active filters and search query
-  const filteredNotifications = notifications
-    .filter(notification => {
-      // Filter by read/unread status
-      if (activeFilter === 'unread' && notification.isRead) {
-        return false;
-      }
-      
-      // Filter by category
-      if (activeCategory !== 'all' && notification.type !== activeCategory) {
-        return false;
-      }
-      
-      // Filter by search query
-      if (searchQuery && !notification.title.toLowerCase().includes(searchQuery.toLowerCase()) && 
-          !notification.message.toLowerCase().includes(searchQuery.toLowerCase())) {
-        return false;
-      }
-      
-      return true;
-    });
+  // Clear messages after timeout
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => setSuccessMessage(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
 
-  // Mark a notification as read
-  const markAsRead = (id: string) => {
-    setNotifications(notifications.map(notification => 
-      notification.id === id ? { ...notification, isRead: true } : notification
-    ));
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  // Mark notification as read
+  const markAsRead = async (notificationId: string) => {
+    try {
+      await notificationService.markAsRead(notificationId);
+      setNotifications(prev => 
+        prev.map(n => n.id === notificationId ? { ...n, isRead: true } : n)
+      );
+      setNotificationStats(prev => ({
+        ...prev,
+        unread: Math.max(0, prev.unread - 1)
+      }));
+    } catch (err) {
+      console.error('Error marking notification as read:', err);
+    }
   };
 
-  // Mark all notifications as read
-  const markAllAsRead = () => {
-    setNotifications(notifications.map(notification => ({ ...notification, isRead: true })));
+  // Mark all as read
+  const markAllAsRead = async () => {
+    if (notificationStats.unread === 0) return;
+    
+    try {
+      setMarkingAsRead(true);
+      const result = await notificationService.markAllAsRead();
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      setNotificationStats(prev => ({ ...prev, unread: 0 }));
+      setSuccessMessage(`${result.updated} notifications marked as read`);
+    } catch (err) {
+      console.error('Error marking all as read:', err);
+      setError('Failed to mark notifications as read');
+    } finally {
+      setMarkingAsRead(false);
+    }
   };
 
-  // Delete a notification
-  const deleteNotification = (id: string) => {
-    setNotifications(notifications.filter(notification => notification.id !== id));
+  // Delete notification
+  const deleteNotification = async (notificationId: string) => {
+    try {
+      setDeletingIds(prev => new Set(prev).add(notificationId));
+      await notificationService.deleteNotification(notificationId);
+      
+      setNotifications(prev => prev.filter(n => n.id !== notificationId));
+      setNotificationStats(prev => {
+        const notification = notifications.find(n => n.id === notificationId);
+        return {
+          total: Math.max(0, prev.total - 1),
+          unread: notification && !notification.isRead ? Math.max(0, prev.unread - 1) : prev.unread,
+          byType: {
+            ...prev.byType,
+            [notification?.type || '']: Math.max(0, (prev.byType[notification?.type || ''] || 1) - 1)
+          }
+        };
+      });
+      
+      setSuccessMessage('Notification deleted');
+    } catch (err) {
+      console.error('Error deleting notification:', err);
+      setError('Failed to delete notification');
+    } finally {
+      setDeletingIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(notificationId);
+        return newSet;
+      });
+    }
   };
 
-  // Get notification icon based on type
-  const getNotificationIcon = (type: NotificationType) => {
+  // Refresh notifications
+  const refreshNotifications = () => {
+    setRefreshing(true);
+    setPage(1);
+    fetchNotifications();
+  };
+
+  // Load more
+  const loadMore = () => {
+    if (!loadingMore && hasMore) {
+      setPage(prev => prev + 1);
+    }
+  };
+
+  // Get notification icon
+  const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'message':
         return <MessageIcon />;
@@ -248,8 +341,8 @@ const Notifications: React.FC = () => {
     }
   };
 
-  // Get notification color based on type
-  const getNotificationColor = (type: NotificationType) => {
+  // Get notification color
+  const getNotificationColor = (type: string) => {
     switch (type) {
       case 'message':
         return styles.messageNotification;
@@ -268,77 +361,119 @@ const Notifications: React.FC = () => {
     }
   };
 
-  // Get unread count
-  const unreadCount = notifications.filter(notification => !notification.isRead).length;
-
-  // Get notification counts by type
-  const getTypeCount = (type: NotificationType | 'all') => {
-    if (type === 'all') {
-      return notifications.length;
-    }
-    return notifications.filter(notification => notification.type === type).length;
+  // Format relative time
+  const formatRelativeTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    });
   };
+
+  // Handle notification click
+  const handleNotificationClick = async (notification: Notification) => {
+    if (!notification.isRead) {
+      await markAsRead(notification.id);
+    }
+    
+    if (notification.actionLink) {
+      navigate({ to: notification.actionLink as any });
+    }
+  };
+
+  // Get filtered notifications (client-side filtering for already loaded items)
+  const filteredNotifications = notifications;
 
   return (
     <div className={styles.notificationsContainer}>
+      {/* Header with back button */}
       <div className={styles.notificationsHeader}>
+        <div className={styles.headerTop}>
+          <button
+            className={styles.backButton}
+            onClick={() => navigate({ to: '/dashboard' })}
+          >
+            <BackIcon />
+            <span>Back to Dashboard</span>
+          </button>
+          
+          <button
+            className={styles.refreshButton}
+            onClick={refreshNotifications}
+            disabled={refreshing}
+            title="Refresh notifications"
+          >
+            <RefreshIcon />
+          </button>
+        </div>
+        
         <div className={styles.headerContent}>
           <h1 className={styles.notificationsTitle}>Notifications</h1>
           <div className={styles.notificationsActions}>
             <button
               className={styles.markAllReadButton}
               onClick={markAllAsRead}
-              disabled={unreadCount === 0}
+              disabled={notificationStats.unread === 0 || markingAsRead}
             >
-              Mark all as read
+              {markingAsRead ? 'Marking...' : 'Mark all as read'}
             </button>
             <div className={styles.searchContainer}>
               <input
                 type="text"
                 placeholder="Search notifications..."
                 value={searchQuery}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className={styles.searchInput}
               />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className={styles.searchIcon}
-              >
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              {searchQuery && (
+              {searchQuery ? (
                 <button
                   className={styles.clearSearchButton}
                   onClick={() => setSearchQuery('')}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </button>
+              ) : (
+                <svg className={styles.searchIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
               )}
             </div>
           </div>
         </div>
+        
+        {/* Success/Error Messages */}
+        {successMessage && (
+          <div className={styles.successMessage}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span>{successMessage}</span>
+          </div>
+        )}
+        
+        {error && (
+          <div className={styles.errorMessage}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+              <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <span>{error}</span>
+          </div>
+        )}
         
         <div className={styles.filterTabs}>
           <div className={styles.statusTabs}>
@@ -347,14 +482,14 @@ const Notifications: React.FC = () => {
               onClick={() => setActiveFilter('all')}
             >
               All
-              <span className={styles.tabCount}>{notifications.length}</span>
+              <span className={styles.tabCount}>{notificationStats.total}</span>
             </button>
             <button
               className={`${styles.filterTab} ${activeFilter === 'unread' ? styles.activeTab : ''}`}
               onClick={() => setActiveFilter('unread')}
             >
               Unread
-              <span className={styles.tabCount}>{unreadCount}</span>
+              <span className={styles.tabCount}>{notificationStats.unread}</span>
             </button>
           </div>
           
@@ -364,122 +499,175 @@ const Notifications: React.FC = () => {
               onClick={() => setActiveCategory('all')}
             >
               All Types
-              <span className={styles.tabCount}>{getTypeCount('all')}</span>
+              <span className={styles.tabCount}>{notificationStats.total}</span>
             </button>
             <button
               className={`${styles.categoryTab} ${activeCategory === 'message' ? styles.activeTab : ''} ${styles.messageTab}`}
               onClick={() => setActiveCategory('message')}
             >
               Messages
-              <span className={styles.tabCount}>{getTypeCount('message')}</span>
+              <span className={styles.tabCount}>{notificationStats.byType.message || 0}</span>
             </button>
             <button
               className={`${styles.categoryTab} ${activeCategory === 'booking' ? styles.activeTab : ''} ${styles.bookingTab}`}
               onClick={() => setActiveCategory('booking')}
             >
               Bookings
-              <span className={styles.tabCount}>{getTypeCount('booking')}</span>
+              <span className={styles.tabCount}>{notificationStats.byType.booking || 0}</span>
             </button>
             <button
               className={`${styles.categoryTab} ${activeCategory === 'session' ? styles.activeTab : ''} ${styles.sessionTab}`}
               onClick={() => setActiveCategory('session')}
             >
               Sessions
-              <span className={styles.tabCount}>{getTypeCount('session')}</span>
+              <span className={styles.tabCount}>{notificationStats.byType.session || 0}</span>
             </button>
             <button
               className={`${styles.categoryTab} ${activeCategory === 'connection' ? styles.activeTab : ''} ${styles.connectionTab}`}
               onClick={() => setActiveCategory('connection')}
             >
               Connections
-              <span className={styles.tabCount}>{getTypeCount('connection')}</span>
+              <span className={styles.tabCount}>{notificationStats.byType.connection || 0}</span>
             </button>
             <button
               className={`${styles.categoryTab} ${activeCategory === 'review' ? styles.activeTab : ''} ${styles.reviewTab}`}
               onClick={() => setActiveCategory('review')}
             >
               Reviews
-              <span className={styles.tabCount}>{getTypeCount('review')}</span>
+              <span className={styles.tabCount}>{notificationStats.byType.review || 0}</span>
             </button>
             <button
               className={`${styles.categoryTab} ${activeCategory === 'system' ? styles.activeTab : ''} ${styles.systemTab}`}
               onClick={() => setActiveCategory('system')}
             >
               System
-              <span className={styles.tabCount}>{getTypeCount('system')}</span>
+              <span className={styles.tabCount}>{notificationStats.byType.system || 0}</span>
             </button>
           </div>
         </div>
       </div>
       
       <div className={styles.notificationsBody}>
-        {filteredNotifications.length > 0 ? (
-          <div className={styles.notificationsList}>
-            {filteredNotifications.map(notification => (
-              <div 
-                key={notification.id} 
-                className={`${styles.notificationItem} ${!notification.isRead ? styles.unreadNotification : ''}`}
-                onClick={() => markAsRead(notification.id)}
-              >
-                <div className={`${styles.notificationIconContainer} ${getNotificationColor(notification.type)}`}>
-                  {getNotificationIcon(notification.type)}
-                </div>
-                
-                <div className={styles.notificationContent}>
-                  <div className={styles.notificationHeader}>
-                    <h3 className={styles.notificationTitle}>{notification.title}</h3>
-                    <div className={styles.notificationTime}>
-                      <ClockIcon />
-                      <span>{notification.time} • {notification.date}</span>
-                    </div>
-                  </div>
-                  
-                  {notification.sender && (
-                    <div className={styles.senderInfo}>
-                      <img 
-                        src={notification.sender.avatar} 
-                        alt={notification.sender.name} 
-                        className={styles.senderAvatar}
-                      />
-                      <span className={styles.senderName}>{notification.sender.name}</span>
-                    </div>
-                  )}
-                  
-                  <p className={styles.notificationMessage}>{notification.message}</p>
-                  
-                  <div className={styles.notificationActions}>
-                    {notification.actionLink && notification.actionText && (
-                      <Link 
-                        to={notification.actionLink} 
-                        className={styles.actionButton}
-                        onClick={(e: React.MouseEvent<HTMLAnchorElement>) => e.stopPropagation()}
-                      >
-                        {notification.actionText}
-                      </Link>
-                    )}
-                    <button 
-                      className={styles.deleteButton}
-                      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                        e.stopPropagation();
-                        deleteNotification(notification.id);
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-                
-                {!notification.isRead && <div className={styles.unreadIndicator}></div>}
-              </div>
-            ))}
+        {loading && !refreshing ? (
+          <div className={styles.loadingState}>
+            <Loading message="Loading notifications..." />
           </div>
+        ) : filteredNotifications.length > 0 ? (
+          <>
+            <div className={styles.notificationsList}>
+              {filteredNotifications.map(notification => (
+                <div 
+                  key={notification.id} 
+                  className={`${styles.notificationItem} ${!notification.isRead ? styles.unreadNotification : ''}`}
+                  onClick={() => handleNotificationClick(notification)}
+                >
+                  <div className={`${styles.notificationIconContainer} ${getNotificationColor(notification.type)}`}>
+                    {getNotificationIcon(notification.type)}
+                  </div>
+                  
+                  <div className={styles.notificationContent}>
+                    <div className={styles.notificationHeader}>
+                      <h3 className={styles.notificationTitle}>{notification.title}</h3>
+                      <div className={styles.notificationTime}>
+                        <ClockIcon />
+                        <span>{formatRelativeTime(notification.createdAt)}</span>
+                      </div>
+                    </div>
+                    
+                    {notification.sender && (
+                      <div className={styles.senderInfo}>
+                        {notification.sender.avatar ? (
+                          <img 
+                            src={notification.sender.avatar} 
+                            alt={notification.sender.name} 
+                            className={styles.senderAvatar}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <div className={styles.senderAvatarPlaceholder}>
+                            {notification.sender.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <span className={styles.senderName}>{notification.sender.name}</span>
+                      </div>
+                    )}
+                    
+                    <p className={styles.notificationMessage}>{notification.message}</p>
+                    
+                    {/* Additional metadata based on notification type */}
+                    {notification.relatedBooking && (
+                      <div className={styles.relatedInfo}>
+                        <CalendarIcon />
+                        <span>{notification.relatedBooking.workspaceName} - {notification.relatedBooking.date} at {notification.relatedBooking.time}</span>
+                      </div>
+                    )}
+                    
+                    {notification.relatedSession && (
+                      <div className={styles.relatedInfo}>
+                        <CalendarIcon />
+                        <span>{notification.relatedSession.title} - {notification.relatedSession.date} at {notification.relatedSession.time}</span>
+                      </div>
+                    )}
+                    
+                    <div className={styles.notificationActions}>
+                      {notification.actionLink && notification.actionText && (
+                        <Link 
+                          to={notification.actionLink as any} 
+                          className={styles.actionButton}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {notification.actionText}
+                        </Link>
+                      )}
+                      <button 
+                        className={styles.deleteButton}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteNotification(notification.id);
+                        }}
+                        disabled={deletingIds.has(notification.id)}
+                      >
+                        {deletingIds.has(notification.id) ? (
+                          <Loading message="" />
+                        ) : (
+                          <>
+                            <TrashIcon />
+                            <span>Delete</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {!notification.isRead && <div className={styles.unreadIndicator}></div>}
+                </div>
+              ))}
+            </div>
+            
+            {/* Load More */}
+            {hasMore && (
+              <div className={styles.loadMoreContainer}>
+                <button 
+                  className={styles.loadMoreButton}
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                >
+                  {loadingMore ? (
+                    <Loading message="Loading more..." />
+                  ) : (
+                    'Load More'
+                  )}
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <div className={styles.emptyState}>
             <div className={styles.emptyStateIcon}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-              </svg>
+              <BellIcon />
             </div>
             <h2 className={styles.emptyStateTitle}>
               {searchQuery 
@@ -495,7 +683,7 @@ const Notifications: React.FC = () => {
                   ? 'You\'re all caught up!' 
                   : 'When you receive notifications, they will appear here'}
             </p>
-            {searchQuery && (
+            {(searchQuery || activeFilter !== 'all' || activeCategory !== 'all') && (
               <button 
                 className={styles.resetButton}
                 onClick={() => {
