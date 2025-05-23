@@ -1,4 +1,4 @@
-// src/router.tsx
+// src/router.tsx - UPDATED WITH FAVORITES ROUTE
 import { Router, Route, RootRoute } from '@tanstack/react-router';
 import React from 'react';
 import App from './App';
@@ -9,7 +9,8 @@ import WorkspaceSearchPage from '../app/components/workspaces/WorkspaceSearchPag
 import MapWorkspaceDetail from '../app/components/workspaces/MapWorkspaceDetail';
 import FeaturesPage from '../app/components/Features/FeaturesPage';
 import Dashboard from '../app/components/dashboard/Dashboard';
-import Profile from '../app/components/Profile/Profile'; // Fixed import path
+import Profile from '../app/components/Profile/Profile';
+import Favorites from '../app/components/Favorites/Favorites'; // NEW: Import Favorites component
 import Settings from '../app/components/dashboard/sidebar/Settings';
 import Notifications from '../app/components/dashboard/sidebar/Notifications';
 import Network from '../app/components/dashboard/sidebar/Network';
@@ -57,6 +58,17 @@ const profileRoute = new Route({
   component: () => (
     <ProtectedRoute>
       <Profile />
+    </ProtectedRoute>
+  ),
+});
+
+// NEW: Favorites route - now properly implemented
+const favoritesRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/favorites',
+  component: () => (
+    <ProtectedRoute>
+      <Favorites />
     </ProtectedRoute>
   ),
 });
@@ -235,22 +247,12 @@ const messageDetailRoute = new Route({
   ),
 });
 
-// Favorites route
-const favoritesRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: '/favorites',
-  component: () => (
-    <ProtectedRoute>
-      <PlaceholderPage />
-    </ProtectedRoute>
-  ),
-});
-
 // Create the route tree using the routes
 const routeTree = rootRoute.addChildren([
   indexRoute,
   dashboardRoute,
   profileRoute,
+  favoritesRoute, // NEW: Added favorites route to the tree
   settingsRoute,
   notificationsRoute,
   networkRoute,
@@ -270,7 +272,6 @@ const routeTree = rootRoute.addChildren([
   studySessionDetailRoute,
   messagesRoute,
   messageDetailRoute,
-  favoritesRoute,
 ]);
 
 // Create the router

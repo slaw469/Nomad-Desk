@@ -1,8 +1,9 @@
-// app/components/Dashboard/SideBar/Network.tsx
+// app/components/Dashboard/SideBar/Profile.tsx - Updated with Back Button
 import React, { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useAuth } from "../../../contexts/AuthContext";
-import styles from './sidebarstyles/network.module.css';
+import BackButton from '../../Common/BackButton';
+import styles from './sidebarstyles/profile.module.css';
 
 // Icons
 const UserIcon = () => (
@@ -427,6 +428,9 @@ const Network: React.FC = () => {
 
   return (
     <div className={styles.networkContainer}>
+      {/* Add Back Button */}
+      <BackButton fallbackPath="/dashboard">Back to Dashboard</BackButton>
+      
       <div className={styles.networkHeader}>
         <div className={styles.headerTop}>
           <h1 className={styles.networkTitle}>My Network</h1>
