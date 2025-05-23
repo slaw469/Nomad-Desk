@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useAuth } from "../../../contexts/AuthContext";
 import BackButton from '../../Common/BackButton';
-import styles from './sidebarstyles/profile.module.css';
+import styles from './sidebarstyles/network.module.css';
 
 // Icons
 const UserIcon = () => (
