@@ -1,4 +1,4 @@
-// app/services/profileService.ts
+// app/services/profileService.ts - Updated StudyPreferences interface
 
 // Base API URL from environment or fallback
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
@@ -37,11 +37,11 @@ export interface SocialLinks {
 }
 
 export interface UserPreferences {
-    privateProfile?: boolean;
-    emailNotifications?: boolean;
-    pushNotifications?: boolean;
-    studyPreferences?: StudyPreferences;
-  }
+  privateProfile?: boolean;
+  emailNotifications?: boolean;
+  pushNotifications?: boolean;
+  studyPreferences?: StudyPreferences;
+}
 
 export interface StudyPreferences {
   preferredEnvironments: string[];
