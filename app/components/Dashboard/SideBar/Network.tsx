@@ -1,11 +1,11 @@
-// app/components/Dashboard/SideBar/Profile.tsx - Updated with Back Button
+// app/components/Dashboard/SideBar/Network.tsx - FIXED API URL
 import React, { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useAuth } from "../../../contexts/AuthContext";
 import BackButton from '../../Common/BackButton';
 import styles from './sidebarstyles/network.module.css';
 
-// Icons
+// Icons (keeping your existing icons)
 const UserIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -92,6 +92,9 @@ const Network: React.FC = () => {
   const allInterests = ['Design', 'Development', 'Marketing', 'Business', 'Education', 'Remote Work', 'Productivity', 'Writing', 'Entrepreneurship'];
   const allProfessions = ['UX Designer', 'Software Engineer', 'Product Manager', 'Marketing Specialist', 'Content Writer', 'Data Scientist', 'Educator', 'Entrepreneur'];
 
+  // FIXED: Updated API_BASE to match your backend
+  const API_BASE = 'http://localhost:5003/api';
+
   // Load real connection data from APIs
   useEffect(() => {
     const fetchNetworkData = async () => {
@@ -104,7 +107,7 @@ const Network: React.FC = () => {
           return;
         }
 
-        const API_BASE = 'http://localhost:5001/api';
+        console.log('🔍 Fetching network data from:', API_BASE);
 
         // Get user's connections
         const connectionsResponse = await fetch(`${API_BASE}/network/connections`, {
@@ -115,6 +118,8 @@ const Network: React.FC = () => {
 
         if (connectionsResponse.ok) {
           const connectionsData = await connectionsResponse.json();
+          console.log('✅ Connections data:', connectionsData);
+          
           const formattedConnections = connectionsData.map((conn: any) => ({
             id: conn.id,
             name: conn.user.name,
@@ -127,6 +132,8 @@ const Network: React.FC = () => {
             interests: conn.user.interests || []
           }));
           setConnections(formattedConnections);
+        } else {
+          console.error('❌ Failed to fetch connections:', connectionsResponse.status, connectionsResponse.statusText);
         }
 
         // Get pending requests
@@ -138,6 +145,8 @@ const Network: React.FC = () => {
 
         if (requestsResponse.ok) {
           const requestsData = await requestsResponse.json();
+          console.log('✅ Requests data:', requestsData);
+          
           const pendingConnections = requestsData.map((req: any) => ({
             id: req.id,
             name: req.sender.name,
@@ -151,6 +160,8 @@ const Network: React.FC = () => {
           }));
           
           setConnections(prev => [...prev, ...pendingConnections]);
+        } else {
+          console.error('❌ Failed to fetch requests:', requestsResponse.status, requestsResponse.statusText);
         }
 
         // Get suggested connections
@@ -162,6 +173,8 @@ const Network: React.FC = () => {
 
         if (suggestionsResponse.ok) {
           const suggestionsData = await suggestionsResponse.json();
+          console.log('✅ Suggestions data:', suggestionsData);
+          
           const suggestionConnections = suggestionsData.map((sugg: any) => ({
             id: sugg.id,
             name: sugg.user.name,
@@ -174,6 +187,8 @@ const Network: React.FC = () => {
           }));
           
           setConnections(prev => [...prev, ...suggestionConnections]);
+        } else {
+          console.error('❌ Failed to fetch suggestions:', suggestionsResponse.status, suggestionsResponse.statusText);
         }
 
       } catch (error) {
@@ -182,13 +197,13 @@ const Network: React.FC = () => {
         setConnections([
           {
             id: '1',
-            name: 'API Connection Failed',
-            profession: 'Using Mock Data',
-            location: 'Check Backend Server',
+            name: 'Backend Server Not Running',
+            profession: 'Check Backend Status',
+            location: `Expected: ${API_BASE}`,
             imageUrl: '/api/placeholder/80/80',
             mutualConnections: 0,
             status: 'connected',
-            interests: ['Backend', 'API']
+            interests: ['Backend', 'API', 'Server']
           }
         ]);
       } finally {
@@ -205,7 +220,7 @@ const Network: React.FC = () => {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await fetch(`http://localhost:5001/api/profile/search?q=${encodeURIComponent(query)}&limit=20`, {
+      const response = await fetch(`${API_BASE}/profile/search?q=${encodeURIComponent(query)}&limit=20`, {
         headers: {
           'x-auth-token': token
         }
@@ -291,7 +306,7 @@ const Network: React.FC = () => {
   const acceptRequest = async (id: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5001/api/network/request/${id}/accept`, {
+      const response = await fetch(`${API_BASE}/network/request/${id}/accept`, {
         method: 'PUT',
         headers: {
           'x-auth-token': token || ''
@@ -315,7 +330,7 @@ const Network: React.FC = () => {
   const rejectRequest = async (id: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5001/api/network/request/${id}/reject`, {
+      const response = await fetch(`${API_BASE}/network/request/${id}/reject`, {
         method: 'PUT',
         headers: {
           'x-auth-token': token || ''
@@ -337,7 +352,7 @@ const Network: React.FC = () => {
   const removeConnection = async (id: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5001/api/network/connection/${id}`, {
+      const response = await fetch(`${API_BASE}/network/connection/${id}`, {
         method: 'DELETE',
         headers: {
           'x-auth-token': token || ''
@@ -359,7 +374,7 @@ const Network: React.FC = () => {
   const sendRequest = async (id: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/api/network/request', {
+      const response = await fetch(`${API_BASE}/network/request`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1254,11 +1254,11 @@ const Profile: React.FC = () => {
               <div key={booking.id} className={styles.bookingCard}>
                 <div className={styles.bookingImage}>
                   <img 
-                    src={booking.workspace.photo || 'http://localhost:5001/api/placeholder/300/200'} 
+                    src={booking.workspace.photo || 'http://localhost:5003/api/placeholder/300/200'} 
                     alt={booking.workspace.name}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.src = 'http://localhost:5001/api/placeholder/300/200';
+                      target.src = 'http://localhost:5003/api/placeholder/300/200';
                     }}
                   />
                   <div className={styles.bookingType}>{booking.workspace.type}</div>

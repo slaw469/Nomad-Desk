@@ -124,7 +124,7 @@ const WorkspaceSearchPage: React.FC = () => {
 
   // Get photo URL
   const getPhotoUrl = (photoReference: string) => {
-    return `http://localhost:5001/api/public-maps/photo?reference=${encodeURIComponent(photoReference)}&maxwidth=400`;
+    return `http://localhost:5003/api/public-maps/photo?reference=${encodeURIComponent(photoReference)}&maxwidth=400`;
   };
 
   return (
@@ -271,11 +271,11 @@ const WorkspaceSearchPage: React.FC = () => {
                     <img 
                       src={workspace.photos && workspace.photos.length > 0 
                         ? getPhotoUrl(workspace.photos[0])
-                        : `http://localhost:5001/api/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`} 
+                        : `http://localhost:5003/api/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`} 
                       alt={workspace.name}
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        target.src = `http://localhost:5001/api/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`;
+                        target.src = `http://localhost:5003/api/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`;
                       }}
                     />
                   </Link>

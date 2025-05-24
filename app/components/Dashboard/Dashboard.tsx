@@ -106,7 +106,7 @@ const Dashboard: React.FC = () => {
   // NEW: Function to get photo URL for favorites
   const getPhotoUrl = (photoReference?: string): string => {
     if (!photoReference) {
-      return 'http://localhost:5001/api/placeholder/300/200?text=Workspace';
+      return 'http://localhost:5003/api/placeholder/300/200?text=Workspace';
     }
     return photoReference; // The photo is already a full URL from the backend
   };
@@ -538,7 +538,7 @@ const Dashboard: React.FC = () => {
                       alt={favorite.workspace.name}
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        target.src = 'http://localhost:5001/api/placeholder/300/200?text=Workspace';
+                        target.src = 'http://localhost:5003/api/placeholder/300/200?text=Workspace';
                       }}
                     />
                     <button 
