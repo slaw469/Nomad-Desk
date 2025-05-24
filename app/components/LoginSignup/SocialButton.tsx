@@ -9,6 +9,9 @@ interface SocialButtonProps {
 }
 
 const SocialButton: React.FC<SocialButtonProps> = ({ provider, disabled = false, onClick }) => {
+  // Use environment variable for backend URL
+  const BACKEND_URL = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5003';
+  
   const handleClick = () => {
     if (!disabled) {
       if (onClick) {
@@ -20,8 +23,8 @@ const SocialButton: React.FC<SocialButtonProps> = ({ provider, disabled = false,
           localStorage.setItem('redirectAfterLogin', currentPath);
         }
         
-        // Redirect to backend OAuth endpoint
-        window.location.href = `http://localhost:5001/api/auth/${provider}`;
+        // Redirect to backend OAuth endpoint using environment variable
+        window.location.href = `${BACKEND_URL}/api/auth/${provider}`;
       }
     }
   };

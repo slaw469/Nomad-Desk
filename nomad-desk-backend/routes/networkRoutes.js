@@ -1,8 +1,9 @@
-// nomad-desk-backend/routes/networkRoutes.js
+// nomad-desk-backend/routes/networkRoutes.js - UPDATED WITH REAL NOTIFICATIONS
 const express = require('express');
 const auth = require('../middleware/auth');
 const User = require('../models/User');
 const Connection = require('../models/Connection');
+const { createConnectionNotification } = require('../utils/notificationHelpers');
 const router = express.Router();
 
 // @route   GET api/network/connections
@@ -124,7 +125,7 @@ router.get('/requests/sent', auth, async (req, res) => {
 });
 
 // @route   POST api/network/request
-// @desc    Send connection request
+// @desc    Send connection request - UPDATED WITH NOTIFICATION
 // @access  Private
 router.post('/request', auth, async (req, res) => {
   try {
@@ -163,6 +164,26 @@ router.post('/request', auth, async (req, res) => {
 
     // Populate the request for response
     await newConnection.populate('recipient', 'name profession location avatar');
+    await newConnection.populate('requester', 'name profession location avatar');
+
+    // 🚀 CREATE REAL NOTIFICATION FOR CONNECTION REQUEST
+    try {
+      await createConnectionNotification(
+        userId, // recipient gets the notification
+        {
+          sender: {
+            _id: req.user.id,
+            name: req.user.name,
+            avatar: req.user.avatar
+          },
+          _id: newConnection._id
+        },
+        'request'
+      );
+      console.log('✅ Connection request notification created');
+    } catch (notificationError) {
+      console.error('⚠️ Failed to create connection request notification:', notificationError);
+    }
 
     const formattedRequest = {
       id: newConnection._id,
@@ -190,7 +211,7 @@ router.post('/request', auth, async (req, res) => {
 });
 
 // @route   PUT api/network/request/:request_id/accept
-// @desc    Accept connection request
+// @desc    Accept connection request - UPDATED WITH NOTIFICATION
 // @access  Private
 router.put('/request/:request_id/accept', auth, async (req, res) => {
   try {
@@ -216,6 +237,22 @@ router.put('/request/:request_id/accept', auth, async (req, res) => {
     // Populate for response
     await connection.populate('requester', 'name profession location avatar');
     await connection.populate('recipient', 'name profession location avatar');
+
+    // 🚀 CREATE REAL NOTIFICATION FOR CONNECTION ACCEPTED
+    try {
+      await createConnectionNotification(
+        connection.requester._id, // original requester gets notification
+        {
+          sender: connection.recipient, // person who accepted
+          recipient: connection.requester,
+          _id: connection._id
+        },
+        'accepted'
+      );
+      console.log('✅ Connection accepted notification created');
+    } catch (notificationError) {
+      console.error('⚠️ Failed to create connection accepted notification:', notificationError);
+    }
 
     const formattedConnection = {
       id: connection._id,

@@ -1,4 +1,4 @@
-// app/contexts/AuthContext.tsx
+// app/contexts/AuthContext.tsx - UPDATED BACKEND URL
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authService, LoginData, SignupData } from '../services/api';
 
@@ -47,8 +47,8 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Define backend URL - use environment variable if available or fallback to localhost
-const BACKEND_URL = 'http://localhost:5001';
+// Define backend URL - UPDATED TO MATCH YOUR RUNNING BACKEND
+const BACKEND_URL = 'http://localhost:5003';
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);

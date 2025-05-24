@@ -1,7 +1,7 @@
 // app/services/mapsService.ts
 
 // Base API URL - adjust this for development/production environments
-const API_BASE_URL = 'http://localhost:5001/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5003/api';
 
 // Interface for geocoding response
 export interface GeocodingResult {

@@ -1,6 +1,5 @@
-
 // ===================================
-// nomad-desk-backend/routes/notificationRoutes.js
+// nomad-desk-backend/routes/notificationRoutes.js - FIXED
 // ===================================
 
 const express = require('express');
@@ -60,12 +59,12 @@ router.get('/', auth, async (req, res) => {
  */
 router.get('/stats', auth, async (req, res) => {
   try {
-    const mongoose = require('mongoose');
-    const stats = await Notification.getStats(new mongoose.Types.ObjectId(req.user.id));
-
+    // FIXED: Pass the user ID directly as a string - Mongoose will handle the conversion
+    const stats = await Notification.getStats(req.user.id);
     res.json(stats);
   } catch (error) {
     console.error('Get notification stats error:', error.message);
+    console.error('Full error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -290,4 +289,3 @@ router.put('/preferences', auth, async (req, res) => {
 });
 
 module.exports = router;
-

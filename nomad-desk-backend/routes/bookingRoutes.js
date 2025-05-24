@@ -1,11 +1,10 @@
-// nomad-desk-backend/routes/bookingRoutes.js - FIXED FOR REAL WORKSPACE IDS
+// nomad-desk-backend/routes/bookingRoutes.js - UPDATED WITH REAL NOTIFICATIONS
 const express = require('express');
 const auth = require('../middleware/auth');
 const Booking = require('../models/Booking');
 const User = require('../models/User');
+const { createBookingNotification } = require('../utils/notificationHelpers');
 const router = express.Router();
-
-// NO MORE MOCK DATA - We'll use the real workspace data from the request
 
 /**
  * @route   GET api/bookings/availability
@@ -232,7 +231,7 @@ router.get('/', auth, async (req, res) => {
 
 /**
  * @route   POST api/bookings
- * @desc    Create a new booking - UPDATED TO ACCEPT REAL WORKSPACE DATA
+ * @desc    Create a new booking - UPDATED WITH NOTIFICATION
  * @access  Private
  */
 router.post('/', auth, async (req, res) => {
@@ -304,6 +303,15 @@ router.post('/', auth, async (req, res) => {
 
     await newBooking.save();
     console.log('Booking created successfully:', newBooking._id);
+
+    // 🚀 CREATE REAL NOTIFICATION FOR BOOKING CONFIRMATION
+    try {
+      await createBookingNotification(req.user.id, newBooking, 'confirmed');
+      console.log('✅ Booking confirmation notification created');
+    } catch (notificationError) {
+      console.error('⚠️ Failed to create booking notification:', notificationError);
+      // Don't fail the booking if notification fails
+    }
 
     res.status(201).json(newBooking);
   } catch (error) {
@@ -418,6 +426,14 @@ router.put('/:id', auth, async (req, res) => {
       { new: true }
     );
 
+    // 🚀 CREATE NOTIFICATION FOR BOOKING UPDATE
+    try {
+      await createBookingNotification(req.user.id, updatedBooking, 'updated');
+      console.log('✅ Booking update notification created');
+    } catch (notificationError) {
+      console.error('⚠️ Failed to create booking update notification:', notificationError);
+    }
+
     res.json(updatedBooking);
   } catch (error) {
     console.error('Update booking error:', error.message);
@@ -427,7 +443,7 @@ router.put('/:id', auth, async (req, res) => {
 
 /**
  * @route   PUT api/bookings/:id/cancel
- * @desc    Cancel booking
+ * @desc    Cancel booking - UPDATED WITH NOTIFICATION
  * @access  Private
  */
 router.put('/:id/cancel', auth, async (req, res) => {
@@ -458,6 +474,14 @@ router.put('/:id/cancel', auth, async (req, res) => {
     booking.status = 'cancelled';
     booking.updatedAt = Date.now();
     await booking.save();
+
+    // 🚀 CREATE NOTIFICATION FOR BOOKING CANCELLATION
+    try {
+      await createBookingNotification(req.user.id, booking, 'cancelled');
+      console.log('✅ Booking cancellation notification created');
+    } catch (notificationError) {
+      console.error('⚠️ Failed to create booking cancellation notification:', notificationError);
+    }
 
     res.json({ message: 'Booking cancelled successfully' });
   } catch (error) {

@@ -1,5 +1,5 @@
 // ===================================
-// nomad-desk-backend/utils/notificationHelpers.js
+// nomad-desk-backend/utils/notificationHelpers.js - UPDATED
 // ===================================
 
 const Notification = require('../models/Notification');
@@ -11,15 +11,23 @@ const createBookingNotification = async (userId, booking, type = 'confirmed') =>
   const messages = {
     confirmed: {
       title: 'Booking Confirmed',
-      message: `Your booking for ${booking.workspace.name} on ${booking.date} has been confirmed.`
+      message: `Your booking for ${booking.workspace.name} on ${booking.date} at ${booking.startTime} has been confirmed.`,
+      actionText: 'View Booking'
     },
     cancelled: {
       title: 'Booking Cancelled',
-      message: `Your booking for ${booking.workspace.name} on ${booking.date} has been cancelled.`
+      message: `Your booking for ${booking.workspace.name} on ${booking.date} at ${booking.startTime} has been cancelled.`,
+      actionText: 'Book Again'
     },
     reminder: {
       title: 'Booking Reminder',
-      message: `Reminder: You have a booking at ${booking.workspace.name} tomorrow at ${booking.startTime}.`
+      message: `Reminder: You have a booking at ${booking.workspace.name} tomorrow at ${booking.startTime}.`,
+      actionText: 'View Details'
+    },
+    updated: {
+      title: 'Booking Updated',
+      message: `Your booking for ${booking.workspace.name} has been updated. New time: ${booking.date} at ${booking.startTime}.`,
+      actionText: 'View Booking'
     }
   };
 
@@ -31,7 +39,7 @@ const createBookingNotification = async (userId, booking, type = 'confirmed') =>
     title: config.title,
     message: config.message,
     actionLink: `/workspaces/map/${booking.workspace.id}`,
-    actionText: 'View Booking',
+    actionText: config.actionText,
     relatedBooking: {
       id: booking._id,
       workspaceName: booking.workspace.name,
@@ -48,11 +56,13 @@ const createConnectionNotification = async (userId, connection, type = 'request'
   const messages = {
     request: {
       title: 'New Connection Request',
-      message: `${connection.sender.name} wants to connect with you.`
+      message: `${connection.sender.name} wants to connect with you.`,
+      actionText: 'View Request'
     },
     accepted: {
       title: 'Connection Accepted',
-      message: `${connection.recipient.name} accepted your connection request.`
+      message: `${connection.recipient.name} accepted your connection request.`,
+      actionText: 'View Profile'
     }
   };
 
@@ -64,7 +74,7 @@ const createConnectionNotification = async (userId, connection, type = 'request'
     title: config.title,
     message: config.message,
     actionLink: '/network',
-    actionText: type === 'request' ? 'View Request' : 'View Connection',
+    actionText: config.actionText,
     sender: {
       id: connection.sender._id,
       name: connection.sender.name,
@@ -100,20 +110,83 @@ const createMessageNotification = async (userId, sender, messagePreview) => {
 /**
  * Create a system notification
  */
-const createSystemNotification = async (userId, title, message, actionLink = null) => {
+const createSystemNotification = async (userId, title, message, actionLink = null, actionText = null) => {
   return await Notification.createNotification({
     user: userId,
     type: 'system',
     title,
     message,
     actionLink,
-    actionText: actionLink ? 'Learn More' : null
+    actionText: actionText || (actionLink ? 'Learn More' : null)
   });
+};
+
+/**
+ * Create a review notification
+ */
+const createReviewNotification = async (userId, workspaceName) => {
+  return await Notification.createNotification({
+    user: userId,
+    type: 'review',
+    title: 'Leave a Review',
+    message: `How was your experience at ${workspaceName}? Share your thoughts with the community.`,
+    actionLink: '/workspaces',
+    actionText: 'Write Review'
+  });
+};
+
+/**
+ * Create a welcome notification for new users
+ */
+const createWelcomeNotification = async (userId, userName) => {
+  return await createSystemNotification(
+    userId,
+    `Welcome to Nomad Desk, ${userName}!`,
+    'Start discovering amazing workspaces in your area. Complete your profile to get personalized recommendations.',
+    '/search',
+    'Find Spaces'
+  );
+};
+
+/**
+ * Create booking reminder notifications (to be called by a scheduled job)
+ */
+const createBookingReminders = async () => {
+  try {
+    const Booking = require('../models/Booking');
+    
+    // Get tomorrow's date
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowDate = tomorrow.toISOString().split('T')[0];
+    
+    // Find all confirmed bookings for tomorrow
+    const tomorrowBookings = await Booking.find({
+      date: tomorrowDate,
+      status: 'confirmed'
+    }).populate('user', 'name');
+    
+    // Create reminder notifications
+    const reminderPromises = tomorrowBookings.map(booking => 
+      createBookingNotification(booking.user._id, booking, 'reminder')
+    );
+    
+    await Promise.all(reminderPromises);
+    console.log(`Created ${tomorrowBookings.length} booking reminder notifications`);
+    
+    return tomorrowBookings.length;
+  } catch (error) {
+    console.error('Error creating booking reminders:', error);
+    return 0;
+  }
 };
 
 module.exports = {
   createBookingNotification,
   createConnectionNotification,
   createMessageNotification,
-  createSystemNotification
+  createSystemNotification,
+  createReviewNotification,
+  createWelcomeNotification,
+  createBookingReminders
 };

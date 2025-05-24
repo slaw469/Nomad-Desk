@@ -1,4 +1,4 @@
-// nomad-desk-backend/models/Notification.js
+// nomad-desk-backend/models/Notification.js - FIXED
 const mongoose = require('mongoose');
 
 const NotificationSchema = new mongoose.Schema({
@@ -125,23 +125,35 @@ NotificationSchema.statics.createNotification = async function(data) {
   return notification;
 };
 
-// Static method to get notification stats
+// FIXED: Static method to get notification stats
 NotificationSchema.statics.getStats = async function(userId) {
-  const [total, unread, byType] = await Promise.all([
-    this.countDocuments({ user: userId }),
-    this.countDocuments({ user: userId, isRead: false }),
-    this.aggregate([
-      { $match: { user: mongoose.Types.ObjectId(userId) } },
-      { $group: { _id: '$type', count: { $sum: 1 } } }
-    ])
-  ]);
-  
-  const byTypeMap = byType.reduce((acc, item) => {
-    acc[item._id] = item.count;
-    return acc;
-  }, {});
-  
-  return { total, unread, byType: byTypeMap };
+  try {
+    console.log('Getting stats for user:', userId);
+    
+    // Just use the userId as is - Mongoose will handle the conversion
+    const [total, unread, byType] = await Promise.all([
+      this.countDocuments({ user: userId }),
+      this.countDocuments({ user: userId, isRead: false }),
+      this.aggregate([
+        { $match: { user: new mongoose.Types.ObjectId(userId) } },
+        { $group: { _id: '$type', count: { $sum: 1 } } }
+      ])
+    ]);
+    
+    console.log('Stats results:', { total, unread, byType });
+    
+    const byTypeMap = byType.reduce((acc, item) => {
+      acc[item._id] = item.count;
+      return acc;
+    }, {});
+    
+    return { total, unread, byType: byTypeMap };
+  } catch (error) {
+    console.error('Error in getStats:', error);
+    console.error('UserId:', userId, 'Type:', typeof userId);
+    // Return default stats if there's an error
+    return { total: 0, unread: 0, byType: {} };
+  }
 };
 
 // Ensure virtual fields are serialized

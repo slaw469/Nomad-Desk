@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { createWelcomeNotification } = require('../utils/notificationHelpers');
 
 // Register user
 exports.register = async (req, res) => {
@@ -25,6 +26,15 @@ exports.register = async (req, res) => {
     user.password = await bcrypt.hash(password, salt);
 
     await user.save();
+
+    // 🚀 CREATE WELCOME NOTIFICATION FOR NEW USER
+    try {
+      await createWelcomeNotification(user._id, user.name);
+      console.log('✅ Welcome notification created for new user:', user.name);
+    } catch (notificationError) {
+      console.error('⚠️ Failed to create welcome notification:', notificationError);
+      // Don't fail registration if notification fails
+    }
 
     // Create and return JWT token
     const payload = {

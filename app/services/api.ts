@@ -1,7 +1,7 @@
-// app/services/api.ts
+// app/services/api.ts - UPDATED WITH CORRECT BACKEND PORT
 
-// Base API URL - adjust this for development/production environments
-const API_BASE_URL = 'http://localhost:5001/api';
+// Base API URL - UPDATED to match your backend port
+const API_BASE_URL = 'http://localhost:5003/api';
 
 // Interface for authentication responses
 interface AuthResponse {
