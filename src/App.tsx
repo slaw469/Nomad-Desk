@@ -1,16 +1,13 @@
-// src/App.tsx - Add AuthProvider here instead
+// src/App.tsx - FIXED: Remove AuthProvider from here
 import React from 'react';
 import { Outlet } from '@tanstack/react-router';
-import { AuthProvider } from '../app/contexts/AuthContext';
 import './App.css';
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <div className="app-container">
-        <Outlet />
-      </div>
-    </AuthProvider>
+    <div className="app-container">
+      <Outlet />
+    </div>
   );
 };
 

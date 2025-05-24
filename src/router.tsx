@@ -1,5 +1,5 @@
-// src/router.tsx - UPDATED WITH FAVORITES ROUTE
-import { Router, Route, RootRoute } from '@tanstack/react-router';
+// src/router.tsx - FIXED: Add proper error boundary and context setup
+import { Router, Route, RootRoute, ErrorComponent } from '@tanstack/react-router';
 import React from 'react';
 import App from './App';
 import LandingPage from '../app/components/LandingPageComponents/components/LandingPage';
@@ -10,7 +10,7 @@ import MapWorkspaceDetail from '../app/components/workspaces/MapWorkspaceDetail'
 import FeaturesPage from '../app/components/Features/FeaturesPage';
 import Dashboard from '../app/components/dashboard/Dashboard';
 import Profile from '../app/components/Profile/Profile';
-import Favorites from '../app/components/Favorites/Favorites'; // NEW: Import Favorites component
+import Favorites from '../app/components/Favorites/Favorites';
 import Settings from '../app/components/dashboard/sidebar/Settings';
 import Notifications from '../app/components/dashboard/sidebar/Notifications';
 import Network from '../app/components/dashboard/sidebar/Network';
@@ -20,6 +20,55 @@ import NomadDeskAbout from '../app/components/About/NomadDeskAbout';
 import ProtectedRoute from '../app/components/ProtectedRoute';
 import '../app/styles/font-fix.css';
 
+// Error boundary component for routes
+const RouteErrorComponent = ({ error }: { error: Error }) => {
+  console.error('Route error:', error);
+  
+  return (
+    <div style={{ 
+      padding: '50px', 
+      textAlign: 'center', 
+      color: 'red',
+      backgroundColor: '#fff',
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center'
+    }}>
+      <h1>Something went wrong</h1>
+      <p>We're sorry, but something unexpected happened.</p>
+      <details style={{ marginTop: '20px', textAlign: 'left' }}>
+        <summary>Error details</summary>
+        <pre style={{ 
+          background: '#f5f5f5', 
+          padding: '10px', 
+          borderRadius: '4px',
+          fontSize: '12px',
+          maxWidth: '600px',
+          overflow: 'auto'
+        }}>
+          {error.message}
+        </pre>
+      </details>
+      <button 
+        onClick={() => window.location.reload()} 
+        style={{
+          marginTop: '20px',
+          padding: '10px 20px',
+          backgroundColor: '#4A6FDC',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }}
+      >
+        Refresh Page
+      </button>
+    </div>
+  );
+};
+
 // Placeholder component for routes that don't have components yet
 const PlaceholderPage = () => (
   <div style={{ padding: '50px', textAlign: 'center' }}>
@@ -28,9 +77,20 @@ const PlaceholderPage = () => (
   </div>
 );
 
-// Define the root route
+// Define the root route with error boundary
 const rootRoute = new RootRoute({
-  component: App
+  component: App,
+  errorComponent: RouteErrorComponent,
+  // Add notFoundComponent for 404 handling
+  notFoundComponent: () => (
+    <div style={{ padding: '50px', textAlign: 'center' }}>
+      <h1>404 - Page Not Found</h1>
+      <p>The page you're looking for doesn't exist.</p>
+      <a href="/" style={{ color: '#4A6FDC', textDecoration: 'underline' }}>
+        Go back to home
+      </a>
+    </div>
+  ),
 });
 
 // Define the index route (landing page)
@@ -38,6 +98,7 @@ const indexRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/',
   component: LandingPage,
+  errorComponent: RouteErrorComponent,
 });
 
 // Define the dashboard route (protected)
@@ -49,6 +110,7 @@ const dashboardRoute = new Route({
       <Dashboard />
     </ProtectedRoute>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
 // Define all the other protected routes
@@ -60,9 +122,9 @@ const profileRoute = new Route({
       <Profile />
     </ProtectedRoute>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
-// NEW: Favorites route - now properly implemented
 const favoritesRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/favorites',
@@ -71,6 +133,7 @@ const favoritesRoute = new Route({
       <Favorites />
     </ProtectedRoute>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
 const settingsRoute = new Route({
@@ -81,6 +144,7 @@ const settingsRoute = new Route({
       <Settings />
     </ProtectedRoute>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
 const notificationsRoute = new Route({
@@ -91,6 +155,7 @@ const notificationsRoute = new Route({
       <Notifications />
     </ProtectedRoute>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
 const networkRoute = new Route({
@@ -101,6 +166,7 @@ const networkRoute = new Route({
       <Network />
     </ProtectedRoute>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
 // Workspace routes
@@ -112,6 +178,7 @@ const workspacesRoute = new Route({
       <WorkspaceList />
     </ProtectedRoute>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
 const workspaceDetailRoute = new Route({
@@ -122,9 +189,9 @@ const workspaceDetailRoute = new Route({
       <WorkspaceDetail />
     </ProtectedRoute>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
-// New workspace search route
 const workspaceSearchRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/search',
@@ -133,9 +200,9 @@ const workspaceSearchRoute = new Route({
       <WorkspaceSearchPage />
     </ProtectedRoute>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
-// New map-based workspace detail route
 const mapWorkspaceDetailRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/workspaces/map/$placeId',
@@ -144,6 +211,7 @@ const mapWorkspaceDetailRoute = new Route({
       <MapWorkspaceDetail />
     </ProtectedRoute>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
 // Define additional public routes
@@ -151,31 +219,36 @@ const howItWorksRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/how-it-works',
   component: PlaceholderPage,
+  errorComponent: RouteErrorComponent,
 });
 
 const featuresRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/features',
   component: FeaturesPage,
+  errorComponent: RouteErrorComponent,
 });
 
 const aboutRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/about',
   component: NomadDeskAbout,
+  errorComponent: RouteErrorComponent,
 });
 
-// Auth routes
+// Auth routes - These should NOT be wrapped in ProtectedRoute
 const loginRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/login',
   component: WrappedLSPage,
+  errorComponent: RouteErrorComponent,
 });
 
 const signupRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/signup',
   component: WrappedLSPage,
+  errorComponent: RouteErrorComponent,
 });
 
 // OAuth callback route
@@ -183,6 +256,7 @@ const oauthCallbackRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/oauth-callback',
   component: OAuthCallback,
+  errorComponent: RouteErrorComponent,
 });
 
 const createGroupRoute = new Route({
@@ -193,6 +267,7 @@ const createGroupRoute = new Route({
       <PlaceholderPage />
     </ProtectedRoute>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
 // Study sessions routes
@@ -204,6 +279,7 @@ const studySessionsRoute = new Route({
       <PlaceholderPage />
     </ProtectedRoute>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
 const createStudySessionRoute = new Route({
@@ -214,6 +290,7 @@ const createStudySessionRoute = new Route({
       <PlaceholderPage />
     </ProtectedRoute>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
 const studySessionDetailRoute = new Route({
@@ -224,6 +301,7 @@ const studySessionDetailRoute = new Route({
       <PlaceholderPage />
     </ProtectedRoute>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
 // Messages routes
@@ -235,6 +313,7 @@ const messagesRoute = new Route({
       <PlaceholderPage />
     </ProtectedRoute>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
 const messageDetailRoute = new Route({
@@ -245,6 +324,7 @@ const messageDetailRoute = new Route({
       <PlaceholderPage />
     </ProtectedRoute>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
 // Create the route tree using the routes
@@ -252,7 +332,7 @@ const routeTree = rootRoute.addChildren([
   indexRoute,
   dashboardRoute,
   profileRoute,
-  favoritesRoute, // NEW: Added favorites route to the tree
+  favoritesRoute,
   settingsRoute,
   notificationsRoute,
   networkRoute,
@@ -274,8 +354,13 @@ const routeTree = rootRoute.addChildren([
   messageDetailRoute,
 ]);
 
-// Create the router
-export const router = new Router({ routeTree });
+// Create the router with error handling
+export const router = new Router({ 
+  routeTree,
+  defaultErrorComponent: RouteErrorComponent,
+  // Add context if needed for authentication
+  context: undefined,
+});
 
 // Register the router for type safety
 declare module '@tanstack/react-router' {

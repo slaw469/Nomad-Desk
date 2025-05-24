@@ -1,4 +1,4 @@
-// nomad-desk-backend/routes/googleAuthRoutes.js
+// nomad-desk-backend/routes/googleAuthRoutes.js - FIXED REDIRECT URL
 
 const express = require('express');
 const passport = require('passport');
@@ -37,11 +37,17 @@ router.get('/google/callback',
       // Encode the user data for URL transmission
       const encodedUser = encodeURIComponent(JSON.stringify(userData));
       
+      // FIXED: Use the correct frontend URL - port 5173 instead of 5206
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      
+      console.log('Redirecting to:', `${frontendUrl}/oauth-callback?token=${token}&user=${encodedUser}`);
+      
       // Redirect to frontend with token and user data
-      res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/oauth-callback?token=${token}&user=${encodedUser}`);
+      res.redirect(`${frontendUrl}/oauth-callback?token=${token}&user=${encodedUser}`);
     } catch (error) {
       console.error('Error in Google callback:', error);
-      res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=Authentication failed`);
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      res.redirect(`${frontendUrl}/login?error=Authentication failed`);
     }
   }
 );

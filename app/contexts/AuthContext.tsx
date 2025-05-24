@@ -1,4 +1,4 @@
-// app/contexts/AuthContext.tsx - UPDATED BACKEND URL
+// app/contexts/AuthContext.tsx - FIXED: Better error handling for context
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authService, LoginData, SignupData } from '../services/api';
 
@@ -23,24 +23,18 @@ interface AuthContextType {
   clearError: () => void;
 }
 
-// Create a default value for the context
-const defaultAuthContext: AuthContextType = {
-  user: null,
-  isAuthenticated: false,
-  isLoading: false,
-  error: null,
-  login: async () => { throw new Error('Auth provider not initialized'); },
-  signup: async () => { throw new Error('Auth provider not initialized'); },
-  logout: () => {},
-  socialLogin: async () => { throw new Error('Auth provider not initialized'); },
-  clearError: () => {}
-};
+// Create context with undefined initial value
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Create context with default value
-const AuthContext = createContext<AuthContextType>(defaultAuthContext);
-
-export const useAuth = () => {
-  return useContext(AuthContext);
+// Custom hook with proper error handling
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider. Make sure your component is wrapped with AuthProvider.');
+  }
+  
+  return context;
 };
 
 interface AuthProviderProps {
@@ -58,37 +52,53 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   
   // Helper function to navigate to a path
   const navigateTo = (path: string) => {
-    window.location.href = path;
+    try {
+      window.location.href = path;
+    } catch (err) {
+      console.error('Navigation error:', err);
+      // Fallback: try to use history API
+      if (window.history && window.history.pushState) {
+        window.history.pushState(null, '', path);
+        window.location.reload();
+      }
+    }
   };
 
   // Check if user is logged in on initial load
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('user');
-      
-      if (token && storedUser) {
-        try {
-          // Verify token validity by getting current user
-          const userData = await authService.getCurrentUser(token);
-          if (userData) {
-            setUser(userData);
-            setIsAuthenticated(true);
-          } else {
-            // Clear invalid data
+      try {
+        const token = localStorage.getItem('token');
+        const storedUser = localStorage.getItem('user');
+        
+        if (token && storedUser) {
+          try {
+            // Verify token validity by getting current user
+            const userData = await authService.getCurrentUser(token);
+            if (userData) {
+              setUser(userData);
+              setIsAuthenticated(true);
+            } else {
+              // Clear invalid data
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+            }
+          } catch (err) {
+            console.log('Token validation failed, clearing auth data');
+            // If token is invalid, clear storage
             localStorage.removeItem('token');
             localStorage.removeItem('user');
           }
-        } catch (err) {
-          console.log('Token validation failed, clearing auth data');
-          // If token is invalid, clear storage
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
         }
+      } catch (err) {
+        console.error('Auth check error:', err);
+        // Clear potentially corrupted data
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      } finally {
+        // Always set loading to false, even if there are errors
+        setIsLoading(false);
       }
-      
-      // Always set loading to false, even if token verification fails
-      setIsLoading(false);
     };
     
     checkAuth();
@@ -194,7 +204,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const value = {
+  const value: AuthContextType = {
     user,
     isAuthenticated,
     isLoading,
@@ -212,5 +222,3 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-export default AuthContext;

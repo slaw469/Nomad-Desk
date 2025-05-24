@@ -1,18 +1,13 @@
-// app/components/LoginSignup/WrappedLSPage.tsx
+// app/components/LoginSignup/WrappedLSPage.tsx - FIXED: Remove duplicate AuthProvider
 import React from 'react';
-import { AuthProvider } from '../../contexts/AuthContext';
 import LSpage from './LSutils/LSpage';
 
 /**
- * This component wraps the LSpage with its own AuthProvider
- * to ensure auth context is available for login/signup functionality
+ * This component now just renders LSpage directly since AuthProvider 
+ * is already provided at the top level in main.tsx
  */
 const WrappedLSPage: React.FC = () => {
-  return (
-    <AuthProvider>
-      <LSpage />
-    </AuthProvider>
-  );
+  return <LSpage />;
 };
 
 export default WrappedLSPage;
