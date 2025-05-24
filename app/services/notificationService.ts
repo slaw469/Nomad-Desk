@@ -4,7 +4,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
 
 // Notification interfaces
-export interface Notification {
+export interface NotificationItem {
   id: string;
   user: string;
   type: 'message' | 'booking' | 'review' | 'system' | 'connection' | 'session';
@@ -105,7 +105,7 @@ const fetchApi = async <T>(
 // Notification Service methods
 export const notificationService = {
   // Get all notifications with optional filters
-  getNotifications: async (filters?: NotificationFilters): Promise<Notification[]> => {
+  getNotifications: async (filters?: NotificationFilters): Promise<NotificationItem[]> => {
     const params = new URLSearchParams();
     
     if (filters) {
@@ -119,17 +119,17 @@ export const notificationService = {
     const queryString = params.toString();
     const endpoint = queryString ? `/notifications?${queryString}` : '/notifications';
     
-    return fetchApi<Notification[]>(endpoint);
+    return fetchApi<NotificationItem[]>(endpoint);
   },
   
   // Get notification by ID
-  getNotificationById: async (notificationId: string): Promise<Notification> => {
-    return fetchApi<Notification>(`/notifications/${notificationId}`);
+  getNotificationById: async (notificationId: string): Promise<NotificationItem> => {
+    return fetchApi<NotificationItem>(`/notifications/${notificationId}`);
   },
   
   // Mark notification as read
-  markAsRead: async (notificationId: string): Promise<Notification> => {
-    return fetchApi<Notification>(`/notifications/${notificationId}/read`, 'PUT');
+  markAsRead: async (notificationId: string): Promise<NotificationItem> => {
+    return fetchApi<NotificationItem>(`/notifications/${notificationId}/read`, 'PUT');
   },
   
   // Mark multiple notifications as read
@@ -182,7 +182,7 @@ export const notificationService = {
   },
   
   // Real-time notification subscription (WebSocket)
-  subscribeToRealTimeNotifications: (onNotification: (notification: Notification) => void) => {
+  subscribeToRealTimeNotifications: (onNotification: (notification: NotificationItem) => void) => {
     const wsUrl = API_BASE_URL.replace(/^http/, 'ws') + '/notifications/stream';
     const token = localStorage.getItem('token');
     

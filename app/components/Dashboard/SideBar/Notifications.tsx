@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useAuth } from "../../../contexts/AuthContext";
 import styles from './SideBarStyles/notifications.module.css';
-import notificationService, { Notification, NotificationFilters } from '../../../services/notificationService';
+import notificationService, { NotificationItem, NotificationFilters } from '../../../services/notificationService';
 import Loading from '../../Common/Loading';
 
 // Icons
@@ -93,7 +93,7 @@ const RefreshIcon = () => (
 const Notifications: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -380,7 +380,7 @@ const Notifications: React.FC = () => {
   };
 
   // Handle notification click
-  const handleNotificationClick = async (notification: Notification) => {
+  const handleNotificationClick = async (notification: NotificationItem) => {
     if (!notification.isRead) {
       await markAsRead(notification.id);
     }

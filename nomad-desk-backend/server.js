@@ -160,7 +160,7 @@ console.log('✅ Favorites routes registered');
 app.use('/api/maps', require('./routes/mapsRoutes'));
 console.log('✅ Maps routes registered');
 
-app.use('/api/placeholder', require('../routes/placeholderRoutes'));
+app.use('/api/placeholder', require('./routes/placeHolderRoutes'));
 console.log('✅ Placeholder routes registered');
 
 app.use('/api/public-maps', require('./routes/publicMapsRoutes'));
