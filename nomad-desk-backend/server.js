@@ -147,6 +147,15 @@ io.on('connection', (socket) => {
   });
 });
 
+try {
+  app.use('/api/settings', require('./routes/settingsRoutes'));
+  console.log('✅ Settings routes registered');
+} catch (error) {
+  console.error('❌ Error loading settings routes:', error.message);
+  // Continue without settings routes for now
+  console.log('⚠️  Settings will use existing profile endpoints');
+}
+
 // Handle Socket.io errors
 io.on('error', (error) => {
   console.error('Socket.io server error:', error);

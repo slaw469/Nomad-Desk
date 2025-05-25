@@ -1,4 +1,4 @@
-// src/router.tsx - FIXED: Add proper error boundary and context setup
+// src/router.tsx - UPDATED: Add OAuth success route
 import { Router, Route, RootRoute, ErrorComponent } from '@tanstack/react-router';
 import React from 'react';
 import App from './App';
@@ -15,7 +15,7 @@ import Settings from '../app/components/dashboard/sidebar/Settings';
 import Notifications from '../app/components/dashboard/sidebar/Notifications';
 import Network from '../app/components/dashboard/sidebar/Network';
 import WrappedLSPage from '../app/components/LoginSignup/WrappedLSPage';
-import OAuthCallback from '../app/components/LoginSignup/OAuthCallback';
+import OAuthSuccess from '../app/components/LoginSignup/OAuthSuccess';
 import NomadDeskAbout from '../app/components/About/NomadDeskAbout';
 import ProtectedRoute from '../app/components/ProtectedRoute';
 import '../app/styles/font-fix.css';
@@ -81,7 +81,6 @@ const PlaceholderPage = () => (
 const rootRoute = new RootRoute({
   component: App,
   errorComponent: RouteErrorComponent,
-  // Add notFoundComponent for 404 handling
   notFoundComponent: () => (
     <div style={{ padding: '50px', textAlign: 'center' }}>
       <h1>404 - Page Not Found</h1>
@@ -251,11 +250,18 @@ const signupRoute = new Route({
   errorComponent: RouteErrorComponent,
 });
 
-// OAuth callback route
-const oauthCallbackRoute = new Route({
+// NEW: OAuth success route with search schema
+const oauthSuccessRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: '/oauth-callback',
-  component: OAuthCallback,
+  path: '/oauth-success',
+  component: OAuthSuccess,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      token: search.token as string,
+      user: search.user as string,
+      error: search.error as string,
+    }
+  },
   errorComponent: RouteErrorComponent,
 });
 
@@ -327,7 +333,7 @@ const messageDetailRoute = new Route({
   errorComponent: RouteErrorComponent,
 });
 
-// Create the route tree using the routes
+// Create the route tree using the routes (ADDED oauthSuccessRoute)
 const routeTree = rootRoute.addChildren([
   indexRoute,
   dashboardRoute,
@@ -345,7 +351,7 @@ const routeTree = rootRoute.addChildren([
   aboutRoute,
   loginRoute,
   signupRoute,
-  oauthCallbackRoute,
+  oauthSuccessRoute, // NEW ROUTE
   createGroupRoute,
   studySessionsRoute,
   createStudySessionRoute,
@@ -358,7 +364,6 @@ const routeTree = rootRoute.addChildren([
 export const router = new Router({ 
   routeTree,
   defaultErrorComponent: RouteErrorComponent,
-  // Add context if needed for authentication
   context: undefined,
 });
 

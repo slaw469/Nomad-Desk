@@ -1,978 +1,1063 @@
-// app/components/settings/Settings.tsx
-import React, { useState } from 'react';
+// app/components/Dashboard/SideBar/Settings.tsx - REVOLUTIONARY 2025 EDITION
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { useAuth } from "../../../contexts/AuthContext";
 import styles from './sidebarstyles/settings.module.css';
 
-// Icons
-const SecurityIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-  </svg>
-);
-
-const NotificationIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-  </svg>
-);
-
-const PaymentIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-    <line x1="1" y1="10" x2="23" y2="10"></line>
-  </svg>
-);
-
-const PrivacyIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-  </svg>
-);
-
-const PreferencesIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="3"></circle>
-    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+// Modern Icon Components with glassmorphism support
+const BackIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
 const AccountIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-    <circle cx="12" cy="7" r="4"></circle>
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
-const DangerIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-    <line x1="12" y1="9" x2="12" y2="13"></line>
-    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+const SecurityIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 22S8 18 8 12V5L12 3L16 5V12C16 18 12 22 12 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
-const ThemeIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="5"></circle>
-    <line x1="12" y1="1" x2="12" y2="3"></line>
-    <line x1="12" y1="21" x2="12" y2="23"></line>
-    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-    <line x1="1" y1="12" x2="3" y2="12"></line>
-    <line x1="21" y1="12" x2="23" y2="12"></line>
-    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+const NotificationIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 8A6 6 0 0 0 6 8C6 15 3 17 3 17H21S18 15 18 8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M13.73 21A1.999 1.999 0 0 1 10.27 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+const PrivacyIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+const PreferencesIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
+    <path d="M19.4 15A1.65 1.65 0 0 0 21 13.09A1.65 1.65 0 0 0 19.4 9M2.6 15A1.65 1.65 0 0 1 1 13.09A1.65 1.65 0 0 1 2.6 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+const DataIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M14 2V8H20M16 13H8M16 17H8M10 9H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
 const HelpIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"></circle>
-    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+    <path d="M9.09 9A3 3 0 0 1 12 6C13.6569 6 15 7.34315 15 9C15 10.6569 13.6569 12 12 12V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="12" cy="17" r="1" fill="currentColor"/>
   </svg>
 );
 
+const DangerIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10.29 3.86L1.82 18A2 2 0 0 0 3.54 21H20.46A2 2 0 0 0 22.18 18L13.71 3.86A2 2 0 0 0 10.29 3.86Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M12 9V13M12 17H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+// Types for our settings
+interface UserSettings {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  profession?: string;
+  location?: string;
+  timezone?: string;
+  bio?: string;
+  interests?: string[];
+  skills?: string[];
+  preferences: {
+    privateProfile: boolean;
+    emailNotifications: boolean;
+    pushNotifications: boolean;
+    studyPreferences: {
+      preferredEnvironments: string[];
+      noiseLevel: string;
+      preferredTimes: string[];
+      groupSize: string;
+    };
+    language?: string;
+    theme?: string;
+    timeFormat?: string;
+    distanceUnit?: string;
+  };
+  notificationStats: {
+    total: number;
+    unread: number;
+    byType: Record<string, number>;
+  };
+}
+
+interface ActiveSession {
+  id: string;
+  device: string;
+  location: string;
+  lastActive: string;
+  isCurrent: boolean;
+}
+
 const Settings: React.FC = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  
+  // State management
   const [activeSection, setActiveSection] = useState('account');
-  const [settings, setSettings] = useState({
-    // Account settings
-    email: user?.email || 'user@example.com',
-    name: user?.name || 'User Name',
-    
-    // Security settings
-    twoFactorEnabled: false,
-    loginNotifications: true,
-    
-    // Notification settings
-    emailNotifications: true,
-    pushNotifications: true,
-    bookingReminders: true,
-    marketingEmails: false,
-    
-    // Privacy settings
-    profileVisibility: 'public',
-    showLocation: true,
-    shareActivity: true,
-    allowDataCollection: true,
-    
-    // Preference settings
-    language: 'English',
-    timeFormat: '12h',
-    distanceUnit: 'miles',
-    theme: 'light',
-    
-    // Payment settings
-    defaultPaymentMethod: 'Visa ending in 4242',
-    savePaymentInfo: true,
-    
-    // Danger Zone
-    twoFactorRequired: false,
+  const [settings, setSettings] = useState<UserSettings | null>(null);
+  const [sessions, setSessions] = useState<ActiveSession[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  
+  // Password change state
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
   });
 
-  // Handle input changes
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setSettings({
-      ...settings,
-      [name]: value
-    });
-  };
+  // Load settings data
+  useEffect(() => {
+    fetchSettings();
+    fetchSessions();
+  }, []);
 
-  // Handle checkbox changes
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setSettings({
-      ...settings,
-      [name]: checked
-    });
-  };
+  const fetchSettings = async () => {
+    try {
+      setLoading(true);
+      
+      // Use the existing profile endpoint for now until settings routes are added
+      const response = await fetch('http://localhost:5003/api/profile', {
+        headers: {
+          'x-auth-token': localStorage.getItem('token') || ''
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch settings');
+      
+      const profileData = await response.json();
+      
+      // Transform profile data to match our settings interface
+      const settingsData: UserSettings = {
+        id: profileData.id,
+        name: profileData.name,
+        email: profileData.email,
+        avatar: profileData.avatar,
+        profession: profileData.profession || '',
+        location: profileData.location || '',
+        timezone: profileData.timezone || 'UTC',
+        bio: profileData.bio || '',
+        interests: profileData.interests || [],
+        skills: [], // Add if available in profile
+        preferences: {
+          privateProfile: false,
+          emailNotifications: true,
+          pushNotifications: true,
+          studyPreferences: {
+            preferredEnvironments: ['library', 'cafe'],
+            noiseLevel: 'quiet',
+            preferredTimes: ['morning', 'afternoon'],
+            groupSize: 'small'
+          }
+        },
+        notificationStats: {
+          total: 0,
+          unread: 0,
+          byType: {}
+        }
+      };
 
-  // Handle radio button changes
-  const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setSettings({
-      ...settings,
-      [name]: value
-    });
-  };
-
-  // Save settings
-  const saveSettings = () => {
-    console.log('Settings saved:', settings);
-    // Here you would typically send the settings to your backend
-    alert('Settings have been saved successfully!');
-  };
-
-  // Render account settings
-  const renderAccountSettings = () => (
-    <div className={styles.settingsSection}>
-      <h3 className={styles.sectionTitle}>Account Settings</h3>
-      <p className={styles.sectionDescription}>
-        Manage your account details and personal information.
-      </p>
-      
-      <div className={styles.formGroup}>
-        <label htmlFor="name">Full Name</label>
-        <input 
-          type="text" 
-          id="name" 
-          name="name" 
-          value={settings.name} 
-          onChange={handleInputChange} 
-          className={styles.textInput}
-        />
-      </div>
-      
-      <div className={styles.formGroup}>
-        <label htmlFor="email">Email Address</label>
-        <input 
-          type="email" 
-          id="email" 
-          name="email" 
-          value={settings.email} 
-          onChange={handleInputChange} 
-          className={styles.textInput}
-        />
-        <p className={styles.inputNote}>This email will be used for account-related notifications</p>
-      </div>
-      
-      <div className={styles.formActions}>
-        <button className={styles.primaryButton} onClick={saveSettings}>
-          Save Changes
-        </button>
-      </div>
-    </div>
-  );
-
-  // Render security settings
-  const renderSecuritySettings = () => (
-    <div className={styles.settingsSection}>
-      <h3 className={styles.sectionTitle}>Security Settings</h3>
-      <p className={styles.sectionDescription}>
-        Manage your account security and authentication options.
-      </p>
-      
-      <div className={styles.formSection}>
-        <h4 className={styles.subsectionTitle}>Password</h4>
-        <div className={styles.passwordSection}>
-          <div className={styles.passwordInfo}>
-            <p>Last changed: 45 days ago</p>
-          </div>
-          <button className={styles.secondaryButton}>
-            Change Password
-          </button>
-        </div>
-      </div>
-      
-      <div className={styles.formSection}>
-        <h4 className={styles.subsectionTitle}>Two-Factor Authentication</h4>
-        <div className={styles.toggleOption}>
-          <div className={styles.toggleInfo}>
-            <p className={styles.toggleTitle}>Enable Two-Factor Authentication</p>
-            <p className={styles.toggleDescription}>Add an extra layer of security to your account</p>
-          </div>
-          <label className={styles.toggleSwitch}>
-            <input 
-              type="checkbox" 
-              name="twoFactorEnabled" 
-              checked={settings.twoFactorEnabled} 
-              onChange={handleCheckboxChange}
-            />
-            <span className={styles.slider}></span>
-          </label>
-        </div>
-      </div>
-      
-      <div className={styles.formSection}>
-        <h4 className={styles.subsectionTitle}>Login Notifications</h4>
-        <div className={styles.toggleOption}>
-          <div className={styles.toggleInfo}>
-            <p className={styles.toggleTitle}>Email me when someone logs in from a new device</p>
-            <p className={styles.toggleDescription}>Receive an email alert when your account is accessed from an unfamiliar device</p>
-          </div>
-          <label className={styles.toggleSwitch}>
-            <input 
-              type="checkbox" 
-              name="loginNotifications" 
-              checked={settings.loginNotifications} 
-              onChange={handleCheckboxChange}
-            />
-            <span className={styles.slider}></span>
-          </label>
-        </div>
-      </div>
-      
-      <div className={styles.formSection}>
-        <h4 className={styles.subsectionTitle}>Active Sessions</h4>
-        <div className={styles.sessionsList}>
-          <div className={styles.sessionItem}>
-            <div className={styles.sessionInfo}>
-              <p className={styles.deviceName}>Current Device - Chrome on macOS</p>
-              <p className={styles.sessionDetails}>San Francisco, CA • Active now</p>
-            </div>
-            <span className={styles.activeBadge}>Current</span>
-          </div>
-          
-          <div className={styles.sessionItem}>
-            <div className={styles.sessionInfo}>
-              <p className={styles.deviceName}>iPhone 14 - Safari</p>
-              <p className={styles.sessionDetails}>San Francisco, CA • Last active: Yesterday</p>
-            </div>
-            <button className={styles.textButton}>Logout</button>
-          </div>
-        </div>
+      // Try to get notification stats
+      try {
+        const notifResponse = await fetch('http://localhost:5003/api/notifications/stats', {
+          headers: {
+            'x-auth-token': localStorage.getItem('token') || ''
+          }
+        });
         
-        <button className={styles.dangerButton}>
-          Logout from all other devices
-        </button>
-      </div>
+        if (notifResponse.ok) {
+          const notifStats = await notifResponse.json();
+          settingsData.notificationStats = notifStats;
+        }
+      } catch (notifErr) {
+        console.log('Could not fetch notification stats:', notifErr);
+      }
       
-      <div className={styles.formActions}>
-        <button className={styles.primaryButton} onClick={saveSettings}>
-          Save Changes
-        </button>
-      </div>
-    </div>
-  );
-
-  // Render notification settings
-  const renderNotificationSettings = () => (
-    <div className={styles.settingsSection}>
-      <h3 className={styles.sectionTitle}>Notification Settings</h3>
-      <p className={styles.sectionDescription}>
-        Manage how and when you receive notifications from NomadDesk.
-      </p>
-      
-      <div className={styles.formSection}>
-        <h4 className={styles.subsectionTitle}>Email Notifications</h4>
-        <div className={styles.toggleOption}>
-          <div className={styles.toggleInfo}>
-            <p className={styles.toggleTitle}>Email Notifications</p>
-            <p className={styles.toggleDescription}>Receive important notifications via email</p>
-          </div>
-          <label className={styles.toggleSwitch}>
-            <input 
-              type="checkbox" 
-              name="emailNotifications" 
-              checked={settings.emailNotifications} 
-              onChange={handleCheckboxChange}
-            />
-            <span className={styles.slider}></span>
-          </label>
-        </div>
-      </div>
-      
-      <div className={styles.formSection}>
-        <h4 className={styles.subsectionTitle}>Push Notifications</h4>
-        <div className={styles.toggleOption}>
-          <div className={styles.toggleInfo}>
-            <p className={styles.toggleTitle}>Push Notifications</p>
-            <p className={styles.toggleDescription}>Receive real-time alerts on your device</p>
-          </div>
-          <label className={styles.toggleSwitch}>
-            <input 
-              type="checkbox" 
-              name="pushNotifications" 
-              checked={settings.pushNotifications} 
-              onChange={handleCheckboxChange}
-            />
-            <span className={styles.slider}></span>
-          </label>
-        </div>
-      </div>
-      
-      <div className={styles.formSection}>
-        <h4 className={styles.subsectionTitle}>Notification Types</h4>
-        <div className={styles.checkboxGroup}>
-          <div className={styles.checkboxOption}>
-            <input 
-              type="checkbox" 
-              id="bookingReminders" 
-              name="bookingReminders" 
-              checked={settings.bookingReminders} 
-              onChange={handleCheckboxChange}
-            />
-            <label htmlFor="bookingReminders">
-              <span className={styles.optionTitle}>Booking Reminders</span>
-              <span className={styles.optionDescription}>Get reminders about upcoming workspace bookings</span>
-            </label>
-          </div>
-          
-          <div className={styles.checkboxOption}>
-            <input 
-              type="checkbox" 
-              id="marketingEmails" 
-              name="marketingEmails" 
-              checked={settings.marketingEmails} 
-              onChange={handleCheckboxChange}
-            />
-            <label htmlFor="marketingEmails">
-              <span className={styles.optionTitle}>Marketing Emails</span>
-              <span className={styles.optionDescription}>Receive updates about new features, promotions, and events</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      
-      <div className={styles.formActions}>
-        <button className={styles.primaryButton} onClick={saveSettings}>
-          Save Changes
-        </button>
-      </div>
-    </div>
-  );
-
-  // Render privacy settings
-  const renderPrivacySettings = () => (
-    <div className={styles.settingsSection}>
-      <h3 className={styles.sectionTitle}>Privacy Settings</h3>
-      <p className={styles.sectionDescription}>
-        Control who can see your profile and activity.
-      </p>
-      
-      <div className={styles.formSection}>
-        <h4 className={styles.subsectionTitle}>Profile Visibility</h4>
-        <div className={styles.radioGroup}>
-          <div className={styles.radioOption}>
-            <input 
-              type="radio" 
-              id="profilePublic" 
-              name="profileVisibility" 
-              value="public" 
-              checked={settings.profileVisibility === 'public'} 
-              onChange={handleRadioChange}
-            />
-            <label htmlFor="profilePublic">
-              <span className={styles.optionTitle}>Public</span>
-              <span className={styles.optionDescription}>Anyone on NomadDesk can see your profile and activity</span>
-            </label>
-          </div>
-          
-          <div className={styles.radioOption}>
-            <input 
-              type="radio" 
-              id="profilePrivate" 
-              name="profileVisibility" 
-              value="private" 
-              checked={settings.profileVisibility === 'private'} 
-              onChange={handleRadioChange}
-            />
-            <label htmlFor="profilePrivate">
-              <span className={styles.optionTitle}>Private</span>
-              <span className={styles.optionDescription}>Only your connections can see your profile and activity</span>
-            </label>
-          </div>
-          
-          <div className={styles.radioOption}>
-            <input 
-              type="radio" 
-              id="profileHidden" 
-              name="profileVisibility" 
-              value="hidden" 
-              checked={settings.profileVisibility === 'hidden'} 
-              onChange={handleRadioChange}
-            />
-            <label htmlFor="profileHidden">
-              <span className={styles.optionTitle}>Hidden</span>
-              <span className={styles.optionDescription}>Your profile is not discoverable by other users</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      
-      <div className={styles.formSection}>
-        <h4 className={styles.subsectionTitle}>Location Sharing</h4>
-        <div className={styles.toggleOption}>
-          <div className={styles.toggleInfo}>
-            <p className={styles.toggleTitle}>Show my current location</p>
-            <p className={styles.toggleDescription}>Allow other users to see your approximate location</p>
-          </div>
-          <label className={styles.toggleSwitch}>
-            <input 
-              type="checkbox" 
-              name="showLocation" 
-              checked={settings.showLocation} 
-              onChange={handleCheckboxChange}
-            />
-            <span className={styles.slider}></span>
-          </label>
-        </div>
-      </div>
-      
-      <div className={styles.formSection}>
-        <h4 className={styles.subsectionTitle}>Activity Sharing</h4>
-        <div className={styles.toggleOption}>
-          <div className={styles.toggleInfo}>
-            <p className={styles.toggleTitle}>Share my workspace activity</p>
-            <p className={styles.toggleDescription}>Let others see which workspaces you've visited</p>
-          </div>
-          <label className={styles.toggleSwitch}>
-            <input 
-              type="checkbox" 
-              name="shareActivity" 
-              checked={settings.shareActivity} 
-              onChange={handleCheckboxChange}
-            />
-            <span className={styles.slider}></span>
-          </label>
-        </div>
-      </div>
-      
-      <div className={styles.formSection}>
-        <h4 className={styles.subsectionTitle}>Data Collection</h4>
-        <div className={styles.toggleOption}>
-          <div className={styles.toggleInfo}>
-            <p className={styles.toggleTitle}>Allow usage data collection</p>
-            <p className={styles.toggleDescription}>Help us improve by allowing anonymous usage data collection</p>
-          </div>
-          <label className={styles.toggleSwitch}>
-            <input 
-              type="checkbox" 
-              name="allowDataCollection" 
-              checked={settings.allowDataCollection} 
-              onChange={handleCheckboxChange}
-            />
-            <span className={styles.slider}></span>
-          </label>
-        </div>
-      </div>
-      
-      <div className={styles.formActions}>
-        <button className={styles.primaryButton} onClick={saveSettings}>
-          Save Changes
-        </button>
-      </div>
-    </div>
-  );
-
-  // Render preference settings
-  const renderPreferenceSettings = () => (
-    <div className={styles.settingsSection}>
-      <h3 className={styles.sectionTitle}>Preferences</h3>
-      <p className={styles.sectionDescription}>
-        Customize your NomadDesk experience.
-      </p>
-      
-      <div className={styles.formSection}>
-        <h4 className={styles.subsectionTitle}>Language</h4>
-        <div className={styles.formGroup}>
-          <label htmlFor="language">Display Language</label>
-          <select 
-            id="language" 
-            name="language" 
-            value={settings.language} 
-            onChange={handleInputChange}
-            className={styles.selectInput}
-          >
-            <option value="English">English</option>
-            <option value="Spanish">Spanish</option>
-            <option value="French">French</option>
-            <option value="German">German</option>
-            <option value="Chinese">Chinese</option>
-            <option value="Japanese">Japanese</option>
-          </select>
-        </div>
-      </div>
-      
-      <div className={styles.formSection}>
-        <h4 className={styles.subsectionTitle}>Display Settings</h4>
-        <div className={styles.formGroup}>
-          <label htmlFor="timeFormat">Time Format</label>
-          <select 
-            id="timeFormat" 
-            name="timeFormat" 
-            value={settings.timeFormat} 
-            onChange={handleInputChange}
-            className={styles.selectInput}
-          >
-            <option value="12h">12-hour (1:30 PM)</option>
-            <option value="24h">24-hour (13:30)</option>
-          </select>
-        </div>
-        
-        <div className={styles.formGroup}>
-          <label htmlFor="distanceUnit">Distance Unit</label>
-          <select 
-            id="distanceUnit" 
-            name="distanceUnit" 
-            value={settings.distanceUnit} 
-            onChange={handleInputChange}
-            className={styles.selectInput}
-          >
-            <option value="miles">Miles</option>
-            <option value="kilometers">Kilometers</option>
-          </select>
-        </div>
-      </div>
-      
-      <div className={styles.formSection}>
-        <h4 className={styles.subsectionTitle}>Theme</h4>
-        <div className={styles.themeSelector}>
-          <div className={`${styles.themeOption} ${settings.theme === 'light' ? styles.selectedTheme : ''}`}>
-            <input 
-              type="radio" 
-              id="lightTheme" 
-              name="theme" 
-              value="light" 
-              checked={settings.theme === 'light'} 
-              onChange={handleRadioChange}
-            />
-            <label htmlFor="lightTheme">
-              <div className={styles.themePreview} style={{ backgroundColor: '#fff', border: '1px solid #e5e7eb' }}>
-                <div className={styles.themePreviewHeader} style={{ backgroundColor: '#4A6FDC', height: '20px' }}></div>
-                <div className={styles.themePreviewContent}>
-                  <div className={styles.themePreviewBlock} style={{ backgroundColor: '#E5E7EB', width: '50%', height: '8px', marginBottom: '6px' }}></div>
-                  <div className={styles.themePreviewBlock} style={{ backgroundColor: '#E5E7EB', width: '80%', height: '8px' }}></div>
-                </div>
-              </div>
-              <span>Light</span>
-            </label>
-          </div>
-          
-          <div className={`${styles.themeOption} ${settings.theme === 'dark' ? styles.selectedTheme : ''}`}>
-            <input 
-              type="radio" 
-              id="darkTheme" 
-              name="theme" 
-              value="dark" 
-              checked={settings.theme === 'dark'} 
-              onChange={handleRadioChange}
-            />
-            <label htmlFor="darkTheme">
-              <div className={styles.themePreview} style={{ backgroundColor: '#2A3347', border: '1px solid #2A3347' }}>
-                <div className={styles.themePreviewHeader} style={{ backgroundColor: '#4A6FDC', height: '20px' }}></div>
-                <div className={styles.themePreviewContent}>
-                  <div className={styles.themePreviewBlock} style={{ backgroundColor: '#4B5563', width: '50%', height: '8px', marginBottom: '6px' }}></div>
-                  <div className={styles.themePreviewBlock} style={{ backgroundColor: '#4B5563', width: '80%', height: '8px' }}></div>
-                </div>
-              </div>
-              <span>Dark</span>
-            </label>
-          </div>
-          
-          <div className={`${styles.themeOption} ${settings.theme === 'system' ? styles.selectedTheme : ''}`}>
-            <input 
-              type="radio" 
-              id="systemTheme" 
-              name="theme" 
-              value="system" 
-              checked={settings.theme === 'system'} 
-              onChange={handleRadioChange}
-            />
-            <label htmlFor="systemTheme">
-              <div className={styles.themePreview} style={{ background: 'linear-gradient(to right, #fff 50%, #2A3347 50%)', border: '1px solid #e5e7eb' }}>
-                <div className={styles.themePreviewHeader} style={{ backgroundColor: '#4A6FDC', height: '20px' }}></div>
-                <div className={styles.themePreviewContent} style={{ display: 'flex' }}>
-                  <div style={{ width: '50%', padding: '0 4px' }}>
-                    <div className={styles.themePreviewBlock} style={{ backgroundColor: '#E5E7EB', width: '80%', height: '8px', marginBottom: '6px' }}></div>
-                    <div className={styles.themePreviewBlock} style={{ backgroundColor: '#E5E7EB', width: '60%', height: '8px' }}></div>
-                  </div>
-                  <div style={{ width: '50%', padding: '0 4px' }}>
-                    <div className={styles.themePreviewBlock} style={{ backgroundColor: '#4B5563', width: '80%', height: '8px', marginBottom: '6px' }}></div>
-                    <div className={styles.themePreviewBlock} style={{ backgroundColor: '#4B5563', width: '60%', height: '8px' }}></div>
-                  </div>
-                </div>
-              </div>
-              <span>System</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      
-      <div className={styles.formActions}>
-        <button className={styles.primaryButton} onClick={saveSettings}>
-          Save Changes
-        </button>
-      </div>
-    </div>
-  );
-
-  // Render payment settings
-  const renderPaymentSettings = () => (
-    <div className={styles.settingsSection}>
-      <h3 className={styles.sectionTitle}>Payment Methods</h3>
-      <p className={styles.sectionDescription}>
-        Manage your payment methods and billing preferences.
-      </p>
-      
-      <div className={styles.formSection}>
-        <h4 className={styles.subsectionTitle}>Payment Methods</h4>
-        <div className={styles.paymentMethodsList}>
-          <div className={styles.paymentMethod}>
-            <div className={styles.paymentMethodInfo}>
-              <div className={styles.paymentMethodIcon}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                  <line x1="1" y1="10" x2="23" y2="10"></line>
-                </svg>
-              </div>
-              <div className={styles.paymentMethodDetails}>
-                <p className={styles.paymentMethodName}>Visa ending in 4242</p>
-                <p className={styles.paymentMethodExpiry}>Expires 12/2025</p>
-              </div>
-            </div>
-            <div className={styles.paymentMethodActions}>
-              <span className={styles.defaultBadge}>Default</span>
-              <button className={styles.textButton}>Remove</button>
-            </div>
-          </div>
-          
-          <div className={styles.paymentMethod}>
-            <div className={styles.paymentMethodInfo}>
-              <div className={styles.paymentMethodIcon}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                  <line x1="1" y1="10" x2="23" y2="10"></line>
-                </svg>
-              </div>
-              <div className={styles.paymentMethodDetails}>
-                <p className={styles.paymentMethodName}>Mastercard ending in 8888</p>
-                <p className={styles.paymentMethodExpiry}>Expires 04/2026</p>
-              </div>
-            </div>
-            <div className={styles.paymentMethodActions}>
-              <button className={styles.textButton}>Set as default</button>
-              <button className={styles.textButton}>Remove</button>
-            </div>
-          </div>
-        </div>
-        
-        <button className={styles.secondaryButton}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          Add New Payment Method
-        </button>
-      </div>
-      
-      <div className={styles.formSection}>
-        <h4 className={styles.subsectionTitle}>Billing Preferences</h4>
-        <div className={styles.formGroup}>
-          <div className={styles.checkboxOption}>
-            <input 
-              type="checkbox" 
-              id="savePaymentInfo" 
-              name="savePaymentInfo" 
-              checked={settings.savePaymentInfo} 
-              onChange={handleCheckboxChange}
-            />
-            <label htmlFor="savePaymentInfo">
-              <span className={styles.optionTitle}>Save payment information</span>
-              <span className={styles.optionDescription}>Securely store your payment information for faster checkout</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      
-      <div className={styles.formSection}>
-        <h4 className={styles.subsectionTitle}>Billing History</h4>
-        <div className={styles.billingHistory}>
-          <div className={styles.billingHistoryHeader}>
-            <span>Date</span>
-            <span>Description</span>
-            <span>Amount</span>
-            <span>Receipt</span>
-          </div>
-          
-          <div className={styles.billingHistoryItem}>
-            <span>Apr 1, 2025</span>
-            <span>Premium Subscription - Monthly</span>
-            <span>$14.99</span>
-            <button className={styles.textButton}>Download</button>
-          </div>
-          
-          <div className={styles.billingHistoryItem}>
-            <span>Mar 1, 2025</span>
-            <span>Premium Subscription - Monthly</span>
-            <span>$14.99</span>
-            <button className={styles.textButton}>Download</button>
-          </div>
-          
-          <div className={styles.billingHistoryItem}>
-            <span>Feb 1, 2025</span>
-            <span>Premium Subscription - Monthly</span>
-            <span>$14.99</span>
-            <button className={styles.textButton}>Download</button>
-          </div>
-        </div>
-      </div>
-      
-      <div className={styles.formActions}>
-        <button className={styles.primaryButton} onClick={saveSettings}>
-          Save Changes
-        </button>
-      </div>
-    </div>
-  );
-
-  // Render danger zone settings
-  const renderDangerZone = () => (
-    <div className={styles.settingsSection}>
-      <h3 className={styles.sectionTitle}>Danger Zone</h3>
-      <p className={styles.sectionDescription}>
-        Actions that can't be undone or require additional confirmation.
-      </p>
-      
-      <div className={styles.dangerZoneSection}>
-        <div className={styles.dangerZoneItem}>
-          <div className={styles.dangerZoneInfo}>
-            <h4>Require Two-Factor Authentication</h4>
-            <p>Require two-factor authentication for all logins to this account</p>
-          </div>
-          <div className={styles.dangerZoneAction}>
-            <label className={styles.toggleSwitch}>
-              <input 
-                type="checkbox" 
-                name="twoFactorRequired" 
-                checked={settings.twoFactorRequired} 
-                onChange={handleCheckboxChange}
-              />
-              <span className={styles.slider}></span>
-            </label>
-          </div>
-        </div>
-        
-        <div className={styles.dangerZoneItem}>
-          <div className={styles.dangerZoneInfo}>
-            <h4>Export Your Data</h4>
-            <p>Download all your personal data and activity from NomadDesk</p>
-          </div>
-          <div className={styles.dangerZoneAction}>
-            <button className={styles.secondaryButton}>
-              Export Data
-            </button>
-          </div>
-        </div>
-        
-        <div className={styles.dangerZoneItem}>
-          <div className={styles.dangerZoneInfo}>
-            <h4>Delete Your Account</h4>
-            <p>Permanently delete your account and all associated data</p>
-          </div>
-          <div className={styles.dangerZoneAction}>
-            <button className={styles.dangerButton}>
-              Delete Account
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Render help & support
-  const renderHelp = () => (
-    <div className={styles.settingsSection}>
-      <h3 className={styles.sectionTitle}>Help & Support</h3>
-      <p className={styles.sectionDescription}>
-        Get help with your account or contact our support team.
-      </p>
-      
-      <div className={styles.supportOptions}>
-        <div className={styles.supportCard}>
-          <div className={styles.supportCardIcon}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-              <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-          </div>
-          <h4>Help Center</h4>
-          <p>Find answers to frequently asked questions and step-by-step guides.</p>
-          <button className={styles.secondaryButton}>
-            Visit Help Center
-          </button>
-        </div>
-        
-        <div className={styles.supportCard}>
-          <div className={styles.supportCardIcon}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-            </svg>
-          </div>
-          <h4>Contact Support</h4>
-          <p>Get in touch with our support team for personalized assistance.</p>
-          <button className={styles.secondaryButton}>
-            Contact Support
-          </button>
-        </div>
-        
-        <div className={styles.supportCard}>
-          <div className={styles.supportCardIcon}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-            </svg>
-          </div>
-          <h4>Community</h4>
-          <p>Join the NomadDesk community to connect with other users and share experiences.</p>
-          <button className={styles.secondaryButton}>
-            Join Community
-          </button>
-        </div>
-      </div>
-      
-      <div className={styles.appInfo}>
-        <h4>About NomadDesk</h4>
-        <div className={styles.appInfoItem}>
-          <span>Version</span>
-          <span>2.1.4</span>
-        </div>
-        <div className={styles.appInfoItem}>
-          <span>Terms of Service</span>
-          <a href="#" className={styles.linkText}>View</a>
-        </div>
-        <div className={styles.appInfoItem}>
-          <span>Privacy Policy</span>
-          <a href="#" className={styles.linkText}>View</a>
-        </div>
-        <div className={styles.appInfoItem}>
-          <span>Open Source Licenses</span>
-          <a href="#" className={styles.linkText}>View</a>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Determine which content to render based on active section
-  const renderContent = () => {
-    switch(activeSection) {
-      case 'security':
-        return renderSecuritySettings();
-      case 'notifications':
-        return renderNotificationSettings();
-      case 'privacy':
-        return renderPrivacySettings();
-      case 'preferences':
-        return renderPreferenceSettings();
-      case 'payment':
-        return renderPaymentSettings();
-      case 'danger':
-        return renderDangerZone();
-      case 'help':
-        return renderHelp();
-      default:
-        return renderAccountSettings();
+      setSettings(settingsData);
+    } catch (err) {
+      console.error('Settings fetch error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load settings');
+    } finally {
+      setLoading(false);
     }
   };
 
+  const fetchSessions = async () => {
+    try {
+      // Mock sessions data for now since the backend route doesn't exist yet
+      const mockSessions: ActiveSession[] = [
+        {
+          id: 'current',
+          device: 'Current Device - Chrome on macOS',
+          location: 'San Francisco, CA',
+          lastActive: 'Active now',
+          isCurrent: true
+        },
+        {
+          id: 'mobile',
+          device: 'iPhone - Safari',
+          location: 'San Francisco, CA',
+          lastActive: 'Yesterday',
+          isCurrent: false
+        }
+      ];
+      
+      setSessions(mockSessions);
+    } catch (err) {
+      console.error('Failed to fetch sessions:', err);
+    }
+  };
+
+  // Generic save function with loading state
+  const saveSettings = async (endpoint: string, data: any, successMsg: string) => {
+    try {
+      setSaving(true);
+      setError(null);
+      
+      // Use existing profile endpoint for account updates
+      let url = '';
+      let method = 'PUT';
+      
+      if (endpoint === 'account') {
+        url = 'http://localhost:5003/api/profile';
+      } else {
+        // For other endpoints, we'll implement them later
+        setSuccessMessage('Settings saved locally (backend integration pending)');
+        setTimeout(() => setSuccessMessage(null), 3000);
+        return;
+      }
+      
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': localStorage.getItem('token') || ''
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to save settings');
+      }
+
+      const result = await response.json();
+      setSuccessMessage(successMsg);
+      
+      // Refresh settings
+      await fetchSettings();
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccessMessage(null), 3000);
+      
+      return result;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save settings');
+      throw err;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Account settings save
+  const saveAccountSettings = async () => {
+    if (!settings) return;
+    
+    await saveSettings('account', {
+      name: settings.name,
+      email: settings.email,
+      profession: settings.profession,
+      location: settings.location,
+      timezone: settings.timezone,
+      bio: settings.bio,
+      interests: settings.interests,
+      skills: settings.skills
+    }, 'Account settings saved successfully!');
+  };
+
+  // Password change
+  const changePassword = async () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setError('New passwords do not match');
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+
+    // For now, show success message (implement backend later)
+    setSuccessMessage('Password change functionality will be available soon!');
+    setTimeout(() => setSuccessMessage(null), 3000);
+
+    // Clear password fields
+    setPasswordData({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+  };
+
+  // Preferences save
+  const savePreferences = async () => {
+    if (!settings) return;
+    
+    await saveSettings('preferences', settings.preferences, 'Preferences saved successfully!');
+  };
+
+  // Export data
+  const exportData = async () => {
+    try {
+      setSaving(true);
+      
+      // Create export data from current settings
+      const exportData = {
+        profile: settings,
+        exportedAt: new Date().toISOString(),
+        note: 'This is a sample export. Full data export will include bookings, favorites, and notifications when backend is integrated.'
+      };
+      
+      // Download the data
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { 
+        type: 'application/json' 
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `nomaddesk-data-export-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setSuccessMessage('Data exported successfully!');
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to export data');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Navigation sections
+  const navigationSections = [
+    { id: 'account', label: 'Account', icon: AccountIcon },
+    { id: 'security', label: 'Security', icon: SecurityIcon },
+    { id: 'notifications', label: 'Notifications', icon: NotificationIcon },
+    { id: 'privacy', label: 'Privacy', icon: PrivacyIcon },
+    { id: 'preferences', label: 'Preferences', icon: PreferencesIcon },
+    { id: 'data', label: 'Data & Export', icon: DataIcon },
+    { id: 'help', label: 'Help & Support', icon: HelpIcon },
+    { id: 'danger', label: 'Danger Zone', icon: DangerIcon }
+  ];
+
+  if (loading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingSpinner}></div>
+        <p>Loading your settings...</p>
+      </div>
+    );
+  }
+
+  if (!settings) {
+    return (
+      <div className={styles.errorContainer}>
+        <h2>Failed to load settings</h2>
+        <p>{error}</p>
+        <button onClick={fetchSettings} className={styles.retryButton}>
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.settingsContainer}>
+      {/* Header with Back Button */}
       <div className={styles.settingsHeader}>
-        <h1 className={styles.settingsTitle}>Settings</h1>
-        <p className={styles.settingsDescription}>
-          Manage your account settings and preferences
-        </p>
-      </div>
-      
-      <div className={styles.settingsBody}>
-        <div className={styles.settingsSidebar}>
-          <div className={styles.sidebarNav}>
-            <button
-              className={`${styles.navButton} ${activeSection === 'account' ? styles.activeNavButton : ''}`}
-              onClick={() => setActiveSection('account')}
-            >
-              <AccountIcon />
-              <span>Account</span>
-            </button>
-            <button
-              className={`${styles.navButton} ${activeSection === 'security' ? styles.activeNavButton : ''}`}
-              onClick={() => setActiveSection('security')}
-            >
-              <SecurityIcon />
-              <span>Security</span>
-            </button>
-            <button
-              className={`${styles.navButton} ${activeSection === 'notifications' ? styles.activeNavButton : ''}`}
-              onClick={() => setActiveSection('notifications')}
-            >
-              <NotificationIcon />
-              <span>Notifications</span>
-            </button>
-            <button
-              className={`${styles.navButton} ${activeSection === 'privacy' ? styles.activeNavButton : ''}`}
-              onClick={() => setActiveSection('privacy')}
-            >
-              <PrivacyIcon />
-              <span>Privacy</span>
-            </button>
-            <button
-              className={`${styles.navButton} ${activeSection === 'preferences' ? styles.activeNavButton : ''}`}
-              onClick={() => setActiveSection('preferences')}
-            >
-              <PreferencesIcon />
-              <span>Preferences</span>
-            </button>
-            <button
-              className={`${styles.navButton} ${activeSection === 'payment' ? styles.activeNavButton : ''}`}
-              onClick={() => setActiveSection('payment')}
-            >
-              <PaymentIcon />
-              <span>Payment Methods</span>
-            </button>
-            <button
-              className={`${styles.navButton} ${activeSection === 'danger' ? styles.activeNavButton : ''}`}
-              onClick={() => setActiveSection('danger')}
-            >
-              <DangerIcon />
-              <span>Danger Zone</span>
-            </button>
-            <button
-              className={`${styles.navButton} ${activeSection === 'help' ? styles.activeNavButton : ''}`}
-              onClick={() => setActiveSection('help')}
-            >
-              <HelpIcon />
-              <span>Help & Support</span>
-            </button>
+        <button 
+          onClick={() => navigate({ to: '/dashboard' })}
+          className={styles.backButton}
+        >
+          <BackIcon />
+          <span>Back to Dashboard</span>
+        </button>
+        
+        <div className={styles.headerContent}>
+          <div className={styles.headerIcon}>
+            <PreferencesIcon />
+          </div>
+          <div className={styles.headerText}>
+            <h1>Settings</h1>
+            <p>Manage your account, preferences, and workspace experience</p>
           </div>
         </div>
+
+        {/* Status Messages */}
+        {error && (
+          <div className={styles.statusMessage + ' ' + styles.errorMessage}>
+            <DangerIcon />
+            <span>{error}</span>
+            <button onClick={() => setError(null)}>×</button>
+          </div>
+        )}
         
-        <div className={styles.settingsContent}>
-          {renderContent()}
-        </div>
+        {successMessage && (
+          <div className={styles.statusMessage + ' ' + styles.successMessage}>
+            <PrivacyIcon />
+            <span>{successMessage}</span>
+            <button onClick={() => setSuccessMessage(null)}>×</button>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.settingsBody}>
+        {/* Sidebar Navigation */}
+        <nav className={styles.settingsSidebar}>
+          <div className={styles.sidebarNav}>
+            {navigationSections.map(section => (
+              <button
+                key={section.id}
+                className={`${styles.navButton} ${activeSection === section.id ? styles.activeNavButton : ''}`}
+                onClick={() => setActiveSection(section.id)}
+              >
+                <section.icon />
+                <span>{section.label}</span>
+                {section.id === 'notifications' && settings.notificationStats.unread > 0 && (
+                  <div className={styles.notificationBadge}>
+                    {settings.notificationStats.unread}
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        {/* Main Content Area */}
+        <main className={styles.settingsContent}>
+          {activeSection === 'account' && (
+            <div className={styles.settingsSection}>
+              <div className={styles.sectionHeader}>
+                <h2>Account Settings</h2>
+                <p>Manage your personal information and profile details</p>
+              </div>
+
+              <div className={styles.formGrid}>
+                {/* Basic Information */}
+                <div className={styles.formCard}>
+                  <h3>Basic Information</h3>
+                  
+                  <div className={styles.formGroup}>
+                    <label htmlFor="name">Full Name</label>
+                    <input
+                      type="text"
+                      id="name"
+                      value={settings.name}
+                      onChange={(e) => setSettings({...settings, name: e.target.value})}
+                      className={styles.modernInput}
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="email">Email Address</label>
+                    <input
+                      type="email"
+                      id="email"
+                      value={settings.email}
+                      onChange={(e) => setSettings({...settings, email: e.target.value})}
+                      className={styles.modernInput}
+                      placeholder="Enter your email"
+                    />
+                    <p className={styles.inputHint}>
+                      This email will be used for account notifications and login
+                    </p>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="profession">Profession</label>
+                    <input
+                      type="text"
+                      id="profession"
+                      value={settings.profession || ''}
+                      onChange={(e) => setSettings({...settings, profession: e.target.value})}
+                      className={styles.modernInput}
+                      placeholder="e.g., Software Developer, Student, Designer"
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="location">Location</label>
+                    <input
+                      type="text"
+                      id="location"
+                      value={settings.location || ''}
+                      onChange={(e) => setSettings({...settings, location: e.target.value})}
+                      className={styles.modernInput}
+                      placeholder="e.g., San Francisco, CA"
+                    />
+                  </div>
+                </div>
+
+                {/* Profile Details */}
+                <div className={styles.formCard}>
+                  <h3>Profile Details</h3>
+                  
+                  <div className={styles.formGroup}>
+                    <label htmlFor="bio">Bio</label>
+                    <textarea
+                      id="bio"
+                      value={settings.bio || ''}
+                      onChange={(e) => setSettings({...settings, bio: e.target.value})}
+                      className={styles.modernTextarea}
+                      placeholder="Tell others about yourself and your work/study interests..."
+                      rows={4}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="interests">Interests (comma-separated)</label>
+                    <input
+                      type="text"
+                      id="interests"
+                      value={settings.interests?.join(', ') || ''}
+                      onChange={(e) => setSettings({
+                        ...settings, 
+                        interests: e.target.value.split(',').map(s => s.trim()).filter(s => s)
+                      })}
+                      className={styles.modernInput}
+                      placeholder="e.g., Programming, Design, Photography, Reading"
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="timezone">Timezone</label>
+                    <select
+                      id="timezone"
+                      value={settings.timezone || 'UTC'}
+                      onChange={(e) => setSettings({...settings, timezone: e.target.value})}
+                      className={styles.modernSelect}
+                    >
+                      <option value="UTC">UTC</option>
+                      <option value="America/New_York">Eastern Time</option>
+                      <option value="America/Chicago">Central Time</option>
+                      <option value="America/Denver">Mountain Time</option>
+                      <option value="America/Los_Angeles">Pacific Time</option>
+                      <option value="Europe/London">London</option>
+                      <option value="Europe/Paris">Paris</option>
+                      <option value="Asia/Tokyo">Tokyo</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.formActions}>
+                <button 
+                  onClick={saveAccountSettings}
+                  disabled={saving}
+                  className={styles.primaryButton}
+                >
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'security' && (
+            <div className={styles.settingsSection}>
+              <div className={styles.sectionHeader}>
+                <h2>Security & Privacy</h2>
+                <p>Manage your account security, password, and active sessions</p>
+              </div>
+
+              <div className={styles.formGrid}>
+                {/* Password Management */}
+                <div className={styles.formCard}>
+                  <h3>Password Management</h3>
+                  
+                  {user?.googleId ? (
+                    <div className={styles.infoCard}>
+                      <p>You're signed in with Google. Password changes are managed through your Google account.</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className={styles.formGroup}>
+                        <label htmlFor="currentPassword">Current Password</label>
+                        <input
+                          type="password"
+                          id="currentPassword"
+                          value={passwordData.currentPassword}
+                          onChange={(e) => setPasswordData({
+                            ...passwordData, 
+                            currentPassword: e.target.value
+                          })}
+                          className={styles.modernInput}
+                          placeholder="Enter current password"
+                        />
+                      </div>
+
+                      <div className={styles.formGroup}>
+                        <label htmlFor="newPassword">New Password</label>
+                        <input
+                          type="password"
+                          id="newPassword"
+                          value={passwordData.newPassword}
+                          onChange={(e) => setPasswordData({
+                            ...passwordData, 
+                            newPassword: e.target.value
+                          })}
+                          className={styles.modernInput}
+                          placeholder="Enter new password (min 6 characters)"
+                        />
+                      </div>
+
+                      <div className={styles.formGroup}>
+                        <label htmlFor="confirmPassword">Confirm New Password</label>
+                        <input
+                          type="password"
+                          id="confirmPassword"
+                          value={passwordData.confirmPassword}
+                          onChange={(e) => setPasswordData({
+                            ...passwordData, 
+                            confirmPassword: e.target.value
+                          })}
+                          className={styles.modernInput}
+                          placeholder="Confirm new password"
+                        />
+                      </div>
+
+                      <button 
+                        onClick={changePassword}
+                        disabled={saving || !passwordData.currentPassword || !passwordData.newPassword}
+                        className={styles.secondaryButton}
+                      >
+                        {saving ? 'Changing...' : 'Change Password'}
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {/* Active Sessions */}
+                <div className={styles.formCard}>
+                  <h3>Active Sessions</h3>
+                  
+                  <div className={styles.sessionsList}>
+                    {sessions.map(session => (
+                      <div key={session.id} className={styles.sessionItem}>
+                        <div className={styles.sessionInfo}>
+                          <div className={styles.sessionDevice}>{session.device}</div>
+                          <div className={styles.sessionMeta}>
+                            {session.location} • {session.lastActive}
+                          </div>
+                        </div>
+                        <div className={styles.sessionActions}>
+                          {session.isCurrent ? (
+                            <span className={styles.currentBadge}>Current</span>
+                          ) : (
+                            <button className={styles.dangerButton}>End Session</button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'notifications' && (
+            <div className={styles.settingsSection}>
+              <div className={styles.sectionHeader}>
+                <h2>Notification Preferences</h2>
+                <p>Control how and when you receive notifications from Nomad Desk</p>
+              </div>
+
+              <div className={styles.formGrid}>
+                <div className={styles.formCard}>
+                  <h3>General Notifications</h3>
+                  
+                  <div className={styles.toggleGroup}>
+                    <div className={styles.toggleItem}>
+                      <div className={styles.toggleInfo}>
+                        <strong>Email Notifications</strong>
+                        <p>Receive important updates via email</p>
+                      </div>
+                      <label className={styles.toggleSwitch}>
+                        <input
+                          type="checkbox"
+                          checked={settings.preferences.emailNotifications}
+                          onChange={(e) => setSettings({
+                            ...settings,
+                            preferences: {
+                              ...settings.preferences,
+                              emailNotifications: e.target.checked
+                            }
+                          })}
+                        />
+                        <span className={styles.slider}></span>
+                      </label>
+                    </div>
+
+                    <div className={styles.toggleItem}>
+                      <div className={styles.toggleInfo}>
+                        <strong>Push Notifications</strong>
+                        <p>Get real-time alerts on your device</p>
+                      </div>
+                      <label className={styles.toggleSwitch}>
+                        <input
+                          type="checkbox"
+                          checked={settings.preferences.pushNotifications}
+                          onChange={(e) => setSettings({
+                            ...settings,
+                            preferences: {
+                              ...settings.preferences,
+                              pushNotifications: e.target.checked
+                            }
+                          })}
+                        />
+                        <span className={styles.slider}></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.formCard}>
+                  <h3>Notification Statistics</h3>
+                  <div className={styles.statsGrid}>
+                    <div className={styles.statCard}>
+                      <div className={styles.statNumber}>{settings.notificationStats.total}</div>
+                      <div className={styles.statLabel}>Total Notifications</div>
+                    </div>
+                    <div className={styles.statCard}>
+                      <div className={styles.statNumber}>{settings.notificationStats.unread}</div>
+                      <div className={styles.statLabel}>Unread</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.formActions}>
+                <button 
+                  onClick={savePreferences}
+                  disabled={saving}
+                  className={styles.primaryButton}
+                >
+                  {saving ? 'Saving...' : 'Save Notification Settings'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'privacy' && (
+            <div className={styles.settingsSection}>
+              <div className={styles.sectionHeader}>
+                <h2>Privacy Settings</h2>
+                <p>Control your privacy and data sharing preferences</p>
+              </div>
+
+              <div className={styles.formCard}>
+                <h3>Profile Visibility</h3>
+                
+                <div className={styles.toggleItem}>
+                  <div className={styles.toggleInfo}>
+                    <strong>Private Profile</strong>
+                    <p>Make your profile visible only to your connections</p>
+                  </div>
+                  <label className={styles.toggleSwitch}>
+                    <input
+                      type="checkbox"
+                      checked={settings.preferences.privateProfile}
+                      onChange={(e) => setSettings({
+                        ...settings,
+                        preferences: {
+                          ...settings.preferences,
+                          privateProfile: e.target.checked
+                        }
+                      })}
+                    />
+                    <span className={styles.slider}></span>
+                  </label>
+                </div>
+              </div>
+
+              <div className={styles.formActions}>
+                <button 
+                  onClick={savePreferences}
+                  disabled={saving}
+                  className={styles.primaryButton}
+                >
+                  {saving ? 'Saving...' : 'Save Privacy Settings'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'preferences' && (
+            <div className={styles.settingsSection}>
+              <div className={styles.sectionHeader}>
+                <h2>Study Preferences</h2>
+                <p>Customize your workspace discovery and study session preferences</p>
+              </div>
+
+              <div className={styles.formGrid}>
+                <div className={styles.formCard}>
+                  <h3>Workspace Preferences</h3>
+                  
+                  <div className={styles.formGroup}>
+                    <label>Preferred Environments</label>
+                    <div className={styles.checkboxGrid}>
+                      {['library', 'cafe', 'coworking', 'outdoors'].map(env => (
+                        <label key={env} className={styles.checkboxItem}>
+                          <input
+                            type="checkbox"
+                            checked={settings.preferences.studyPreferences.preferredEnvironments.includes(env)}
+                            onChange={(e) => {
+                              const envs = settings.preferences.studyPreferences.preferredEnvironments;
+                              const newEnvs = e.target.checked
+                                ? [...envs, env]
+                                : envs.filter(e => e !== env);
+                              
+                              setSettings({
+                                ...settings,
+                                preferences: {
+                                  ...settings.preferences,
+                                  studyPreferences: {
+                                    ...settings.preferences.studyPreferences,
+                                    preferredEnvironments: newEnvs
+                                  }
+                                }
+                              });
+                            }}
+                          />
+                          <span>{env.charAt(0).toUpperCase() + env.slice(1)}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="noiseLevel">Preferred Noise Level</label>
+                    <select
+                      id="noiseLevel"
+                      value={settings.preferences.studyPreferences.noiseLevel}
+                      onChange={(e) => setSettings({
+                        ...settings,
+                        preferences: {
+                          ...settings.preferences,
+                          studyPreferences: {
+                            ...settings.preferences.studyPreferences,
+                            noiseLevel: e.target.value
+                          }
+                        }
+                      })}
+                      className={styles.modernSelect}
+                    >
+                      <option value="silent">Silent</option>
+                      <option value="quiet">Quiet</option>
+                      <option value="moderate">Moderate</option>
+                      <option value="lively">Lively</option>
+                    </select>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="groupSize">Preferred Group Size</label>
+                    <select
+                      id="groupSize"
+                      value={settings.preferences.studyPreferences.groupSize}
+                      onChange={(e) => setSettings({
+                        ...settings,
+                        preferences: {
+                          ...settings.preferences,
+                          studyPreferences: {
+                            ...settings.preferences.studyPreferences,
+                            groupSize: e.target.value
+                          }
+                        }
+                      })}
+                      className={styles.modernSelect}
+                    >
+                      <option value="solo">Solo</option>
+                      <option value="small">Small (2-4 people)</option>
+                      <option value="medium">Medium (5-8 people)</option>
+                      <option value="large">Large (9+ people)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className={styles.formCard}>
+                  <h3>Time Preferences</h3>
+                  
+                  <div className={styles.formGroup}>
+                    <label>Preferred Study Times</label>
+                    <div className={styles.checkboxGrid}>
+                      {['morning', 'afternoon', 'evening', 'night'].map(time => (
+                        <label key={time} className={styles.checkboxItem}>
+                          <input
+                            type="checkbox"
+                            checked={settings.preferences.studyPreferences.preferredTimes.includes(time)}
+                            onChange={(e) => {
+                              const times = settings.preferences.studyPreferences.preferredTimes;
+                              const newTimes = e.target.checked
+                                ? [...times, time]
+                                : times.filter(t => t !== time);
+                              
+                              setSettings({
+                                ...settings,
+                                preferences: {
+                                  ...settings.preferences,
+                                  studyPreferences: {
+                                    ...settings.preferences.studyPreferences,
+                                    preferredTimes: newTimes
+                                  }
+                                }
+                              });
+                            }}
+                          />
+                          <span>{time.charAt(0).toUpperCase() + time.slice(1)}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.formActions}>
+                <button 
+                  onClick={savePreferences}
+                  disabled={saving}
+                  className={styles.primaryButton}
+                >
+                  {saving ? 'Saving...' : 'Save Study Preferences'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'data' && (
+            <div className={styles.settingsSection}>
+              <div className={styles.sectionHeader}>
+                <h2>Data Management</h2>
+                <p>Export your data or manage your account information</p>
+              </div>
+
+              <div className={styles.formCard}>
+                <h3>Export Your Data</h3>
+                <p>Download a copy of all your data including profile, bookings, favorites, and notifications.</p>
+                
+                <button 
+                  onClick={exportData}
+                  disabled={saving}
+                  className={styles.secondaryButton}
+                >
+                  {saving ? 'Preparing Export...' : 'Export All Data'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'help' && (
+            <div className={styles.settingsSection}>
+              <div className={styles.sectionHeader}>
+                <h2>Help & Support</h2>
+                <p>Get help with your account or contact our support team</p>
+              </div>
+
+              <div className={styles.supportGrid}>
+                <div className={styles.supportCard}>
+                  <HelpIcon />
+                  <h3>Help Center</h3>
+                  <p>Find answers to frequently asked questions and guides for using Nomad Desk.</p>
+                  <button className={styles.secondaryButton}>Visit Help Center</button>
+                </div>
+
+                <div className={styles.supportCard}>
+                  <NotificationIcon />
+                  <h3>Contact Support</h3>
+                  <p>Get personalized help from our support team for any issues or questions.</p>
+                  <button className={styles.secondaryButton}>Contact Support</button>
+                </div>
+
+                <div className={styles.supportCard}>
+                  <PrivacyIcon />
+                  <h3>Community</h3>
+                  <p>Join the Nomad Desk community to connect with other remote workers and students.</p>
+                  <button className={styles.secondaryButton}>Join Community</button>
+                </div>
+              </div>
+
+              <div className={styles.appInfo}>
+                <h3>About Nomad Desk</h3>
+                <div className={styles.infoGrid}>
+                  <div className={styles.infoItem}>
+                    <span>Version</span>
+                    <span>2.1.0</span>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <span>Last Updated</span>
+                    <span>January 2025</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'danger' && (
+            <div className={styles.settingsSection}>
+              <div className={styles.sectionHeader}>
+                <h2>Danger Zone</h2>
+                <p>Actions that can't be undone. Please proceed with caution.</p>
+              </div>
+
+              <div className={styles.dangerZone}>
+                <div className={styles.dangerCard}>
+                  <div className={styles.dangerInfo}>
+                    <h3>Export Data Before Deletion</h3>
+                    <p>Download all your data before deleting your account. This action cannot be undone.</p>
+                  </div>
+                  <button 
+                    onClick={exportData}
+                    className={styles.secondaryButton}
+                  >
+                    Export My Data
+                  </button>
+                </div>
+
+                <div className={styles.dangerCard}>
+                  <div className={styles.dangerInfo}>
+                    <h3>Delete Account</h3>
+                    <p>Permanently delete your account and all associated data. This action cannot be undone.</p>
+                  </div>
+                  <button className={styles.dangerButton}>
+                    Delete Account
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );

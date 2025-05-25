@@ -1,4 +1,4 @@
-// app/components/LoginSignup/SocialButton.tsx
+// app/components/LoginSignup/SocialButton.tsx - FIXED
 import React from 'react';
 import styles from '../../styles/loginSignup.module.css';
 
@@ -19,11 +19,18 @@ const SocialButton: React.FC<SocialButtonProps> = ({ provider, disabled = false,
       } else {
         // Save the current path for redirect after login
         const currentPath = window.location.pathname;
+        
+        // Save redirect path if it's not a login/signup page
         if (currentPath !== '/' && currentPath !== '/login' && currentPath !== '/signup') {
           localStorage.setItem('redirectAfterLogin', currentPath);
+        } else {
+          // If on login/signup page, redirect to dashboard after login
+          localStorage.setItem('redirectAfterLogin', '/dashboard');
         }
         
-        // Redirect to backend OAuth endpoint using environment variable
+        console.log('Redirecting to OAuth URL:', `${BACKEND_URL}/api/auth/${provider}`);
+        
+        // FIXED: Open in same window instead of new window
         window.location.href = `${BACKEND_URL}/api/auth/${provider}`;
       }
     }
