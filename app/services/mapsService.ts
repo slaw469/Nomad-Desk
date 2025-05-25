@@ -29,7 +29,7 @@ export interface PlaceAutocompleteResult {
   }>;
 }
 
-// Interface for place details response
+// Enhanced interface for place details response
 export interface PlaceDetailsResult {
   formatted_address: string;
   geometry: {
@@ -47,25 +47,33 @@ export interface PlaceDetailsResult {
     html_attributions: string[];
   }>;
   rating?: number;
+  user_ratings_total?: number; // NEW: Number of reviews
   types: string[];
   website?: string;
   formatted_phone_number?: string;
   opening_hours?: {
     weekday_text: string[];
     open_now?: boolean;
+    periods?: Array<{
+      open: { day: number; time: string };
+      close?: { day: number; time: string };
+    }>;
   };
   reviews?: Array<{
     author_name: string;
     rating: number;
     text: string;
     time: number;
+    profile_photo_url?: string;
   }>;
   wheelchair_accessible_entrance?: boolean;
   has_wifi?: boolean;
+  price_level?: number; // NEW: 0-4 scale (0 = Free, 4 = Very Expensive)
+  business_status?: string; // NEW: OPERATIONAL, CLOSED_TEMPORARILY, etc.
   vicinity: string;
 }
 
-// Interface for nearby search response
+// Enhanced interface for nearby search response
 export interface NearbySearchResult {
   geometry: {
     location: {
@@ -77,6 +85,9 @@ export interface NearbySearchResult {
   place_id: string;
   vicinity: string;
   rating?: number;
+  user_ratings_total?: number; // NEW: Number of reviews
+  price_level?: number; // NEW: Price level
+  business_status?: string; // NEW: Business status
   types: string[];
   photos?: Array<{
     photo_reference: string;
@@ -84,6 +95,10 @@ export interface NearbySearchResult {
     width: number;
     html_attributions: string[];
   }>;
+  opening_hours?: {
+    open_now?: boolean;
+  };
+  permanently_closed?: boolean; // NEW: If place is permanently closed
 }
 
 // Interface for directions response
