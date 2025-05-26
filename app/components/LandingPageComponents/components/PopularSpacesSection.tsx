@@ -1,20 +1,20 @@
-// components/PopularSpacesSection.tsx - WORKING VERSION WITH REAL API
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+// app/components/LandingPageComponents/components/PopularSpacesSection.tsx - FIXED VERSION
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from '@tanstack/react-router';
 import styles from "../../../styles/landing.module.css";
 
-// Major cities with coordinates for fallback locations
-const MAJOR_CITIES = [
-  { name: 'New York City', lat: 40.7128, lng: -74.0060 },
-  { name: 'Los Angeles', lat: 34.0522, lng: -118.2437 },
-  { name: 'Chicago', lat: 41.8781, lng: -87.6298 },
-  { name: 'Dallas', lat: 32.7767, lng: -96.7970 },
-  { name: 'San Francisco', lat: 37.7749, lng: -122.4194 },
-  { name: 'Miami', lat: 25.7617, lng: -80.1918 },
-  { name: 'Seattle', lat: 47.6062, lng: -122.3321 },
-  { name: 'Boston', lat: 42.3601, lng: -71.0589 },
-  { name: 'Austin', lat: 30.2672, lng: -97.7431 },
-  { name: 'Denver', lat: 39.7392, lng: -104.9903 }
+// Global cities with coordinates for rotation
+const GLOBAL_CITIES = [
+  { name: 'New York City', lat: 40.7128, lng: -74.0060, country: 'USA' },
+  { name: 'London', lat: 51.5074, lng: -0.1278, country: 'UK' },
+  { name: 'Tokyo', lat: 35.6762, lng: 139.6503, country: 'Japan' },
+  { name: 'Paris', lat: 48.8566, lng: 2.3522, country: 'France' },
+  { name: 'Sydney', lat: -33.8688, lng: 151.2093, country: 'Australia' },
+  { name: 'Toronto', lat: 43.6532, lng: -79.3832, country: 'Canada' },
+  { name: 'Berlin', lat: 52.5200, lng: 13.4050, country: 'Germany' },
+  { name: 'San Francisco', lat: 37.7749, lng: -122.4194, country: 'USA' },
+  { name: 'Amsterdam', lat: 52.3676, lng: 4.9041, country: 'Netherlands' },
+  { name: 'Singapore', lat: 1.3521, lng: 103.8198, country: 'Singapore' },
 ];
 
 // Sample workspaces as fallback
@@ -23,7 +23,7 @@ const SAMPLE_WORKSPACES = [
     id: 'sample-library-001',
     name: 'Central Public Library',
     type: 'Library',
-    address: '123 Main Street, Downtown',
+    address: 'Downtown Area',
     coordinates: { lat: 40.7128, lng: -74.0060 },
     amenities: ['Wi-Fi', 'Quiet Zone', 'Study Rooms'],
     photos: [],
@@ -35,7 +35,7 @@ const SAMPLE_WORKSPACES = [
     id: 'sample-cafe-001',
     name: 'The Study Café',
     type: 'Café',
-    address: '456 Coffee Lane, Arts District',
+    address: 'Arts District',
     coordinates: { lat: 40.7589, lng: -73.9851 },
     amenities: ['Wi-Fi', 'Refreshments', 'Power Outlets'],
     photos: [],
@@ -47,7 +47,7 @@ const SAMPLE_WORKSPACES = [
     id: 'sample-coworking-001',
     name: 'Innovation Hub',
     type: 'Co-working Space',
-    address: '789 Tech Boulevard, Business District',
+    address: 'Business District',
     coordinates: { lat: 40.7505, lng: -73.9934 },
     amenities: ['High-Speed Wi-Fi', 'Meeting Rooms', '24/7 Access'],
     photos: [],
@@ -59,7 +59,7 @@ const SAMPLE_WORKSPACES = [
     id: 'sample-bookstore-001',
     name: 'Barnes & Books Study Corner',
     type: 'Bookstore',
-    address: '321 Reading Way, Literary Quarter',
+    address: 'Literary Quarter',
     coordinates: { lat: 40.7282, lng: -74.0776 },
     amenities: ['Wi-Fi', 'Reading Area', 'Quiet Environment'],
     photos: [],
@@ -95,7 +95,7 @@ const PopularSpacesSection: React.FC = () => {
   const [locationPermissionAsked, setLocationPermissionAsked] = useState(false);
   const [useFallbackData, setUseFallbackData] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-  const [apiKey, setApiKey] = useState<string>('');
+  const [currentCity, setCurrentCity] = useState<typeof GLOBAL_CITIES[0] | null>(null);
   
   const [location, setLocation] = useState<LocationState>({
     coordinates: null,
@@ -104,8 +104,14 @@ const PopularSpacesSection: React.FC = () => {
     error: null
   });
 
-  // SAFE image creation function - NEVER calls backend
-  const createSafeImage = useCallback((workspaceName: string, index: number) => {
+  // Get real photo URL from Google Places via backend proxy
+  const getPhotoUrl = useCallback((photoReference: string | undefined, workspaceName: string, index: number) => {
+    // If we have a photo reference, use the backend proxy to get the real image
+    if (photoReference) {
+      return `http://localhost:5003/api/public-maps/photo?reference=${encodeURIComponent(photoReference)}&maxwidth=400`;
+    }
+    
+    // Fallback to placeholder if no photo available
     const colors = ['#4A6FDC', '#2DD4BF', '#F59E0B', '#EF4444'];
     const color = colors[index % colors.length];
     
@@ -118,21 +124,22 @@ const PopularSpacesSection: React.FC = () => {
           </linearGradient>
         </defs>
         <rect width="100%" height="100%" fill="url(#grad${index})"/>
-        <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">
+        <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">
           ${workspaceName}
         </text>
       </svg>
     `)}`;
   }, []);
 
-  // Get user's current location
+  // Get user's current location with permission check
   const getCurrentLocation = useCallback((): Promise<LocationState> => {
     return new Promise((resolve) => {
       if (!navigator.geolocation) {
-        const randomCity = MAJOR_CITIES[Math.floor(Math.random() * MAJOR_CITIES.length)];
+        const randomCity = GLOBAL_CITIES[Math.floor(Math.random() * GLOBAL_CITIES.length)];
+        setCurrentCity(randomCity);
         resolve({
           coordinates: { lat: randomCity.lat, lng: randomCity.lng },
-          locationName: randomCity.name,
+          locationName: `${randomCity.name}, ${randomCity.country}`,
           isUserLocation: false,
           error: 'Geolocation not supported'
         });
@@ -142,10 +149,11 @@ const PopularSpacesSection: React.FC = () => {
       setLocationPermissionAsked(true);
 
       const timeout = setTimeout(() => {
-        const randomCity = MAJOR_CITIES[Math.floor(Math.random() * MAJOR_CITIES.length)];
+        const randomCity = GLOBAL_CITIES[Math.floor(Math.random() * GLOBAL_CITIES.length)];
+        setCurrentCity(randomCity);
         resolve({
           coordinates: { lat: randomCity.lat, lng: randomCity.lng },
-          locationName: randomCity.name,
+          locationName: `${randomCity.name}, ${randomCity.country}`,
           isUserLocation: false,
           error: 'Location timeout'
         });
@@ -168,10 +176,11 @@ const PopularSpacesSection: React.FC = () => {
         },
         (error) => {
           clearTimeout(timeout);
-          const randomCity = MAJOR_CITIES[Math.floor(Math.random() * MAJOR_CITIES.length)];
+          const randomCity = GLOBAL_CITIES[Math.floor(Math.random() * GLOBAL_CITIES.length)];
+          setCurrentCity(randomCity);
           resolve({
             coordinates: { lat: randomCity.lat, lng: randomCity.lng },
-            locationName: randomCity.name,
+            locationName: `${randomCity.name}, ${randomCity.country}`,
             isUserLocation: false,
             error: error.message
           });
@@ -185,11 +194,9 @@ const PopularSpacesSection: React.FC = () => {
     });
   }, []);
 
-  // Test API connectivity
-  const testApiConnectivity = useCallback(async (): Promise<boolean> => {
+  // Test backend API connectivity
+  const testBackendConnectivity = useCallback(async (): Promise<boolean> => {
     try {
-      console.log('🔧 Testing API connectivity...');
-      
       const response = await fetch('http://localhost:5003/health', {
         method: 'GET',
         signal: AbortSignal.timeout(5000)
@@ -199,12 +206,10 @@ const PopularSpacesSection: React.FC = () => {
         throw new Error(`Backend returned ${response.status}`);
       }
       
-      console.log('✅ Backend is healthy');
       return true;
       
     } catch (error) {
-      console.error('❌ API connectivity test failed:', error);
-      setApiError(error instanceof Error ? error.message : 'API test failed');
+      setApiError(error instanceof Error ? error.message : 'Backend test failed');
       return false;
     }
   }, []);
@@ -227,7 +232,7 @@ const PopularSpacesSection: React.FC = () => {
         throw new Error('No API key returned');
       }
       
-      console.log('✅ API key obtained');
+      console.log('✅ API key obtained from backend');
       return data.apiKey;
       
     } catch (error) {
@@ -236,24 +241,38 @@ const PopularSpacesSection: React.FC = () => {
     }
   }, []);
 
-  // Search for real workspaces using Google Places API
-  const searchRealWorkspaces = useCallback(async (coordinates: { lat: number; lng: number }, apiKey: string): Promise<Workspace[]> => {
+  // Search for real workspaces using backend proxy
+  const searchRealWorkspaces = useCallback(async (coordinates: { lat: number; lng: number }): Promise<Workspace[]> => {
     try {
-      console.log('🔍 Searching for real workspaces...');
+      console.log('🔍 Searching for real workspaces via backend...');
       
       const searchTypes = [
         { type: 'library', name: 'libraries' },
         { type: 'cafe', name: 'cafes' },
-        { type: 'book_store', name: 'bookstores' }
+        { type: 'establishment', name: 'coworking spaces', keyword: 'coworking workspace' }
       ];
       
       const allResults: any[] = [];
       
+      // Use backend proxy instead of direct Google API calls
       for (const searchType of searchTypes) {
         try {
-          const searchUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${coordinates.lat},${coordinates.lng}&radius=10000&type=${searchType.type}&key=${apiKey}`;
+          // Use the backend proxy endpoint
+          let searchUrl = `http://localhost:5003/api/public-maps/places/nearby?location=${coordinates.lat},${coordinates.lng}&radius=5000&type=${searchType.type}`;
           
-          const response = await fetch(searchUrl);
+          if (searchType.keyword) {
+            searchUrl += `&keyword=${encodeURIComponent(searchType.keyword)}`;
+          }
+          
+          const response = await fetch(searchUrl, {
+            signal: AbortSignal.timeout(8000)
+          });
+          
+          if (!response.ok) {
+            console.warn(`❌ ${searchType.name} search failed:`, response.status);
+            continue;
+          }
+          
           const data = await response.json();
           
           if (data.status === 'OK' && data.results) {
@@ -270,7 +289,7 @@ const PopularSpacesSection: React.FC = () => {
       }
       
       if (allResults.length === 0) {
-        console.warn('No real workspaces found');
+        console.warn('No real workspaces found via backend');
         return [];
       }
       
@@ -280,16 +299,16 @@ const PopularSpacesSection: React.FC = () => {
         name: result.name,
         type: result.types?.includes('library') ? 'Library' : 
               result.types?.includes('cafe') ? 'Café' : 
-              result.types?.includes('book_store') ? 'Bookstore' : 'Workspace',
+              result.types?.includes('establishment') ? 'Co-working Space' : 'Workspace',
         address: result.vicinity || result.formatted_address || 'Address not available',
         coordinates: {
           lat: result.geometry.location.lat,
           lng: result.geometry.location.lng
         },
         amenities: ['Wi-Fi', 'Seating'],
-        photos: result.photos?.map((photo: any) => photo.photo_reference) || [],
         price: result.types?.includes('library') ? 'Free' : 'Contact for Info',
         rating: result.rating || 4.0,
+        photos: result.photos?.map((photo: any) => photo.photo_reference) || [],
         distance: 'Nearby'
       }));
       
@@ -307,46 +326,37 @@ const PopularSpacesSection: React.FC = () => {
     if (!locationData.coordinates) return;
 
     setLoading(true);
-    console.log('🔍 Loading workspaces for:', locationData.locationName);
 
     try {
-      // Test API connectivity
-      const apiWorking = await testApiConnectivity();
+      // Test backend connectivity first
+      const backendWorking = await testBackendConnectivity();
       
-      if (!apiWorking) {
-        console.warn('⚠️ API not working, using fallback data');
+      if (!backendWorking) {
         setUseFallbackData(true);
         setPopularWorkspaces(SAMPLE_WORKSPACES);
         setLoading(false);
         return;
       }
 
-      // Get API key
-      const key = await getApiKey();
-      setApiKey(key);
-      
-      // Search for real workspaces
-      const realWorkspaces = await searchRealWorkspaces(locationData.coordinates, key);
+      // Try to get real workspaces via backend
+      const realWorkspaces = await searchRealWorkspaces(locationData.coordinates);
       
       if (realWorkspaces.length === 0) {
-        console.warn('⚠️ No real workspaces found, using fallback data');
         setUseFallbackData(true);
         setPopularWorkspaces(SAMPLE_WORKSPACES);
       } else {
-        console.log(`✅ Successfully loaded ${realWorkspaces.length} real workspaces`);
         setUseFallbackData(false);
         setPopularWorkspaces(realWorkspaces);
       }
 
     } catch (error) {
-      console.error('❌ Error loading workspaces:', error);
       setApiError(error instanceof Error ? error.message : 'Failed to load workspaces');
       setUseFallbackData(true);
       setPopularWorkspaces(SAMPLE_WORKSPACES);
     } finally {
       setLoading(false);
     }
-  }, [testApiConnectivity, getApiKey, searchRealWorkspaces]);
+  }, [testBackendConnectivity, searchRealWorkspaces]);
 
   // Initialize on mount
   useEffect(() => {
@@ -376,61 +386,47 @@ const PopularSpacesSection: React.FC = () => {
     };
   }, [getCurrentLocation, loadPopularWorkspaces]);
 
-  // Debug info
-  const debugInfo = useMemo(() => {
-    if (!import.meta.env.DEV) return null;
-    
-    return {
-      apiError,
-      useFallbackData,
-      locationName: location.locationName,
-      isUserLocation: location.isUserLocation,
-      workspaceCount: popularWorkspaces.length,
-      coordinates: location.coordinates,
-      hasApiKey: !!apiKey
-    };
-  }, [apiError, useFallbackData, location.locationName, location.isUserLocation, location.coordinates, popularWorkspaces.length, apiKey]);
-
   return (
     <section className={styles.popularSpaces}>
       <div className={styles.sectionHeader}>
         <h2 className={styles.sectionTitle}>Popular Spaces</h2>
         <p className={styles.sectionSubtitle}>
           {loading 
-            ? "Discovering workspaces for you..." 
-            : useFallbackData
-              ? "Curated workspaces perfect for studying and working"
-              : location.isUserLocation 
-                ? `Real workspaces near you in ${location.locationName}`
-                : `Real workspaces from ${location.locationName}`
+            ? "Discovering amazing workspaces..." 
+            : location.isUserLocation 
+              ? `Curated workspaces in your area`
+              : `Discover popular workspaces from ${currentCity?.name || 'around the world'}`
           }
         </p>
         
-        {/* Debug info */}
-        {import.meta.env.DEV && debugInfo && (
-          <details style={{ fontSize: '0.8rem', color: '#666', marginTop: '10px' }}>
-            <summary>Debug Info (Dev Only)</summary>
-            <pre style={{ background: '#f5f5f5', padding: '10px', borderRadius: '4px', fontSize: '0.7rem' }}>
-              {JSON.stringify(debugInfo, null, 2)}
-            </pre>
-          </details>
+        {/* User-friendly hints */}
+        {!location.isUserLocation && (
+          <div style={{ 
+            fontSize: '0.9rem',
+            color: '#6B7280',
+            marginTop: '10px',
+            textAlign: 'center'
+          }}>
+            <p style={{ margin: '5px 0' }}>
+              📍 <strong>Enable location</strong> to see workspaces near you
+            </p>
+            <p style={{ margin: '5px 0', fontSize: '0.8rem', opacity: '0.8' }}>
+              Refresh to explore workspaces from another major city around the world
+            </p>
+          </div>
         )}
-
-        {/* Status message */}
-        <div style={{ 
-          background: useFallbackData ? '#fff3cd' : '#d1ecf1', 
-          padding: '10px', 
-          borderRadius: '4px', 
-          fontSize: '0.85rem',
-          color: useFallbackData ? '#856404' : '#0c5460',
-          marginTop: '10px'
-        }}>
-          {useFallbackData ? (
-            <>🔧 {apiError ? `API Error: ${apiError}` : 'Using sample data - enable location for real workspaces'}</>
-          ) : (
-            <>✅ Showing real workspaces from Google Places API!</>
-          )}
-        </div>
+        
+        {location.isUserLocation && (
+          <div style={{ 
+            fontSize: '0.85rem',
+            color: '#10B981',
+            marginTop: '8px',
+            textAlign: 'center',
+            fontWeight: '500'
+          }}>
+            ✨ Showing workspaces near your location
+          </div>
+        )}
       </div>
       
       {loading ? (
@@ -445,7 +441,7 @@ const PopularSpacesSection: React.FC = () => {
             animation: 'spin 1s linear infinite',
             marginBottom: '16px'
           }}></div>
-          <p style={{ color: '#6B7280', fontSize: '1rem' }}>Loading amazing workspaces...</p>
+          <p style={{ color: '#6B7280', fontSize: '1rem' }}>Finding the perfect workspaces for you...</p>
           <style>{`
             @keyframes spin {
               0% { transform: rotate(0deg); }
@@ -459,10 +455,24 @@ const PopularSpacesSection: React.FC = () => {
             <div key={workspace.id} className={styles.spaceCard}>
               <Link to={useFallbackData ? '/search' : `/workspaces/map/${workspace.id}`}>
                 <img 
-                  src={createSafeImage(workspace.name, index)}
+                  src={getPhotoUrl(workspace.photos[0], workspace.name, index)}
                   alt={workspace.name} 
                   className={styles.spaceImage}
                   style={{ objectFit: 'cover' }}
+                  onError={(e) => {
+                    // If the real photo fails to load, fallback to placeholder
+                    const target = e.target as HTMLImageElement;
+                    const colors = ['#4A6FDC', '#2DD4BF', '#F59E0B', '#EF4444'];
+                    const color = colors[index % colors.length];
+                    target.src = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+                      <svg width="400" height="320" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100%" height="100%" fill="${color}"/>
+                        <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">
+                          ${workspace.name}
+                        </text>
+                      </svg>
+                    `)}`;
+                  }}
                 />
               </Link>
               {(index === 0 || (workspace.rating && workspace.rating >= 4.5)) && (
@@ -502,7 +512,7 @@ const PopularSpacesSection: React.FC = () => {
       
       <div className={styles.viewAll}>
         <Link to="/search" className={`${styles.ctaButton} ${styles.primaryButton}`}>
-          {useFallbackData ? 'Find Real Workspaces' : 'View All Spaces'}
+          {location.isUserLocation ? 'Explore More Spaces' : 'Find Spaces Near You'}
         </Link>
       </div>
     </section>

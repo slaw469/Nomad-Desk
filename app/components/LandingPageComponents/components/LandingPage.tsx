@@ -1,10 +1,11 @@
-// components/LandingPage.tsx
+// app/components/LandingPageComponents/components/LandingPage.tsx - FIXED IMPORT
 import React from 'react';
 import Header from './Header';
 import HeroSection from './HeroSection';
 import FeaturesSection from './FeaturesSection';
 import HowItWorksSection from './HowItWorksSection';
-import PopularSpacesSection from './PopularSpacesSection';
+// FIXED: Import the correct component
+import PopularSpacesSection from './PopularSpacesSection'; // Use the enhanced version
 import TestimonialsSection from './TestimonialsSection';
 import NewsletterSection from './NewsletterSection';
 import Footer from './Footer';
@@ -18,6 +19,7 @@ const LandingPage: React.FC = () => {
         <HeroSection />
         <FeaturesSection />
         <HowItWorksSection />
+        {/* FIXED: Use the correct component name */}
         <PopularSpacesSection />
         <TestimonialsSection />
         <NewsletterSection />
