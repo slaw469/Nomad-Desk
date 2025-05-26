@@ -1,5 +1,6 @@
-// components/Footer.tsx
+// app/components/LandingPageComponents/components/Footer.tsx - UPDATED WITH PROPER ROUTING
 import React from 'react';
+import { Link } from '@tanstack/react-router';
 import styles from "../../../styles/landing.module.css";
 
 const Footer: React.FC = () => {
@@ -47,39 +48,71 @@ const Footer: React.FC = () => {
         <div className={styles.footerColumn}>
           <h3 className={styles.footerColumnTitle}>Explore</h3>
           <div className={styles.footerLinks}>
-            <a href="#" className={styles.footerLink}>Find Spaces</a>
-            <a href="#" className={styles.footerLink}>Create Study Group</a>
-            <a href="#" className={styles.footerLink}>Libraries</a>
-            <a href="#" className={styles.footerLink}>Coffee Shops</a>
-            <a href="#" className={styles.footerLink}>Co-working Spaces</a>
+            {/* Real route - Find Spaces (Search page) */}
+            <Link to="/search" className={styles.footerLink}>Find Spaces</Link>
+            
+            {/* Coming Soon - Create Study Group */}
+            <Link to="/create-group" className={styles.footerLink}>Create Study Group</Link>
+            
+            {/* Coming Soon - Libraries (no specific page exists) */}
+            <Link to="/workspaces" className={styles.footerLink}>Libraries</Link>
+            
+            {/* Coming Soon - Coffee Shops (no specific page exists) */}
+            <Link to="/workspaces" className={styles.footerLink}>Coffee Shops</Link>
+            
+            {/* Coming Soon - Co-working Spaces (no specific page exists) */}
+            <Link to="/workspaces" className={styles.footerLink}>Co-working Spaces</Link>
           </div>
         </div>
         <div className={styles.footerColumn}>
           <h3 className={styles.footerColumnTitle}>Company</h3>
           <div className={styles.footerLinks}>
-            <a href="#" className={styles.footerLink}>About Us</a>
-            <a href="#" className={styles.footerLink}>Careers</a>
-            <a href="#" className={styles.footerLink}>Blog</a>
-            <a href="#" className={styles.footerLink}>Press</a>
-            <a href="#" className={styles.footerLink}>Partners</a>
+            {/* Real route - About Us */}
+            <Link to="/about" className={styles.footerLink}>About Us</Link>
+            
+            {/* Coming Soon - Careers */}
+            <Link to="/careers" className={styles.footerLink}>Careers</Link>
+            
+            {/* Coming Soon - Blog */}
+            <Link to="/blog" className={styles.footerLink}>Blog</Link>
+            
+            {/* Coming Soon - Press */}
+            <Link to="/press" className={styles.footerLink}>Press</Link>
+            
+            {/* Coming Soon - Partners */}
+            <Link to="/partners" className={styles.footerLink}>Partners</Link>
           </div>
         </div>
         <div className={styles.footerColumn}>
           <h3 className={styles.footerColumnTitle}>Support</h3>
           <div className={styles.footerLinks}>
-            <a href="#" className={styles.footerLink}>Help Center</a>
-            <a href="#" className={styles.footerLink}>Contact Us</a>
-            <a href="#" className={styles.footerLink}>Privacy Policy</a>
-            <a href="#" className={styles.footerLink}>Terms of Service</a>
-            <a href="#" className={styles.footerLink}>Trust & Safety</a>
+            {/* Real route - Help Center */}
+            <Link to="/help-center" className={styles.footerLink}>Help Center</Link>
+            
+            {/* Real route - Contact Us */}
+            <Link to="/contact" className={styles.footerLink}>Contact Us</Link>
+            
+            {/* Real route - Privacy Policy */}
+            <Link to="/privacy-policy" className={styles.footerLink}>Privacy Policy</Link>
+            
+            {/* Real route - Terms of Service */}
+            <Link to="/terms-of-service" className={styles.footerLink}>Terms of Service</Link>
+            
+            {/* Real route - Trust & Safety */}
+            <Link to="/trust-safety" className={styles.footerLink}>Trust & Safety</Link>
           </div>
         </div>
       </div>
       <div className={styles.footerBottom}>
         <div className={styles.copyright}>© 2025 Nomad Desk. All rights reserved.</div>
         <div className={styles.footerBottomLinks}>
-          <a href="#" className={styles.footerBottomLink}>Privacy</a>
-          <a href="#" className={styles.footerBottomLink}>Terms</a>
+          {/* Real route - Privacy Policy */}
+          <Link to="/privacy-policy" className={styles.footerBottomLink}>Privacy</Link>
+          
+          {/* Real route - Terms of Service */}
+          <Link to="/terms-of-service" className={styles.footerBottomLink}>Terms</Link>
+          
+          {/* Coming Soon - Sitemap (no specific page exists) */}
           <a href="#" className={styles.footerBottomLink}>Sitemap</a>
         </div>
       </div>
