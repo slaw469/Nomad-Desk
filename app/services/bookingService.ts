@@ -1,9 +1,22 @@
-// app/services/bookingService.ts
+// app/services/bookingService.ts - COMPLETE WITH GROUP BOOKING SUPPORT
+
+import { 
+  GroupBooking, 
+  GroupBookingRequest, 
+  GroupInvitationRequest, 
+  GroupInvitationResponse,
+  GroupBookingStats,
+  GroupParticipantsResponse,
+  SendInvitationsResponse,
+  JoinGroupResponse,
+  PublicGroupBooking,
+  GroupBookingFilters
+} from '../types/groupBooking';
 
 // Base API URL from environment or fallback
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5003/api';
 
-// Updated booking interfaces to match backend model
+// Updated booking interfaces to include group bookings
 export interface Booking {
   id: string;
   user: string;
@@ -32,6 +45,24 @@ export interface Booking {
   cancellationDate?: string;
   createdAt: string;
   updatedAt: string;
+  
+  // Group booking fields (optional)
+  isGroupBooking?: boolean;
+  groupName?: string;
+  groupDescription?: string;
+  organizer?: string;
+  participants?: Array<{
+    user: string;
+    status: 'invited' | 'accepted' | 'declined' | 'pending';
+    invitedAt: string;
+    respondedAt?: string;
+  }>;
+  maxParticipants?: number;
+  minParticipants?: number;
+  inviteCode?: string;
+  isPublic?: boolean;
+  tags?: string[];
+  
   // Virtual fields from backend
   durationMinutes?: number;
   formattedDate?: string;
@@ -39,27 +70,30 @@ export interface Booking {
   isActive?: boolean;
   isUpcoming?: boolean;
   isPast?: boolean;
+  currentParticipantCount?: number;
 }
 
 export interface BookingRequest {
-    workspaceId: string;
-    workspaceName: string; // NEW: Required workspace name
-    workspaceAddress: string; // NEW: Required workspace address
-    workspaceType?: string; // NEW: Optional workspace type
-    workspacePhoto?: string; // NEW: Optional workspace photo URL
-    date: string;
-    startTime: string;
-    endTime: string;
-    roomType: string;
-    numberOfPeople: number;
-    specialRequests?: string;
-  }
+  workspaceId: string;
+  workspaceName: string;
+  workspaceAddress: string;
+  workspaceType?: string;
+  workspacePhoto?: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  roomType: string;
+  numberOfPeople: number;
+  specialRequests?: string;
+}
 
 export interface BookingStats {
   upcoming: number;
   past: number;
   total: number;
   cancelled: number;
+  groupsOrganized?: number;
+  groupsParticipated?: number;
 }
 
 export interface AvailabilityResponse {
@@ -68,50 +102,6 @@ export interface AvailabilityResponse {
     startTime: string;
     endTime: string;
   }>;
-}
-
-// Study session interfaces (keeping your existing ones)
-export interface StudySession {
-  id: string;
-  title: string;
-  description?: string;
-  host: {
-    id: string;
-    name: string;
-    avatar?: string;
-  };
-  workspace: {
-    id: string;
-    name: string;
-    address: string;
-    photo?: string;
-  };
-  date: string;
-  startTime: string;
-  endTime: string;
-  participants: {
-    id: string;
-    name: string;
-    avatar?: string;
-    status: 'accepted' | 'pending' | 'declined';
-  }[];
-  maxParticipants: number;
-  topics?: string[];
-  status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface StudySessionRequest {
-  title: string;
-  description?: string;
-  workspaceId: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  maxParticipants: number;
-  topics?: string[];
-  invitedParticipants?: string[];
 }
 
 // Generic fetch function for API calls
@@ -160,19 +150,22 @@ const fetchApi = async <T>(
   }
 };
 
-// Booking Service methods
+// =============================================================================
+// EXISTING BOOKING SERVICE METHODS (Updated)
+// =============================================================================
+
 export const bookingService = {
-  // Get all bookings
+  // Get all bookings (includes group bookings)
   getAllBookings: async (): Promise<Booking[]> => {
     return fetchApi<Booking[]>('/bookings');
   },
   
-  // Get upcoming bookings
+  // Get upcoming bookings (includes group bookings)
   getUpcomingBookings: async (): Promise<Booking[]> => {
     return fetchApi<Booking[]>('/bookings/upcoming');
   },
   
-  // Get past bookings
+  // Get past bookings (includes group bookings)
   getPastBookings: async (): Promise<Booking[]> => {
     return fetchApi<Booking[]>('/bookings/past');
   },
@@ -182,7 +175,7 @@ export const bookingService = {
     return fetchApi<Booking>(`/bookings/${bookingId}`);
   },
   
-  // Create a new booking
+  // Create a new individual booking
   createBooking: async (bookingData: BookingRequest): Promise<Booking> => {
     return fetchApi<Booking>('/bookings', 'POST', bookingData);
   },
@@ -218,34 +211,30 @@ export const bookingService = {
     return fetchApi<AvailabilityResponse>(`/bookings/availability?${params}`);
   },
 
-  // Get booking statistics
+  // Get booking statistics (updated for group bookings)
   getBookingStats: async (): Promise<BookingStats> => {
     return fetchApi<BookingStats>('/bookings/stats');
   },
 
-  // Helper function to format date for API
+  // Helper functions
   formatDateForApi: (date: Date): string => {
     return date.toISOString().split('T')[0];
   },
 
-  // Helper function to format time for API
   formatTimeForApi: (date: Date): string => {
     return date.toTimeString().split(' ')[0].substring(0, 5);
   },
 
-  // Helper function to parse API date
   parseApiDate: (dateString: string): Date => {
     return new Date(dateString);
   },
 
-  // Helper function to check if booking can be cancelled
   canCancelBooking: (booking: Booking): boolean => {
     const now = new Date();
     const bookingDate = new Date(booking.date);
     return bookingDate >= now && booking.status !== 'cancelled' && booking.status !== 'completed';
   },
 
-  // Helper function to check if booking can be modified
   canModifyBooking: (booking: Booking): boolean => {
     const now = new Date();
     const bookingDate = new Date(booking.date);
@@ -253,99 +242,183 @@ export const bookingService = {
   }
 };
 
-// Study Session Service methods (keeping existing implementation but making them no-ops for now)
-export const studySessionService = {
-  // Get all study sessions
-  getAllStudySessions: async (): Promise<StudySession[]> => {
-    // TODO: Implement when backend supports study sessions
-    console.warn('Study sessions not yet implemented in backend');
-    return [];
+// =============================================================================
+// NEW GROUP BOOKING SERVICE METHODS
+// =============================================================================
+
+export const groupBookingService = {
+  // Create a new group booking
+  createGroupBooking: async (bookingData: GroupBookingRequest): Promise<GroupBooking> => {
+    return fetchApi<GroupBooking>('/bookings/group', 'POST', bookingData);
   },
-  
-  // Get hosted study sessions
-  getHostedStudySessions: async (): Promise<StudySession[]> => {
-    console.warn('Study sessions not yet implemented in backend');
-    return [];
+
+  // Get group booking details
+  getGroupBooking: async (bookingId: string): Promise<GroupBooking> => {
+    return fetchApi<GroupBooking>(`/bookings/group/${bookingId}`);
   },
-  
-  // Get upcoming study sessions
-  getUpcomingStudySessions: async (): Promise<StudySession[]> => {
-    console.warn('Study sessions not yet implemented in backend');
-    return [];
+
+  // Update group booking (organizer only)
+  updateGroupBooking: async (
+    bookingId: string, 
+    updates: Partial<GroupBookingRequest>
+  ): Promise<{ message: string; booking: GroupBooking; updatedFields: string[] }> => {
+    return fetchApi(`/bookings/group/${bookingId}`, 'PUT', updates);
   },
-  
-  // Get past study sessions
-  getPastStudySessions: async (): Promise<StudySession[]> => {
-    console.warn('Study sessions not yet implemented in backend');
-    return [];
-  },
-  
-  // Get study session by ID
-  getStudySessionById: async (sessionId: string): Promise<StudySession> => {
-    console.warn('Study sessions not yet implemented in backend');
-    throw new Error('Study sessions not yet implemented');
-  },
-  
-  // Create a new study session
-  createStudySession: async (sessionData: StudySessionRequest): Promise<StudySession> => {
-    console.warn('Study sessions not yet implemented in backend');
-    throw new Error('Study sessions not yet implemented');
-  },
-  
-  // Update study session
-  updateStudySession: async (sessionId: string, sessionData: Partial<StudySessionRequest>): Promise<StudySession> => {
-    console.warn('Study sessions not yet implemented in backend');
-    throw new Error('Study sessions not yet implemented');
-  },
-  
-  // Cancel study session
-  cancelStudySession: async (sessionId: string): Promise<{ message: string }> => {
-    console.warn('Study sessions not yet implemented in backend');
-    throw new Error('Study sessions not yet implemented');
-  },
-  
-  // Join a study session
-  joinStudySession: async (sessionId: string): Promise<{ message: string }> => {
-    console.warn('Study sessions not yet implemented in backend');
-    throw new Error('Study sessions not yet implemented');
-  },
-  
-  // Leave a study session
-  leaveStudySession: async (sessionId: string): Promise<{ message: string }> => {
-    console.warn('Study sessions not yet implemented in backend');
-    throw new Error('Study sessions not yet implemented');
-  },
-  
-  // Invite people to a study session
-  inviteToStudySession: async (sessionId: string, userIds: string[]): Promise<{ message: string }> => {
-    console.warn('Study sessions not yet implemented in backend');
-    throw new Error('Study sessions not yet implemented');
-  },
-  
-  // Respond to study session invitation
-  respondToInvitation: async (
-    sessionId: string, 
-    response: 'accept' | 'decline'
+
+  // Cancel group booking (organizer only)
+  cancelGroupBooking: async (
+    bookingId: string, 
+    reason?: string
   ): Promise<{ message: string }> => {
-    console.warn('Study sessions not yet implemented in backend');
-    throw new Error('Study sessions not yet implemented');
+    return fetchApi<{ message: string }>(`/bookings/group/${bookingId}`, 'DELETE', { reason });
   },
-  
-  // Get public study sessions nearby
-  getNearbyStudySessions: async (
-    latitude: number, 
-    longitude: number, 
-    radiusInKm: number = 5
-  ): Promise<StudySession[]> => {
-    console.warn('Study sessions not yet implemented in backend');
-    return [];
+
+  // Send invitations to join group
+  sendGroupInvitations: async (
+    bookingId: string, 
+    invitations: GroupInvitationRequest[]
+  ): Promise<SendInvitationsResponse> => {
+    return fetchApi<SendInvitationsResponse>(`/bookings/group/${bookingId}/invite`, 'POST', { invitations });
   },
-  
-  // Search study sessions by topic, title, etc.
-  searchStudySessions: async (query: string): Promise<StudySession[]> => {
-    console.warn('Study sessions not yet implemented in backend');
-    return [];
+
+  // Respond to group invitation (accept/decline)
+  respondToGroupInvitation: async (
+    bookingId: string, 
+    response: GroupInvitationResponse
+  ): Promise<{ message: string; status: string; groupName: string }> => {
+    return fetchApi(`/bookings/group/${bookingId}/respond`, 'PUT', response);
+  },
+
+  // Get group participants
+  getGroupParticipants: async (bookingId: string): Promise<GroupParticipantsResponse> => {
+    return fetchApi<GroupParticipantsResponse>(`/bookings/group/${bookingId}/participants`);
+  },
+
+  // Remove participant from group (organizer only)
+  removeParticipant: async (
+    bookingId: string, 
+    participantId: string
+  ): Promise<{ message: string }> => {
+    return fetchApi<{ message: string }>(`/bookings/group/${bookingId}/participants/${participantId}`, 'DELETE');
+  },
+
+  // Join group by invite code
+  joinGroupByCode: async (inviteCode: string): Promise<JoinGroupResponse> => {
+    return fetchApi<JoinGroupResponse>(`/bookings/group/join/${inviteCode}`, 'POST');
+  },
+
+  // Leave group (participant only)
+  leaveGroup: async (bookingId: string): Promise<{ message: string }> => {
+    return fetchApi<{ message: string }>(`/bookings/group/${bookingId}/leave`, 'POST');
+  },
+
+  // Get user's group bookings
+  getMyGroupBookings: async (filters?: GroupBookingFilters): Promise<GroupBooking[]> => {
+    const params = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          if (Array.isArray(value)) {
+            params.append(key, value.join(','));
+          } else {
+            params.append(key, value.toString());
+          }
+        }
+      });
+    }
+    const queryString = params.toString();
+    const endpoint = queryString ? `/bookings/my-groups?${queryString}` : '/bookings/my-groups';
+    return fetchApi<GroupBooking[]>(endpoint);
+  },
+
+  // Get public group bookings
+  getPublicGroupBookings: async (filters?: {
+    location?: string;
+    tags?: string[];
+    dateFrom?: string;
+    dateTo?: string;
+    limit?: number;
+  }): Promise<PublicGroupBooking[]> => {
+    const params = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          if (Array.isArray(value)) {
+            params.append(key, value.join(','));
+          } else {
+            params.append(key, value.toString());
+          }
+        }
+      });
+    }
+    const queryString = params.toString();
+    const endpoint = queryString ? `/bookings/public-groups?${queryString}` : '/bookings/public-groups';
+    return fetchApi<PublicGroupBooking[]>(endpoint);
+  },
+
+  // Get group booking statistics
+  getGroupBookingStats: async (bookingId: string): Promise<GroupBookingStats> => {
+    return fetchApi<GroupBookingStats>(`/bookings/group/${bookingId}/stats`);
+  },
+
+  // Search group bookings by invite code
+  searchByInviteCode: async (inviteCode: string): Promise<PublicGroupBooking | null> => {
+    try {
+      return await fetchApi<PublicGroupBooking>(`/bookings/group/search/${inviteCode}`);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('404')) {
+        return null;
+      }
+      throw error;
+    }
+  },
+
+  // Helper functions for group bookings
+  isUserOrganizer: (booking: GroupBooking, userId: string): boolean => {
+    return booking.organizer.id === userId;
+  },
+
+  isUserParticipant: (booking: GroupBooking, userId: string): boolean => {
+    return booking.participants.some(p => p.user.id === userId);
+  },
+
+  getUserParticipantStatus: (booking: GroupBooking, userId: string): string => {
+    if (groupBookingService.isUserOrganizer(booking, userId)) {
+      return 'organizer';
+    }
+    const participant = booking.participants.find(p => p.user.id === userId);
+    return participant ? participant.status : 'none';
+  },
+
+  canUserInvite: (booking: GroupBooking, userId: string): boolean => {
+    return groupBookingService.isUserOrganizer(booking, userId) || 
+           booking.groupSettings.allowParticipantInvites;
+  },
+
+  canUserManage: (booking: GroupBooking, userId: string): boolean => {
+    return groupBookingService.isUserOrganizer(booking, userId);
+  },
+
+  canUserLeave: (booking: GroupBooking, userId: string): boolean => {
+    return groupBookingService.isUserParticipant(booking, userId) && 
+           !groupBookingService.isUserOrganizer(booking, userId);
+  },
+
+  getAvailableSpots: (booking: GroupBooking): number => {
+    return booking.maxParticipants - booking.currentParticipantCount;
+  },
+
+  canAcceptMoreParticipants: (booking: GroupBooking): boolean => {
+    return booking.currentParticipantCount < booking.maxParticipants;
+  },
+
+  hasMinimumParticipants: (booking: GroupBooking): boolean => {
+    return booking.currentParticipantCount >= booking.minParticipants;
   }
 };
 
-export default { bookingService, studySessionService };
+// Export both services as default
+export default { 
+  bookingService, 
+  groupBookingService 
+};

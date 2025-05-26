@@ -1,0 +1,588 @@
+/* app/components/Bookings/GroupBookingCard.module.css */
+
+:root {
+    --primary: #4A6FDC;
+    --primary-dark: #3d5ec7;
+    --primary-light: rgba(74, 111, 220, 0.1);
+    --secondary: #FF7E5F;
+    --accent: #2DD4BF;
+    --success: #10B981;
+    --error: #EF4444;
+    --warning: #F59E0B;
+    --info: #3B82F6;
+    --dark: #2A3347;
+    --light: #F8FAFC;
+    --white: #FFFFFF;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-300: #D1D5DB;
+    --gray-400: #9CA3AF;
+    --gray-500: #6B7280;
+    --gray-600: #4B5563;
+    --gray-700: #374151;
+    --gray-800: #1F2937;
+    --gray-900: #111827;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --border-radius: 8px;
+    --border-radius-lg: 12px;
+  }
+  
+  /* Main Card Container */
+  .groupBookingCard {
+    background: var(--white);
+    border: 2px solid var(--gray-200);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  
+  .groupBookingCard:hover {
+    border-color: var(--primary-light);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+  
+  .compact {
+    border-radius: var(--border-radius);
+  }
+  
+  /* Error Banner */
+  .errorBanner {
+    background: #FEF2F2;
+    border-bottom: 1px solid #FECACA;
+    color: var(--error);
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .errorClose {
+    background: none;
+    border: none;
+    color: var(--error);
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Card Header */
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px 20px 0 20px;
+    gap: 16px;
+  }
+  
+  .headerLeft {
+    flex: 1;
+  }
+  
+  .groupName {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--dark);
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+  }
+  
+  .compact .groupName {
+    font-size: 18px;
+  }
+  
+  .statusBadge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .badge.success {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+  }
+  
+  .badge.warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning);
+  }
+  
+  .badge.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error);
+  }
+  
+  .badge.info {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--info);
+  }
+  
+  .badge.default {
+    background: var(--gray-100);
+    color: var(--gray-600);
+  }
+  
+  .roleBadge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .roleBadge.organizer {
+    background: rgba(255, 126, 95, 0.1);
+    color: var(--secondary);
+  }
+  
+  .roleBadge.participant {
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+  
+  .headerRight {
+    text-align: right;
+  }
+  
+  .participantCount {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  .countText {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  
+  .countLabel {
+    font-size: 12px;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Card Body */
+  .cardBody {
+    padding: 16px 20px;
+  }
+  
+  .description {
+    color: var(--gray-600);
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+    font-size: 14px;
+  }
+  
+  /* Booking Details */
+  .bookingDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .detailItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .detailIcon {
+    font-size: 16px;
+    width: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  
+  .detailContent {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+  }
+  
+  .detailLabel {
+    font-size: 12px;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  
+  .detailValue {
+    font-size: 14px;
+    color: var(--dark);
+    font-weight: 600;
+  }
+  
+  .detailSecondary {
+    font-size: 13px;
+    color: var(--gray-600);
+  }
+  
+  /* Tags */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  
+  .tag {
+    background: var(--gray-100);
+    color: var(--gray-700);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  
+  .tagMore {
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  
+  /* Participants */
+  .participants {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: var(--gray-50);
+    border-radius: var(--border-radius);
+    margin-bottom: 16px;
+  }
+  
+  .participantAvatars {
+    display: flex;
+    align-items: center;
+    gap: -8px;
+  }
+  
+  .organizerAvatar,
+  .participantAvatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--white);
+    background: var(--primary);
+    position: relative;
+    margin-left: -8px;
+  }
+  
+  .organizerAvatar:first-child,
+  .participantAvatar:first-child {
+    margin-left: 0;
+  }
+  
+  .organizerAvatar {
+    background: var(--secondary);
+    z-index: 10;
+  }
+  
+  .organizerAvatar img,
+  .participantAvatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .crownIcon {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    font-size: 12px;
+    background: var(--white);
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .moreParticipants {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--white);
+    background: var(--gray-400);
+    color: var(--white);
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: -8px;
+  }
+  
+  .participantInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .organizerName {
+    font-size: 13px;
+    color: var(--gray-600);
+  }
+  
+  .statusGood {
+    font-size: 12px;
+    color: var(--success);
+    font-weight: 600;
+  }
+  
+  .statusNeed {
+    font-size: 12px;
+    color: var(--warning);
+    font-weight: 600;
+  }
+  
+  /* Card Actions */
+  .cardActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-top: 1px solid var(--gray-200);
+    gap: 12px;
+  }
+  
+  .actionLeft,
+  .actionRight {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .actionButton {
+    padding: 8px 16px;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid transparent;
+  }
+  
+  .viewButton,
+  .linkButton {
+    background: var(--gray-100);
+    color: var(--gray-700);
+    border-color: var(--gray-200);
+  }
+  
+  .viewButton:hover,
+  .linkButton:hover {
+    background: var(--gray-200);
+    border-color: var(--gray-300);
+  }
+  
+  .joinButton {
+    background: var(--success);
+    color: var(--white);
+  }
+  
+  .joinButton:hover:not(:disabled) {
+    background: #0F9F70;
+    transform: translateY(-1px);
+  }
+  
+  .leaveButton {
+    background: var(--white);
+    color: var(--gray-700);
+    border-color: var(--gray-300);
+  }
+  
+  .leaveButton:hover:not(:disabled) {
+    background: var(--gray-100);
+    border-color: var(--gray-400);
+  }
+  
+  .manageButton {
+    background: var(--primary);
+    color: var(--white);
+  }
+  
+  .manageButton:hover:not(:disabled) {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+  }
+  
+  .cancelButton {
+    background: var(--white);
+    color: var(--error);
+    border-color: var(--error);
+  }
+  
+  .cancelButton:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.1);
+  }
+  
+  .actionButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  /* Invite Code */
+  .inviteCode {
+    background: var(--gray-50);
+    padding: 12px 20px;
+    border-top: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+  }
+  
+  .inviteLabel {
+    color: var(--gray-600);
+    font-weight: 500;
+  }
+  
+  .inviteCodeValue {
+    background: var(--white);
+    border: 1px solid var(--gray-300);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 14px;
+    color: var(--primary);
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  
+  .copyButton {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+  
+  .copyButton:hover {
+    opacity: 1;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .cardHeader {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+  
+    .headerRight {
+      align-self: flex-end;
+    }
+  
+    .cardActions {
+      flex-direction: column;
+      gap: 12px;
+    }
+  
+    .actionLeft,
+    .actionRight {
+      width: 100%;
+      justify-content: center;
+    }
+  
+    .actionButton {
+      flex: 1;
+    }
+  
+    .bookingDetails {
+      gap: 8px;
+    }
+  
+    .detailItem {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .groupBookingCard {
+      border-radius: var(--border-radius);
+    }
+  
+    .cardHeader,
+    .cardBody,
+    .cardActions {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+  
+    .groupName {
+      font-size: 18px;
+    }
+  
+    .participantAvatars {
+      gap: -4px;
+    }
+  
+    .organizerAvatar,
+    .participantAvatar,
+    .moreParticipants {
+      width: 32px;
+      height: 32px;
+      font-size: 12px;
+      margin-left: -4px;
+    }
+  
+    .crownIcon {
+      width: 14px;
+      height: 14px;
+      font-size: 10px;
+    }
+  
+    .actionButton {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+  }
