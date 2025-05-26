@@ -1,5 +1,30 @@
-// nomad-desk-backend/models/Booking.js
+// nomad-desk-backend/models/Booking.js - UPDATED WITH GROUP BOOKING SUPPORT
 const mongoose = require('mongoose');
+
+const GroupParticipantSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['invited', 'accepted', 'declined', 'pending'],
+    default: 'pending'
+  },
+  invitedAt: {
+    type: Date,
+    default: Date.now
+  },
+  respondedAt: {
+    type: Date,
+    default: null
+  },
+  invitedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }
+});
 
 const BookingSchema = new mongoose.Schema({
   user: {
@@ -53,14 +78,17 @@ const BookingSchema = new mongoose.Schema({
       'Meeting Room',
       'Conference Room',
       'Phone Booth',
-      'Lounge Area'
+      'Lounge Area',
+      'Large Conference Room (10+ people)', // New for groups
+      'Event Space', // New for groups
+      'Workshop Room' // New for groups
     ]
   },
   numberOfPeople: {
     type: Number,
     required: true,
     min: 1,
-    max: 20,
+    max: 50, // Increased for group bookings
     default: 1
   },
   specialRequests: {
@@ -72,6 +100,78 @@ const BookingSchema = new mongoose.Schema({
     enum: ['pending', 'confirmed', 'cancelled', 'completed', 'no-show'],
     default: 'pending'
   },
+  
+  // === GROUP BOOKING FIELDS ===
+  isGroupBooking: {
+    type: Boolean,
+    default: false,
+    index: true
+  },
+  groupName: {
+    type: String,
+    default: '',
+    maxlength: 100
+  },
+  groupDescription: {
+    type: String,
+    default: '',
+    maxlength: 500
+  },
+  organizer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    // Only required if it's a group booking
+    required: function() {
+      return this.isGroupBooking;
+    }
+  },
+  participants: [GroupParticipantSchema],
+  maxParticipants: {
+    type: Number,
+    min: 2,
+    max: 50,
+    default: function() {
+      return this.isGroupBooking ? 10 : 1;
+    }
+  },
+  minParticipants: {
+    type: Number,
+    min: 1,
+    default: function() {
+      return this.isGroupBooking ? 2 : 1;
+    }
+  },
+  inviteCode: {
+    type: String,
+    unique: true,
+    sparse: true, // Only enforce uniqueness for non-null values
+    index: true
+  },
+  isPublic: {
+    type: Boolean,
+    default: false
+  },
+  tags: [{
+    type: String,
+    lowercase: true,
+    trim: true
+  }],
+  groupSettings: {
+    allowParticipantInvites: {
+      type: Boolean,
+      default: false
+    },
+    requireApproval: {
+      type: Boolean,
+      default: true
+    },
+    sendReminders: {
+      type: Boolean,
+      default: true
+    }
+  },
+  
+  // === EXISTING FIELDS ===
   totalPrice: {
     type: Number,
     default: 0
@@ -112,6 +212,7 @@ const BookingSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+  
   // Metadata
   metadata: {
     source: {
@@ -128,6 +229,7 @@ const BookingSchema = new mongoose.Schema({
       default: ''
     }
   },
+  
   // Timestamps
   createdAt: {
     type: Date,
@@ -139,6 +241,8 @@ const BookingSchema = new mongoose.Schema({
   }
 });
 
+// === MIDDLEWARE ===
+
 // Update the updatedAt field before saving
 BookingSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
@@ -148,8 +252,30 @@ BookingSchema.pre('save', function(next) {
     this.cancellationDate = Date.now();
   }
   
+  // Generate invite code for group bookings
+  if (this.isGroupBooking && !this.inviteCode) {
+    this.inviteCode = generateInviteCode();
+  }
+  
+  // Set organizer to user if it's a new group booking
+  if (this.isNew && this.isGroupBooking && !this.organizer) {
+    this.organizer = this.user;
+  }
+  
+  // Validate group booking constraints
+  if (this.isGroupBooking) {
+    if (this.maxParticipants < this.minParticipants) {
+      return next(new Error('Max participants cannot be less than min participants'));
+    }
+    if (this.numberOfPeople > this.maxParticipants) {
+      return next(new Error('Number of people exceeds max participants'));
+    }
+  }
+  
   next();
 });
+
+// === VIRTUALS ===
 
 // Virtual for duration in minutes
 BookingSchema.virtual('durationMinutes').get(function() {
@@ -214,18 +340,40 @@ BookingSchema.virtual('isPast').get(function() {
          this.status === 'completed';
 });
 
-// Index for efficient queries
+// NEW GROUP BOOKING VIRTUALS
+BookingSchema.virtual('acceptedParticipants').get(function() {
+  return this.participants.filter(p => p.status === 'accepted');
+});
+
+BookingSchema.virtual('pendingParticipants').get(function() {
+  return this.participants.filter(p => p.status === 'pending' || p.status === 'invited');
+});
+
+BookingSchema.virtual('currentParticipantCount').get(function() {
+  return this.acceptedParticipants.length + 1; // +1 for organizer
+});
+
+BookingSchema.virtual('hasMinimumParticipants').get(function() {
+  return !this.isGroupBooking || this.currentParticipantCount >= this.minParticipants;
+});
+
+BookingSchema.virtual('canAcceptMoreParticipants').get(function() {
+  return !this.isGroupBooking || this.currentParticipantCount < this.maxParticipants;
+});
+
+// === INDEXES ===
 BookingSchema.index({ user: 1, date: -1, startTime: -1 });
 BookingSchema.index({ 'workspace.id': 1, date: 1, startTime: 1 });
 BookingSchema.index({ status: 1, date: 1 });
 BookingSchema.index({ user: 1, status: 1 });
+BookingSchema.index({ isGroupBooking: 1, status: 1 });
+BookingSchema.index({ organizer: 1, date: -1 });
+BookingSchema.index({ inviteCode: 1 });
+BookingSchema.index({ 'participants.user': 1 });
 
-// Ensure virtual fields are serialized
-BookingSchema.set('toJSON', {
-  virtuals: true
-});
+// === STATIC METHODS ===
 
-// Static method to find conflicting bookings
+// Find conflicting bookings (updated for group bookings)
 BookingSchema.statics.findConflicting = function(workspaceId, date, startTime, endTime, excludeId = null) {
   let query = {
     'workspace.id': workspaceId,
@@ -246,16 +394,19 @@ BookingSchema.statics.findConflicting = function(workspaceId, date, startTime, e
   return this.find(query);
 };
 
-// Static method to get user's booking stats
+// Get user's booking stats (updated for group bookings)
 BookingSchema.statics.getUserStats = function(userId) {
   const now = new Date();
   const today = now.toISOString().split('T')[0];
   const currentTime = now.toTimeString().split(' ')[0].substring(0, 5);
   
   return Promise.all([
-    // Upcoming bookings
+    // Upcoming bookings (as user or participant)
     this.countDocuments({
-      user: userId,
+      $or: [
+        { user: userId },
+        { 'participants.user': userId, 'participants.status': 'accepted' }
+      ],
       status: { $in: ['confirmed', 'pending'] },
       $or: [
         { date: { $gt: today } },
@@ -264,7 +415,10 @@ BookingSchema.statics.getUserStats = function(userId) {
     }),
     // Past bookings
     this.countDocuments({
-      user: userId,
+      $or: [
+        { user: userId },
+        { 'participants.user': userId, 'participants.status': 'accepted' }
+      ],
       $or: [
         { date: { $lt: today } },
         { date: today, endTime: { $lt: currentTime } },
@@ -272,15 +426,94 @@ BookingSchema.statics.getUserStats = function(userId) {
       ]
     }),
     // Total bookings
-    this.countDocuments({ user: userId }),
+    this.countDocuments({
+      $or: [
+        { user: userId },
+        { 'participants.user': userId, 'participants.status': 'accepted' }
+      ]
+    }),
     // Cancelled bookings
-    this.countDocuments({ user: userId, status: 'cancelled' })
-  ]).then(([upcoming, past, total, cancelled]) => ({
+    this.countDocuments({
+      $or: [
+        { user: userId },
+        { 'participants.user': userId }
+      ],
+      status: 'cancelled'
+    }),
+    // Group bookings organized
+    this.countDocuments({
+      organizer: userId,
+      isGroupBooking: true
+    }),
+    // Group bookings participated in
+    this.countDocuments({
+      'participants.user': userId,
+      'participants.status': 'accepted',
+      isGroupBooking: true
+    })
+  ]).then(([upcoming, past, total, cancelled, groupsOrganized, groupsParticipated]) => ({
     upcoming,
     past,
     total,
-    cancelled
+    cancelled,
+    groupsOrganized,
+    groupsParticipated
   }));
 };
+
+// NEW GROUP BOOKING STATIC METHODS
+
+// Find group bookings for a user (as organizer or participant)
+BookingSchema.statics.findUserGroupBookings = function(userId, status = null) {
+  let query = {
+    isGroupBooking: true,
+    $or: [
+      { organizer: userId },
+      { 'participants.user': userId }
+    ]
+  };
+  
+  if (status) {
+    query.status = status;
+  }
+  
+  return this.find(query)
+    .populate('organizer', 'name email avatar')
+    .populate('participants.user', 'name email avatar')
+    .sort({ date: -1, startTime: -1 });
+};
+
+// Find group booking by invite code
+BookingSchema.statics.findByInviteCode = function(inviteCode) {
+  return this.findOne({ inviteCode, isGroupBooking: true })
+    .populate('organizer', 'name email avatar')
+    .populate('participants.user', 'name email avatar');
+};
+
+// Check if user can join group booking
+BookingSchema.statics.canUserJoinGroup = function(bookingId, userId) {
+  return this.findById(bookingId).then(booking => {
+    if (!booking || !booking.isGroupBooking) return false;
+    if (booking.organizer.toString() === userId) return false;
+    if (booking.participants.some(p => p.user.toString() === userId)) return false;
+    return booking.canAcceptMoreParticipants;
+  });
+};
+
+// === HELPER FUNCTIONS ===
+
+function generateInviteCode() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < 8; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+// Ensure virtual fields are serialized
+BookingSchema.set('toJSON', {
+  virtuals: true
+});
 
 module.exports = mongoose.model('Booking', BookingSchema);
