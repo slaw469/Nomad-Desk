@@ -1,4 +1,4 @@
-// src/router.tsx - UPDATED: Add OAuth success route
+// src/router.tsx - UPDATED: Add all footer link routes
 import { Router, Route, RootRoute, ErrorComponent } from '@tanstack/react-router';
 import React from 'react';
 import App from './App';
@@ -18,6 +18,15 @@ import WrappedLSPage from '../app/components/LoginSignup/WrappedLSPage';
 import OAuthSuccess from '../app/components/LoginSignup/OAuthSuccess';
 import NomadDeskAbout from '../app/components/About/NomadDeskAbout';
 import ProtectedRoute from '../app/components/ProtectedRoute';
+
+// Import new components
+import ComingSoon from '../app/components/Common/ComingSoon';
+import ContactUs from '../app/components/Support/ContactUs';
+import HelpCenter from '../app/components/Support/HelpCenter';
+import PrivacyPolicy from '../app/components/Legal/PrivacyPolicy';
+import TermsOfService from '../app/components/Legal/TermsOfService';
+import TrustSafety from '../app/components/Legal/TrustSafety';
+
 import '../app/styles/font-fix.css';
 
 // Error boundary component for routes
@@ -68,14 +77,6 @@ const RouteErrorComponent = ({ error }: { error: Error }) => {
     </div>
   );
 };
-
-// Placeholder component for routes that don't have components yet
-const PlaceholderPage = () => (
-  <div style={{ padding: '50px', textAlign: 'center' }}>
-    <h1>Coming Soon</h1>
-    <p>This page is under construction.</p>
-  </div>
-);
 
 // Define the root route with error boundary
 const rootRoute = new RootRoute({
@@ -213,11 +214,11 @@ const mapWorkspaceDetailRoute = new Route({
   errorComponent: RouteErrorComponent,
 });
 
-// Define additional public routes
+// Public routes
 const howItWorksRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/how-it-works',
-  component: PlaceholderPage,
+  component: () => <ComingSoon title="How It Works" description="Learn how Nomad Desk helps you find the perfect workspace" />,
   errorComponent: RouteErrorComponent,
 });
 
@@ -250,7 +251,7 @@ const signupRoute = new Route({
   errorComponent: RouteErrorComponent,
 });
 
-// NEW: OAuth success route with search schema
+// OAuth success route
 const oauthSuccessRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/oauth-success',
@@ -265,12 +266,79 @@ const oauthSuccessRoute = new Route({
   errorComponent: RouteErrorComponent,
 });
 
+// Company routes - Using ComingSoon component
+const careersRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/careers',
+  component: ComingSoon,
+  errorComponent: RouteErrorComponent,
+});
+
+const blogRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/blog',
+  component: ComingSoon,
+  errorComponent: RouteErrorComponent,
+});
+
+const pressRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/press',
+  component: ComingSoon,
+  errorComponent: RouteErrorComponent,
+});
+
+const partnersRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/partners',
+  component: ComingSoon,
+  errorComponent: RouteErrorComponent,
+});
+
+// Support routes - Using actual components
+const contactRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/contact',
+  component: ContactUs,
+  errorComponent: RouteErrorComponent,
+});
+
+const helpCenterRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/help-center',
+  component: HelpCenter,
+  errorComponent: RouteErrorComponent,
+});
+
+// Legal routes - Using actual components
+const privacyPolicyRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/privacy-policy',
+  component: PrivacyPolicy,
+  errorComponent: RouteErrorComponent,
+});
+
+const termsOfServiceRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/terms-of-service',
+  component: TermsOfService,
+  errorComponent: RouteErrorComponent,
+});
+
+const trustSafetyRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/trust-safety',
+  component: TrustSafety,
+  errorComponent: RouteErrorComponent,
+});
+
+// Create group route
 const createGroupRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/create-group',
   component: () => (
     <ProtectedRoute>
-      <PlaceholderPage />
+      <ComingSoon title="Create Study Group" description="Organize study sessions with friends and classmates" />
     </ProtectedRoute>
   ),
   errorComponent: RouteErrorComponent,
@@ -282,7 +350,7 @@ const studySessionsRoute = new Route({
   path: '/study-sessions',
   component: () => (
     <ProtectedRoute>
-      <PlaceholderPage />
+      <ComingSoon title="Study Sessions" description="Join or create collaborative study sessions" />
     </ProtectedRoute>
   ),
   errorComponent: RouteErrorComponent,
@@ -293,7 +361,7 @@ const createStudySessionRoute = new Route({
   path: '/study-sessions/create',
   component: () => (
     <ProtectedRoute>
-      <PlaceholderPage />
+      <ComingSoon title="Create Study Session" description="Start a new study session and invite others" />
     </ProtectedRoute>
   ),
   errorComponent: RouteErrorComponent,
@@ -304,7 +372,7 @@ const studySessionDetailRoute = new Route({
   path: '/study-sessions/$sessionId',
   component: () => (
     <ProtectedRoute>
-      <PlaceholderPage />
+      <ComingSoon title="Study Session Details" description="View and manage your study session" />
     </ProtectedRoute>
   ),
   errorComponent: RouteErrorComponent,
@@ -316,7 +384,7 @@ const messagesRoute = new Route({
   path: '/messages',
   component: () => (
     <ProtectedRoute>
-      <PlaceholderPage />
+      <ComingSoon title="Messages" description="Connect and chat with other workspace users" />
     </ProtectedRoute>
   ),
   errorComponent: RouteErrorComponent,
@@ -327,13 +395,13 @@ const messageDetailRoute = new Route({
   path: '/messages/$userId',
   component: () => (
     <ProtectedRoute>
-      <PlaceholderPage />
+      <ComingSoon title="Chat" description="Send messages to other users" />
     </ProtectedRoute>
   ),
   errorComponent: RouteErrorComponent,
 });
 
-// Create the route tree using the routes (ADDED oauthSuccessRoute)
+// Create the route tree using all routes
 const routeTree = rootRoute.addChildren([
   indexRoute,
   dashboardRoute,
@@ -351,13 +419,25 @@ const routeTree = rootRoute.addChildren([
   aboutRoute,
   loginRoute,
   signupRoute,
-  oauthSuccessRoute, // NEW ROUTE
+  oauthSuccessRoute,
   createGroupRoute,
   studySessionsRoute,
   createStudySessionRoute,
   studySessionDetailRoute,
   messagesRoute,
   messageDetailRoute,
+  // Company routes
+  careersRoute,
+  blogRoute,
+  pressRoute,
+  partnersRoute,
+  // Support routes
+  contactRoute,
+  helpCenterRoute,
+  // Legal routes
+  privacyPolicyRoute,
+  termsOfServiceRoute,
+  trustSafetyRoute,
 ]);
 
 // Create the router with error handling
