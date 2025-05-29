@@ -1,5 +1,6 @@
 // app/components/common/GoogleMap.tsx
 import React, { useEffect, useRef, useState } from 'react';
+import { loadGoogleMapsApi } from '../../utils/mapsLoader';
 
 // Define interfaces for the component props
 interface GoogleMapProps {
@@ -38,53 +39,20 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false);
-
-  // Function to create the Google Maps script
-  const loadGoogleMapsScript = () => {
-    // Check if the script is already loaded
-    if (window.google && window.google.maps) {
-      setIsScriptLoaded(true);
-      initializeMap();
-      return;
-    }
-
-    console.log('Loading Google Maps script with key:', apiKey.substring(0, 10) + '...');
-
-    // Create script element
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-    script.async = true;
-    script.defer = true;
-    
-    // Handle script load event
-    script.onload = () => {
-      console.log('Google Maps script loaded successfully');
-      setIsScriptLoaded(true);
-      initializeMap();
-    };
-    
-    // Handle script error
-    script.onerror = (e) => {
-      console.error('Failed to load Google Maps API:', e);
-      setLoading(false);
-      setError('Failed to load Google Maps API. Please check your API key.');
-    };
-    
-    // Add script to document
-    document.head.appendChild(script);
-  };
 
   // Initialize the map
-  const initializeMap = () => {
-    if (!mapRef.current || !window.google || !window.google.maps) {
-      console.warn('Cannot initialize map: missing dependencies');
+  const initializeMap = async () => {
+    if (!mapRef.current) {
+      console.warn('Cannot initialize map: missing map container ref');
       setLoading(false);
-      setError('Failed to initialize map - missing dependencies');
+      setError('Failed to initialize map - missing container');
       return;
     }
     
     try {
+      // Ensure Google Maps is loaded
+      await loadGoogleMapsApi(apiKey, ['places']);
+      
       console.log('Initializing map with center:', center);
       
       // Create a new map instance
@@ -157,15 +125,17 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
     `;
   };
 
-  // Load the map on component mount
+  // Initialize map on component mount
   useEffect(() => {
-    loadGoogleMapsScript();
+    initializeMap();
     
     // Cleanup function
     return () => {
-      // Nothing to clean up currently
+      if (map) {
+        // Clean up any map listeners if needed
+      }
     };
-  }, []);
+  }, [apiKey]); // Re-initialize if API key changes
 
   // Update map center if it changes and map exists
   useEffect(() => {

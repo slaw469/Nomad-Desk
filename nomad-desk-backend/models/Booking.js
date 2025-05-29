@@ -128,10 +128,19 @@ const BookingSchema = new mongoose.Schema({
   participants: [GroupParticipantSchema],
   maxParticipants: {
     type: Number,
-    min: 2,
+    min: 1,
     max: 50,
     default: function() {
       return this.isGroupBooking ? 10 : 1;
+    },
+    validate: {
+      validator: function(v) {
+        if (this.isGroupBooking) {
+          return v >= 2;
+        }
+        return v >= 1;
+      },
+      message: props => `${props.value} is not a valid number of participants`
     }
   },
   minParticipants: {

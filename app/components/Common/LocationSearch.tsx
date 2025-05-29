@@ -1,5 +1,6 @@
 // app/components/common/LocationSearch.tsx
 import React, { useEffect, useRef, useState } from 'react';
+import { loadGoogleMapsApi } from '../../utils/mapsLoader';
 
 // Define interfaces for the component props
 interface LocationSearchProps {
@@ -30,48 +31,23 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-  const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false);
-  const [scriptError, setScriptError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState<string>(defaultValue);
 
-  // Function to load the Google Maps Places API script
-  const loadGoogleMapsScript = () => {
-    // Check if the script is already loaded
-    if (window.google && window.google.maps && window.google.maps.places) {
-      setIsScriptLoaded(true);
-      return;
-    }
-
-    // Create script element
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-    script.async = true;
-    script.defer = true;
-    
-    // Handle script load event
-    script.onload = () => {
-      console.log("Google Maps script loaded successfully");
-      setIsScriptLoaded(true);
-    };
-    
-    // Handle script error
-    script.onerror = () => {
-      console.error("Failed to load Google Maps API script");
-      setScriptError('Failed to load Google Maps API');
-    };
-    
-    // Add script to document
-    document.head.appendChild(script);
-  };
-
   // Initialize Autocomplete
-  const initializeAutocomplete = () => {
-    if (!inputRef.current || !window.google || !window.google.maps || !window.google.maps.places) {
-      console.warn("Unable to initialize autocomplete: missing dependencies");
+  const initializeAutocomplete = async () => {
+    if (!inputRef.current) {
+      console.warn("Unable to initialize autocomplete: missing input ref");
+      setError('Failed to initialize location search');
+      setLoading(false);
       return;
     }
     
     try {
+      // Ensure Google Maps is loaded with Places library
+      await loadGoogleMapsApi(apiKey, ['places']);
+      
       // Create autocomplete instance
       const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
         types: ['geocode', 'establishment'],
@@ -84,9 +60,11 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       // Add place_changed event listener
       autocomplete.addListener('place_changed', handlePlaceChanged);
       console.log("Autocomplete initialized successfully");
+      setLoading(false);
     } catch (err) {
       console.error('Error initializing autocomplete:', err);
-      setScriptError('Failed to initialize location search');
+      setError('Failed to initialize location search');
+      setLoading(false);
     }
   };
 
@@ -115,25 +93,17 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     }
   };
 
-  // Load the script on component mount
+  // Initialize on component mount
   useEffect(() => {
-    loadGoogleMapsScript();
+    initializeAutocomplete();
     
     // Cleanup function
     return () => {
       if (autocompleteRef.current && window.google && window.google.maps && window.google.maps.event) {
-        // Remove event listeners if necessary
         window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
       }
     };
   }, [apiKey]);
-
-  // Initialize autocomplete when script is loaded
-  useEffect(() => {
-    if (isScriptLoaded) {
-      initializeAutocomplete();
-    }
-  }, [isScriptLoaded]);
 
   // Handle input value change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -156,12 +126,12 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
           borderRadius: '8px',
           border: '1px solid #E5E7EB'
         }}
-        disabled={!isScriptLoaded || !!scriptError}
+        disabled={loading || !!error}
       />
       
-      {scriptError && (
+      {error && (
         <div style={{ color: '#EF4444', fontSize: '12px', marginTop: '5px' }}>
-          {scriptError}
+          {error}
         </div>
       )}
     </div>

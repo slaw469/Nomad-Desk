@@ -297,9 +297,22 @@ router.post('/', auth, async (req, res) => {
       endTime,
       roomType,
       numberOfPeople: numberOfPeople || 1,
+      maxParticipants: numberOfPeople || 1,
       specialRequests,
-      status: 'confirmed'
+      status: 'confirmed',
+      isGroupBooking: false
     });
+
+    // Validate the booking before saving
+    try {
+      await newBooking.validate();
+    } catch (validationError) {
+      console.error('Booking validation error:', validationError);
+      return res.status(400).json({ 
+        message: 'Invalid booking data',
+        errors: Object.values(validationError.errors).map(err => err.message)
+      });
+    }
 
     await newBooking.save();
     console.log('Booking created successfully:', newBooking._id);

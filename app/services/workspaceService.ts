@@ -26,6 +26,8 @@ export interface WorkspaceSearchParams {
   type?: string;
   keyword?: string;
   minRating?: number;
+  excludeId?: string;
+  limit?: number;
 }
 
 // Helper function to determine if a place is suitable for work
@@ -125,100 +127,36 @@ export const workspaceService = {
   // Enhanced search for workspaces
   searchWorkspaces: async (params: WorkspaceSearchParams): Promise<Workspace[]> => {
     try {
-      console.log("Searching for workspaces with enhanced params:", params);
-      let results: NearbySearchResult[] = [];
+      const { location, radius = 5000, type, keyword, minRating, excludeId, limit } = params;
       
-      if (!params.type || params.type === 'all') {
-        // Search for all workspace types in parallel with enhanced queries
-        const searchPromises = [
-          // Libraries - always high priority for studying
-          mapsService.searchNearbyPlaces(
-            params.location,
-            params.radius,
-            'library'
-          ).catch(err => {
-            console.error('Error fetching libraries:', err);
-            return [];
-          }),
-          
-          // Cafes with study-friendly keywords
-          mapsService.searchNearbyPlaces(
-            params.location,
-            params.radius,
-            'cafe',
-            'wifi study laptop'
-          ).catch(err => {
-            console.error('Error fetching cafes:', err);
-            return [];
-          }),
-          
-          // Coworking spaces and business centers
-          mapsService.searchNearbyPlaces(
-            params.location,
-            params.radius,
-            'establishment',
-            'coworking workspace business center'
-          ).catch(err => {
-            console.error('Error fetching coworking spaces:', err);
-            return [];
-          }),
-          
-          // Bookstores (often have study areas)
-          mapsService.searchNearbyPlaces(
-            params.location,
-            params.radius,
-            'book_store'
-          ).catch(err => {
-            console.error('Error fetching bookstores:', err);
-            return [];
-          })
-        ];
-        
-        const [libraryResults, cafeResults, coworkingResults, bookstoreResults] = await Promise.all(searchPromises);
-        results = [...libraryResults, ...cafeResults, ...coworkingResults, ...bookstoreResults];
-      } else {
-        // Search for specific workspace type
-        results = await mapsService.searchNearbyPlaces(
-          params.location,
-          params.radius,
-          params.type,
-          params.keyword
-        );
-      }
-      
-      // Remove duplicates by place_id
-      const uniqueResults = Array.from(
-        new Map(results.map(item => [item.place_id, item])).values()
+      // Search for workspaces
+      const results = await mapsService.searchNearbyPlaces(
+        location,
+        radius,
+        type || 'establishment',
+        keyword
       );
-      
-      console.log(`Found ${uniqueResults.length} unique potential workspaces`);
-      
-      // Filter results for work-friendly places
-      const workFriendlyResults = uniqueResults.filter(result => {
-        // Check if it's a good workspace
-        if (!isGoodForWork(result.types, result.rating)) {
+
+      // Apply filters
+      let filteredResults = results.filter((place: NearbySearchResult) => {
+        // Filter by minimum rating if specified
+        if (minRating && place.rating && place.rating < minRating) {
           return false;
         }
-
-        // Apply minimum rating filter if specified
-        if (params.minRating && result.rating && result.rating < params.minRating) {
+        // Filter out excluded workspace if specified
+        if (excludeId && place.place_id === excludeId) {
           return false;
         }
-
-        // Filter out places that are likely not suitable
-        const name = result.name.toLowerCase();
-        const excludeKeywords = ['hospital', 'clinic', 'pharmacy', 'gas station', 'parking', 'atm'];
-        if (excludeKeywords.some(keyword => name.includes(keyword))) {
-          return false;
-        }
-
         return true;
       });
 
-      console.log(`Filtered to ${workFriendlyResults.length} work-friendly spaces`);
-      
-      // Transform to workspace format with enhanced data
-      return workFriendlyResults.map(result => ({
+      // Limit results if specified
+      if (limit && limit > 0) {
+        filteredResults = filteredResults.slice(0, limit);
+      }
+
+      // Map to workspace format
+      return filteredResults.map((result: NearbySearchResult) => ({
         id: result.place_id,
         name: result.name,
         type: determineWorkspaceType(result.types),
@@ -229,14 +167,12 @@ export const workspaceService = {
         },
         amenities: determineAmenities(result.types),
         photos: result.photos?.map(photo => photo.photo_reference) || [],
-        price: determinePrice(result.types, result.price_level),
-        rating: result.rating,
-        userRatingsTotal: result.user_ratings_total,
-        businessStatus: result.business_status || 'OPERATIONAL'
+        rating: result.rating || 0,
+        types: result.types || []
       }));
     } catch (error) {
-      console.error('Error searching for workspaces:', error);
-      throw error;
+      console.error('Error searching workspaces:', error);
+      return [];
     }
   },
 
@@ -262,7 +198,28 @@ export const workspaceService = {
       return `${Math.round(distance)} m`;
     }
     return `${(distance / 1000).toFixed(1)} km`;
-  }
+  },
+
+  /**
+   * Get similar workspaces based on type and location
+   */
+  getSimilarWorkspaces: async (workspaceId: string, type: string, location: { lat: number; lng: number }) => {
+    try {
+      // Search for workspaces of the same type within 5km radius
+      const results = await workspaceService.searchWorkspaces({
+        location,
+        radius: 5000,
+        type,
+        excludeId: workspaceId,
+        limit: 4 // Limit to 4 similar places
+      });
+      
+      return results;
+    } catch (error) {
+      console.error('Error fetching similar workspaces:', error);
+      return [];
+    }
+  },
 };
 
 export default workspaceService;

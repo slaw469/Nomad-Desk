@@ -1,5 +1,5 @@
 // app/components/workspaces/$workspaceId/components/BookingCard.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import styles from '../../workspace.module.css';
 import { bookingService, type BookingRequest } from '../../../../services/bookingService';
@@ -79,6 +79,29 @@ export default function BookingCard({
     return options;
   };
 
+  // Helper function to get available people options based on room type
+  const getPeopleOptions = (selectedRoomType: string) => {
+    switch (selectedRoomType) {
+      case 'Group Study Room (2-4 people)':
+        return ['2 people', '3 people', '4 people'];
+      case 'Individual Desk':
+      case 'Computer Station':
+      case 'Reading Area':
+      case 'Private Study Room':
+        return ['1 person'];
+      default:
+        return ['1 person', '2 people', '3 people', '4 people', '5+ people'];
+    }
+  };
+
+  // Update number of people when room type changes
+  useEffect(() => {
+    const options = getPeopleOptions(roomType);
+    if (!options.includes(numPeople)) {
+      setNumPeople(options[0]);
+    }
+  }, [roomType]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -118,7 +141,8 @@ export default function BookingCard({
         endTime,
         roomType,
         numberOfPeople: parseNumPeople(numPeople),
-        specialRequests: requests.trim() || undefined
+        specialRequests: requests.trim() || undefined,
+        isGroupBooking: false // Explicitly set for individual bookings
       };
       
       // Create the booking
@@ -220,11 +244,9 @@ export default function BookingCard({
               onChange={(e) => setNumPeople(e.target.value)}
               disabled={isSubmitting}
             >
-              <option>1 person</option>
-              <option>2 people</option>
-              <option>3 people</option>
-              <option>4 people</option>
-              <option>5+ people</option>
+              {getPeopleOptions(roomType).map(option => (
+                <option key={option} value={option}>{option}</option>
+              ))}
             </select>
           </div>
         </div>

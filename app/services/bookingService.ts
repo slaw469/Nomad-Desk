@@ -77,7 +77,7 @@ export interface BookingRequest {
   workspaceId: string;
   workspaceName: string;
   workspaceAddress: string;
-  workspaceType?: string;
+  workspaceType: string;
   workspacePhoto?: string;
   date: string;
   startTime: string;
@@ -85,6 +85,7 @@ export interface BookingRequest {
   roomType: string;
   numberOfPeople: number;
   specialRequests?: string;
+  isGroupBooking: boolean;
 }
 
 export interface BookingStats {

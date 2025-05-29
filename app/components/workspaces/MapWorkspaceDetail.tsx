@@ -246,13 +246,11 @@ const MapWorkspaceDetail: React.FC = () => {
         
         if (workspaceData) {
           try {
-            const workspaceFormatted = {
-              ...workspaceData,
-              type: getWorkspaceType(workspaceData.types),
-              amenities: []
-            };
-            
-            const similar = await workspaceService.getSimilarWorkspaces(workspaceFormatted);
+            const similar = await workspaceService.getSimilarWorkspaces(
+              workspaceData.id,
+              getWorkspaceType(workspaceData.types),
+              workspaceData.coordinates
+            );
             setSimilarWorkspaces(similar);
           } catch (err) {
             console.error("Error fetching similar workspaces:", err);
