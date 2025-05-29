@@ -6,14 +6,13 @@
   "scripts": {
     "dev": "node start-dev.js",
     "dev:original": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b --force && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@tanstack/react-router": "^1.114.34",
     "lucide-react": "^0.511.0",
-    "my-tanstack-app": "link:",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
