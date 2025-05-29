@@ -17,6 +17,7 @@ export interface Workspace {
   openingHours?: string[];
   priceLevel?: number;
   businessStatus?: string;
+  types: string[]; // Add types field
 }
 
 // Interface for workspace search parameters
@@ -76,50 +77,35 @@ const determineWorkspaceType = (types: string[]): string => {
   return 'Co-working Space';
 };
 
-// Helper function to determine amenities
-const determineAmenities = (types: string[], details?: PlaceDetailsResult): string[] => {
-  const amenities: string[] = [];
-
-  // Basic amenities based on type
-  if (types.includes('library')) {
-    amenities.push('Quiet Zone', 'Free Wi-Fi');
+// Helper function to determine workspace price
+const getWorkspacePrice = (types: string[]): string => {
+  if (types.includes('library') || types.includes('university')) {
+    return 'Free';
   }
-  if (types.includes('cafe') || types.includes('restaurant')) {
-    amenities.push('Food & Drinks', 'Wi-Fi Available');
+  if (types.includes('cafe') || types.includes('restaurant') || types.includes('book_store')) {
+    return 'Purchase Recommended';
   }
-  if (types.includes('book_store')) {
-    amenities.push('Reading Area', 'Wi-Fi Available');
+  if (types.includes('establishment')) {
+    return 'Contact for Pricing';
   }
-  if (types.includes('university')) {
-    amenities.push('Study Rooms', 'Wi-Fi Available');
-  }
-
-  // Additional amenities from place details
-  if (details) {
-    if (details.wheelchair_accessible_entrance) {
-      amenities.push('Wheelchair Accessible');
-    }
-    if (details.has_wifi) {
-      amenities.push('Wi-Fi');
-    }
-  }
-
-  return Array.from(new Set(amenities)); // Remove duplicates
+  return 'Free';
 };
 
-// Helper function to determine price level
-const determinePrice = (types: string[], priceLevel?: number): string => {
-  if (types.includes('library')) return 'Free';
-  if (types.includes('university')) return 'Contact for Pricing';
+// Helper function to determine amenities based on types
+const determineAmenities = (types: string[]): string[] => {
+  const amenities = ['Wi-Fi'];
   
-  switch(priceLevel) {
-    case 0: return 'Free';
-    case 1: return 'Budget-Friendly';
-    case 2: return 'Moderate';
-    case 3: return 'Premium';
-    case 4: return 'Luxury';
-    default: return 'Purchase Recommended';
+  if (types.includes('library')) {
+    amenities.push('Study Rooms', 'Quiet Zone');
   }
+  if (types.includes('cafe') || types.includes('restaurant')) {
+    amenities.push('Coffee', 'Food');
+  }
+  if (types.includes('book_store')) {
+    amenities.push('Reading Area');
+  }
+  
+  return amenities;
 };
 
 // Enhanced workspace service
@@ -220,6 +206,12 @@ export const workspaceService = {
       return [];
     }
   },
+
+  // Export helper functions
+  determineWorkspaceType,
+  getWorkspacePrice,
+  determineAmenities,
+  isGoodForWork
 };
 
 export default workspaceService;

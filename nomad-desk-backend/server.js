@@ -220,39 +220,55 @@ require('./config/passport')();
 // Connect to database
 require('./config/db');
 
+// Import routes
+const authRoutes = require('./routes/authRoutes');
+const googleAuthRoutes = require('./routes/googleAuthRoutes');
+const profileRoutes = require('./routes/profileRoutes');
+const networkRoutes = require('./routes/networkRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
+const favoritesRoutes = require('./routes/favoritesRoutes');
+const mapsRoutes = require('./routes/mapsRoutes');
+const placeholderRoutes = require('./routes/placeholderRoutes');
+const publicMapsRoutes = require('./routes/publicMapsRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
+
 // Routes registration - FIXED: Better error handling for route loading
 console.log('Registering routes...');
 
 try {
-  app.use('/api/auth', require('./routes/authRoutes'));
+  app.use('/api/auth', authRoutes);
   console.log('✅ Auth routes registered');
 
-  app.use('/api/auth', require('./routes/googleAuthRoutes'));
+  app.use('/api/auth', googleAuthRoutes);
   console.log('✅ Google auth routes registered');
 
-  app.use('/api/profile', require('./routes/profileRoutes'));
+  app.use('/api/profile', profileRoutes);
   console.log('✅ Profile routes registered');
 
-  app.use('/api/network', require('./routes/networkRoutes'));
+  app.use('/api/network', networkRoutes);
   console.log('✅ Network routes registered');
 
-  app.use('/api/bookings', require('./routes/bookingRoutes'));
+  app.use('/api/bookings', bookingRoutes);
   console.log('✅ Booking routes registered');
 
-  app.use('/api/favorites', require('./routes/favoritesRoutes'));
+  app.use('/api/favorites', favoritesRoutes);
   console.log('✅ Favorites routes registered');
 
-  app.use('/api/maps', require('./routes/mapsRoutes'));
+  app.use('/api/maps', mapsRoutes);
   console.log('✅ Maps routes registered');
 
-  app.use('/api/placeholder', require('./routes/placeHolderRoutes'));
+  app.use('/api/placeholder', placeholderRoutes);
   console.log('✅ Placeholder routes registered');
 
-  app.use('/api/public-maps', require('./routes/publicMapsRoutes'));
+  app.use('/api/public-maps', publicMapsRoutes);
   console.log('✅ Public maps routes registered');
 
-  app.use('/api/notifications', require('./routes/notificationRoutes'));
+  app.use('/api/notifications', notificationRoutes);
   console.log('✅ Notifications routes registered');
+
+  app.use('/api/reviews', reviewRoutes);
+  console.log('✅ Review routes registered');
 } catch (error) {
   console.error('❌ Error loading routes:', error.message);
   process.exit(1);

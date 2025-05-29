@@ -1,12 +1,15 @@
 // app/components/workspaces/$workspaceId/WSindex.tsx
 import React from 'react';
-import { useParams } from '@tanstack/react-router';
+import { useParams, Link } from '@tanstack/react-router';
 import styles from '../workspace.module.css';
 import WorkspaceHeader from './components/WorkspaceHeader';
 import WorkspaceGallery from './components/WorkspaceGallery';
 import WorkspaceDetails from './components/WorkspaceDetails';
 import BookingCard from './components/BookingCard';
 import SimilarWorkspaces from './components/SimilarWorkspaces';
+import Loading from '../../Common/Loading';
+import workspaceService from '../../../services/workspaceService';
+import mapsService from '../../../services/mapsService';
 
 // This would be defined in your API or data fetching layer
 interface WorkspaceData {
@@ -65,133 +68,103 @@ export default function WorkspaceDetail() {
   const { workspaceId } = useParams({ strict: false });
   const [workspace, setWorkspace] = React.useState<WorkspaceData | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
   
   React.useEffect(() => {
     const fetchWorkspaceData = async () => {
+      if (!workspaceId) {
+        setError('No workspace ID provided');
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       try {
-        // In a real app, this would be an API call
-        // For now, we'll just use mock data
-        const mockWorkspace: WorkspaceData = {
-          id: workspaceId || '1',
-          title: "Central Library Workspace",
-          type: "Library",
-          location: "Downtown",
-          rating: 4.98,
-          reviewCount: 124,
-          distance: "2.1 miles away",
-          hours: "8:00 AM - 9:00 PM",
-          description: "Nestled in the heart of downtown, the Central Library Workspace offers a peaceful environment perfect for focused work and study. Enjoy natural light from the floor-to-ceiling windows, comfortable seating, and a quiet atmosphere that promotes productivity.",
+        // Get the workspace details from the API
+        const placeDetails = await mapsService.getPlaceDetails(
+          workspaceId,
+          'name,formatted_address,geometry,photos,rating,types,website,formatted_phone_number,opening_hours,reviews'
+        );
+
+        // Get similar workspaces
+        const similarWorkspaces = await workspaceService.getSimilarWorkspaces(
+          workspaceId,
+          workspaceService.determineWorkspaceType(placeDetails.types),
+          {
+            lat: placeDetails.geometry.location.lat,
+            lng: placeDetails.geometry.location.lng
+          }
+        );
+
+        // Transform the data into our workspace format
+        const workspaceData: WorkspaceData = {
+          id: workspaceId,
+          title: placeDetails.name,
+          type: workspaceService.determineWorkspaceType(placeDetails.types),
+          location: placeDetails.formatted_address.split(',')[1].trim(),
+          rating: placeDetails.rating || 0,
+          reviewCount: placeDetails.user_ratings_total || 0,
+          distance: '', // Will be calculated based on user location if needed
+          hours: placeDetails.opening_hours?.weekday_text?.[0] || 'Hours not available',
+          description: `${placeDetails.name} is a ${workspaceService.determineWorkspaceType(placeDetails.types).toLowerCase()} located in ${placeDetails.formatted_address.split(',')[1].trim()}. This workspace offers a comfortable environment for work and study.`,
           amenities: [
             { name: "Free Wi-Fi", icon: "wifi" },
             { name: "Power Outlets", icon: "power" },
-            { name: "Climate Control", icon: "climate" },
-            { name: "Study Rooms", icon: "study" },
-            { name: "Printing Services", icon: "printing" },
-            { name: "Quiet Zone", icon: "quiet" },
-            { name: "Meeting Facilities", icon: "meeting" },
-            { name: "On-site Café", icon: "cafe" }
+            ...(placeDetails.types.includes('library') ? [
+              { name: "Study Rooms", icon: "study" },
+              { name: "Quiet Zone", icon: "quiet" },
+            ] : []),
+            ...(placeDetails.types.includes('cafe') ? [
+              { name: "Coffee", icon: "cafe" },
+              { name: "Food Available", icon: "food" },
+            ] : [])
           ],
           houseRules: [
-            { text: "Please keep noise to a minimum in designated quiet zones." },
-            { text: "Food is only permitted in designated eating areas." },
-            { text: "Group study rooms must be booked in advance." },
-            { text: "Please be respectful of library materials and equipment." }
+            { text: "Please be respectful of other users" },
+            { text: "Keep noise to a minimum" },
+            { text: "Clean up after yourself" }
           ],
-          photos: [
-            { url: "/api/placeholder/800/600", alt: "Central Library Main Hall" },
-            { url: "/api/placeholder/400/300", alt: "Central Library Study Area" },
-            { url: "/api/placeholder/400/300", alt: "Central Library Reading Zone" },
-            { url: "/api/placeholder/300/225", alt: "Group Study Room" },
-            { url: "/api/placeholder/300/225", alt: "Reading Nook" },
-            { url: "/api/placeholder/300/225", alt: "Computer Station" },
-            { url: "/api/placeholder/300/225", alt: "Library Café" }
-          ],
-          reviews: [
-            {
-              id: "1",
-              reviewer: {
-                name: "James Donovan",
-                avatar: "JD"
-              },
-              date: "March 15, 2025",
-              rating: 5.0,
-              text: "This is my favorite study spot in the city! The natural light from the floor-to-ceiling windows creates such a pleasant environment. The Wi-Fi is lightning fast and there are outlets everywhere. I've been coming here 3 times a week to work on my dissertation and it's perfect."
+          photos: placeDetails.photos ? placeDetails.photos.map((photo, index) => ({
+            url: mapsService.getPhotoUrl(photo.photo_reference, 800),
+            alt: `${placeDetails.name} - Photo ${index + 1}`
+          })) : [],
+          reviews: placeDetails.reviews ? placeDetails.reviews.map(review => ({
+            id: review.time.toString(),
+            reviewer: {
+              name: review.author_name,
+              avatar: review.author_name.split(' ').map(n => n[0]).join('').toUpperCase()
             },
-            {
-              id: "2",
-              reviewer: {
-                name: "Sarah Lin",
-                avatar: "SL"
-              },
-              date: "March 10, 2025",
-              rating: 5.0,
-              text: "The Central Library is a fantastic place to get work done. I booked a group study room for my team project and it was equipped with everything we needed - whiteboard, large table, and great connectivity. Will definitely use this space again for future team meetings.",
-              photos: [
-                { url: "/api/placeholder/80/80", alt: "Group study room" },
-                { url: "/api/placeholder/80/80", alt: "Whiteboard" }
-              ]
-            },
-            {
-              id: "3",
-              reviewer: {
-                name: "Michael Kim",
-                avatar: "MK"
-              },
-              date: "March 5, 2025",
-              rating: 4.0,
-              text: "Great workspace overall. I love the quiet environment and the comfortable chairs. The only issue I had was that the café was closed during my visit, so I had to step out for coffee. Otherwise, it's a perfect study spot with excellent amenities."
-            }
-          ],
-          coordinates: { lat: 40.7128, lng: -74.0060 },
-          address: "123 Main Street, Downtown\nNew York, NY 10001",
-          similar: [
-            {
-              id: "2",
-              title: "University Library",
-              type: "Library",
-              distance: "3.5 miles away",
-              amenities: ["Free Wi-Fi", "Group Rooms"],
-              price: "Free",
-              rating: 4.9,
-              photo: "/api/placeholder/400/250"
-            },
-            {
-              id: "3",
-              title: "Downtown Café",
-              type: "Café",
-              distance: "0.8 miles away",
-              amenities: ["Great Coffee", "Wi-Fi"],
-              price: "$5/hr min",
-              rating: 4.7,
-              photo: "/api/placeholder/400/250"
-            },
-            {
-              id: "4",
-              title: "Innovation Hub",
-              type: "Co-working",
-              distance: "1.2 miles away",
-              amenities: ["Meeting Rooms", "High-Speed Wi-Fi"],
-              price: "$15/hr",
-              rating: 4.9,
-              photo: "/api/placeholder/400/250"
-            },
-            {
-              id: "5",
-              title: "Community Center",
-              type: "Community",
-              distance: "2.5 miles away",
-              amenities: ["Free Wi-Fi", "Quiet"],
-              price: "Free",
-              rating: 4.6,
-              photo: "/api/placeholder/400/250"
-            }
-          ]
+            date: new Date(review.time * 1000).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }),
+            rating: review.rating,
+            text: review.text
+          })) : [],
+          coordinates: {
+            lat: placeDetails.geometry.location.lat,
+            lng: placeDetails.geometry.location.lng
+          },
+          address: placeDetails.formatted_address,
+          similar: similarWorkspaces.map(similar => ({
+            id: similar.id,
+            title: similar.name,
+            type: similar.type,
+            distance: similar.distance || '2.1 miles away',
+            amenities: similar.amenities || ['Wi-Fi'],
+            price: workspaceService.getWorkspacePrice(similar.types),
+            rating: similar.rating || 4.5,
+            photo: similar.photos && similar.photos.length > 0 
+              ? mapsService.getPhotoUrl(similar.photos[0])
+              : '/api/placeholder/400/250'
+          }))
         };
         
-        setWorkspace(mockWorkspace);
+        setWorkspace(workspaceData);
       } catch (error) {
         console.error('Error fetching workspace data:', error);
+        setError(error instanceof Error ? error.message : 'Failed to load workspace details');
       } finally {
         setLoading(false);
       }
@@ -201,11 +174,19 @@ export default function WorkspaceDetail() {
   }, [workspaceId]);
   
   if (loading) {
-    return <div className={styles.loadingIndicator}>Loading workspace...</div>;
+    return <Loading message="Loading workspace details..." />;
   }
-  
-  if (!workspace) {
-    return <div>Workspace not found</div>;
+
+  if (error || !workspace) {
+    return (
+      <div className={styles.errorContainer}>
+        <h2>Error Loading Workspace</h2>
+        <p>{error || 'Workspace not found'}</p>
+        <Link to="/search" className={styles.backButton}>
+          Back to Search
+        </Link>
+      </div>
+    );
   }
   
   return (
@@ -240,8 +221,8 @@ export default function WorkspaceDetail() {
           workspaceAddress={workspace.address}
           workspaceType={workspace.type}
           workspacePhoto={workspace.photos[0]?.url}
-          price="Free" 
-          priceDescription="Public Library" 
+          price={workspace.type === 'Library' ? 'Free' : workspace.type === 'Café' ? 'Purchase Recommended' : 'Contact for Pricing'} 
+          priceDescription={workspace.type === 'Library' ? 'Public Library' : 'per hour'} 
           rating={workspace.rating} 
           reviewCount={workspace.reviewCount} 
         />

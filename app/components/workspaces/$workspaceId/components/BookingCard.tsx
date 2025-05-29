@@ -1,6 +1,6 @@
 // app/components/workspaces/$workspaceId/components/BookingCard.tsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import styles from '../../workspace.module.css';
 import { bookingService, type BookingRequest } from '../../../../services/bookingService';
 import Loading from '../../../Common/Loading';
@@ -18,6 +18,15 @@ interface BookingCardProps {
   onContactHost?: () => void; // NEW: Optional callback for contact host
 }
 
+interface SearchParams {
+  date?: string;
+  numberOfPeople?: string;
+  startTime?: string;
+  endTime?: string;
+  roomType?: string;
+  specialRequests?: string;
+}
+
 export default function BookingCard({
   workspaceId,
   workspaceName,
@@ -31,12 +40,18 @@ export default function BookingCard({
   onContactHost // NEW: Destructure the callback
 }: BookingCardProps) {
   const navigate = useNavigate();
-  const [date, setDate] = useState('');
-  const [numPeople, setNumPeople] = useState('1 person');
-  const [startTime, setStartTime] = useState('08:00');
-  const [endTime, setEndTime] = useState('09:00');
-  const [roomType, setRoomType] = useState('Individual Desk');
-  const [requests, setRequests] = useState('');
+  const searchParams = new URLSearchParams(window.location.search);
+  
+  // Initialize state with URL search params if available
+  const [date, setDate] = useState(searchParams.get('date') || '');
+  const [numPeople, setNumPeople] = useState(() => {
+    const people = searchParams.get('numberOfPeople');
+    return people ? `${people} ${parseInt(people) === 1 ? 'person' : 'people'}` : '1 person';
+  });
+  const [startTime, setStartTime] = useState(searchParams.get('startTime') || '08:00');
+  const [endTime, setEndTime] = useState(searchParams.get('endTime') || '09:00');
+  const [roomType, setRoomType] = useState(searchParams.get('roomType') || 'Individual Desk');
+  const [requests, setRequests] = useState(searchParams.get('specialRequests') || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);

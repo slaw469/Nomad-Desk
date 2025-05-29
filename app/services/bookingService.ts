@@ -105,6 +105,22 @@ export interface AvailabilityResponse {
   }>;
 }
 
+export interface ReviewRequest {
+  rating: number;
+  review: string;
+}
+
+export interface Review {
+  id: string;
+  bookingId: string;
+  workspaceId: string;
+  userId: string;
+  rating: number;
+  review: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Generic fetch function for API calls
 const fetchApi = async <T>(
   endpoint: string, 
@@ -265,6 +281,34 @@ export const bookingService = {
       console.error('Modify booking error:', error);
       throw error;
     }
+  },
+
+  // Submit a review for a booking
+  submitReview: async (bookingId: string, { rating, review }: { rating: number, review: string }): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/reviews/booking/${bookingId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-auth-token': localStorage.getItem('token') || ''
+      },
+      body: JSON.stringify({ rating, review })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to submit review');
+    }
+  },
+
+  // Get reviews for a workspace
+  getWorkspaceReviews: async (workspaceId: string): Promise<Review[]> => {
+    return fetchApi<Review[]>(`/workspaces/${workspaceId}/reviews`);
+  },
+
+  // Book again using an existing booking as template
+  bookAgain: async (bookingId: string): Promise<Booking> => {
+    // Just get the booking details - don't try to create a new booking
+    return fetchApi<Booking>(`/bookings/${bookingId}`);
   }
 };
 
