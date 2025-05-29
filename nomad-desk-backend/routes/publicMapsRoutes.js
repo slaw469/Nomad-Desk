@@ -143,4 +143,86 @@ router.get('/api-key', (req, res) => {
   }
 });
 
+/**
+ * @route   GET api/public-maps/geocode
+ * @desc    Reverse geocode coordinates to address (public version)
+ * @access  Public
+ */
+router.get('/geocode', async (req, res) => {
+  try {
+    const { latlng } = req.query;
+    
+    if (!latlng) {
+      return res.status(400).json({ message: 'Latitude and longitude are required' });
+    }
+    
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${encodeURIComponent(latlng)}&key=${GOOGLE_MAPS_API_KEY}`;
+    
+    console.log(`🔍 Proxying Google Geocoding API request for: ${latlng}`);
+    
+    const response = await axios.get(url);
+    
+    // Check if the request was successful
+    if (response.data.status !== 'OK' && response.data.status !== 'ZERO_RESULTS') {
+      console.error('❌ Google Geocoding API error:', response.data.status, response.data.error_message);
+      return res.status(400).json({ 
+        message: 'Geocoding failed', 
+        status: response.data.status,
+        error: response.data.error_message 
+      });
+    }
+    
+    console.log(`✅ Geocoding successful: Found ${response.data.results?.length || 0} results`);
+    
+    // Return the geocoding results
+    res.json(response.data);
+  } catch (error) {
+    console.error('❌ Geocoding error:', error.message);
+    res.status(500).json({ message: 'Server error during geocoding' });
+  }
+});
+
+/**
+ * @route   GET api/public-maps/places/details
+ * @desc    Get details for a specific place (public version)
+ * @access  Public
+ */
+router.get('/places/details', async (req, res) => {
+  try {
+    const { place_id, fields } = req.query;
+    
+    if (!place_id) {
+      return res.status(400).json({ message: 'Place ID is required' });
+    }
+    
+    let url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(place_id)}&key=${GOOGLE_MAPS_API_KEY}`;
+    
+    if (fields) {
+      url += `&fields=${encodeURIComponent(fields)}`;
+    }
+    
+    console.log(`🔍 Proxying Google Places Details API request for: ${place_id}`);
+    
+    const response = await axios.get(url);
+    
+    // Check if the request was successful
+    if (response.data.status !== 'OK') {
+      console.error('❌ Google Places Details API error:', response.data.status, response.data.error_message);
+      return res.status(400).json({ 
+        message: 'Place details failed', 
+        status: response.data.status,
+        error: response.data.error_message 
+      });
+    }
+    
+    console.log(`✅ Place details retrieved successfully`);
+    
+    // Return the place details
+    res.json(response.data);
+  } catch (error) {
+    console.error('❌ Place details error:', error.message);
+    res.status(500).json({ message: 'Server error during place details' });
+  }
+});
+
 module.exports = router;

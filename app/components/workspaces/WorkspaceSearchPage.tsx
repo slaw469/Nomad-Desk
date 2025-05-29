@@ -4,7 +4,7 @@ import { Link } from '@tanstack/react-router';
 import styles from './workspace.module.css';
 import WorkspaceSearch from './WorkspaceSearch';
 import GoogleMap from '../Common/GoogleMap';
-import { Location } from '../../services/mapsService';
+import mapsService, { Location } from '../../services/mapsService';
 import workspaceService, { Workspace } from '../../services/workspaceService';
 import Loading from '../Common/Loading';
 
@@ -16,9 +16,23 @@ const WorkspaceSearchPage: React.FC = () => {
   const [loadingPopular, setLoadingPopular] = useState<boolean>(false);
   const [userLocation, setUserLocation] = useState<Location | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('all');
+  const [apiKey, setApiKey] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
   
-  // Google Maps API key from environment variables
-  const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
+  // Fetch API key on component mount
+  useEffect(() => {
+    const fetchApiKey = async () => {
+      try {
+        const key = await mapsService.getApiKey();
+        setApiKey(key);
+      } catch (err) {
+        console.error('Failed to get API key:', err);
+        setError('Failed to load Maps API key');
+      }
+    };
+
+    fetchApiKey();
+  }, []);
 
   // Get user's current location on component mount
   useEffect(() => {
@@ -124,7 +138,7 @@ const WorkspaceSearchPage: React.FC = () => {
 
   // Get photo URL
   const getPhotoUrl = (photoReference: string) => {
-    return `http://localhost:5003/api/public-maps/photo?reference=${encodeURIComponent(photoReference)}&maxwidth=400`;
+    return mapsService.getPhotoUrl(photoReference);
   };
 
   return (
@@ -180,7 +194,7 @@ const WorkspaceSearchPage: React.FC = () => {
             {mapVisible && (
               <div className={styles.mapContainer}>
                 <GoogleMap
-                  apiKey={googleMapsApiKey}
+                  apiKey={apiKey}
                   center={selectedLocation}
                   zoom={14}
                   markerTitle="Selected Location"
@@ -271,11 +285,11 @@ const WorkspaceSearchPage: React.FC = () => {
                     <img 
                       src={workspace.photos && workspace.photos.length > 0 
                         ? getPhotoUrl(workspace.photos[0])
-                        : `http://localhost:5003/api/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`} 
+                        : `/api/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`} 
                       alt={workspace.name}
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        target.src = `http://localhost:5003/api/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`;
+                        target.src = `/api/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`;
                       }}
                     />
                   </Link>

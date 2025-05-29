@@ -3,6 +3,12 @@
 // Base API URL - adjust this for development/production environments
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5003/api';
 
+// Interface for location
+export interface Location {
+  lat: number;
+  lng: number;
+}
+
 // Interface for geocoding response
 export interface GeocodingResult {
   formatted_address: string;
@@ -29,7 +35,7 @@ export interface PlaceAutocompleteResult {
   }>;
 }
 
-// Enhanced interface for place details response
+// Interface for place details response
 export interface PlaceDetailsResult {
   formatted_address: string;
   geometry: {
@@ -47,17 +53,13 @@ export interface PlaceDetailsResult {
     html_attributions: string[];
   }>;
   rating?: number;
-  user_ratings_total?: number; // NEW: Number of reviews
+  user_ratings_total?: number;
   types: string[];
   website?: string;
   formatted_phone_number?: string;
   opening_hours?: {
     weekday_text: string[];
     open_now?: boolean;
-    periods?: Array<{
-      open: { day: number; time: string };
-      close?: { day: number; time: string };
-    }>;
   };
   reviews?: Array<{
     author_name: string;
@@ -68,12 +70,12 @@ export interface PlaceDetailsResult {
   }>;
   wheelchair_accessible_entrance?: boolean;
   has_wifi?: boolean;
-  price_level?: number; // NEW: 0-4 scale (0 = Free, 4 = Very Expensive)
-  business_status?: string; // NEW: OPERATIONAL, CLOSED_TEMPORARILY, etc.
+  price_level?: number;
+  business_status?: string;
   vicinity: string;
 }
 
-// Enhanced interface for nearby search response
+// Interface for nearby search response
 export interface NearbySearchResult {
   geometry: {
     location: {
@@ -85,9 +87,9 @@ export interface NearbySearchResult {
   place_id: string;
   vicinity: string;
   rating?: number;
-  user_ratings_total?: number; // NEW: Number of reviews
-  price_level?: number; // NEW: Price level
-  business_status?: string; // NEW: Business status
+  user_ratings_total?: number;
+  price_level?: number;
+  business_status?: string;
   types: string[];
   photos?: Array<{
     photo_reference: string;
@@ -98,7 +100,7 @@ export interface NearbySearchResult {
   opening_hours?: {
     open_now?: boolean;
   };
-  permanently_closed?: boolean; // NEW: If place is permanently closed
+  permanently_closed?: boolean;
 }
 
 // Interface for directions response
@@ -130,12 +132,6 @@ export interface DirectionsResult {
   }>;
 }
 
-// Interface for Location for easier use
-export interface Location {
-  lat: number;
-  lng: number;
-}
-
 // Flag to determine whether to use public endpoints (for development)
 const usePublicEndpoints = import.meta.env.VITE_USE_PUBLIC_ENDPOINTS === 'true';
 
@@ -157,22 +153,11 @@ const handleApiError = (error: any): never => {
 const fetchApi = async <T>(
   endpoint: string, 
   method: string = 'GET', 
-  data?: any, 
-  token?: string
+  data?: any
 ): Promise<T> => {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   };
-
-  if (token) {
-    headers['x-auth-token'] = token;
-  } else {
-    // Try to get token from localStorage
-    const storedToken = localStorage.getItem('token');
-    if (storedToken && !usePublicEndpoints) {
-      headers['x-auth-token'] = storedToken;
-    }
-  }
 
   const config: RequestInit = {
     method,
@@ -181,27 +166,22 @@ const fetchApi = async <T>(
   };
 
   try {
-    console.log(`Fetching ${method} ${API_BASE_URL}${endpoint}`);
+    console.log(`🔍 Fetching ${method} ${API_BASE_URL}${endpoint}`);
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
     
-    // Try to parse response as JSON
-    let responseData;
-    try {
-      responseData = await response.json();
-    } catch (e) {
-      // If response is not JSON, use an empty object
-      responseData = {};
-    }
-    
     if (!response.ok) {
-      const errorMessage = responseData.message || `Error: ${response.status} ${response.statusText}`;
-      console.error('API error:', errorMessage);
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage = errorData.message || `Error: ${response.status} ${response.statusText}`;
+      console.error('❌ API error:', errorMessage);
       throw new Error(errorMessage);
     }
 
-    return responseData as T;
+    const responseData = await response.json();
+    console.log(`✅ API call successful:`, endpoint);
+    return responseData;
   } catch (error) {
-    return handleApiError(error);
+    console.error('❌ API call failed:', error);
+    throw error;
   }
 };
 
@@ -210,7 +190,7 @@ export const mapsService = {
   // Get Google Maps API key
   getApiKey: async (): Promise<string> => {
     try {
-      const response = await fetchApi<{ apiKey: string }>(getApiRoute('/api-key'));
+      const response = await fetchApi<{ apiKey: string }>('/public-maps/api-key');
       return response.apiKey;
     } catch (error) {
       console.error('Failed to get API key:', error);
@@ -260,7 +240,7 @@ export const mapsService = {
     fields?: string
   ): Promise<PlaceDetailsResult> => {
     try {
-      let url = getApiRoute(`/places/details?place_id=${encodeURIComponent(placeId)}`);
+      let url = `/public-maps/places/details?place_id=${encodeURIComponent(placeId)}`;
       
       if (fields) {
         url += `&fields=${encodeURIComponent(fields)}`;
@@ -286,7 +266,7 @@ export const mapsService = {
         ? location 
         : `${location.lat},${location.lng}`;
       
-      let url = getApiRoute(`/places/nearby?location=${encodeURIComponent(locationStr)}&radius=${radius}`);
+      let url = `/public-maps/places/nearby?location=${encodeURIComponent(locationStr)}&radius=${radius}`;
       
       if (type) {
         url += `&type=${encodeURIComponent(type)}`;
@@ -399,17 +379,13 @@ export const mapsService = {
       return `${API_BASE_URL}/placeholder/400/300?text=No+Image`;
     }
     
-    // Make sure to handle different API_BASE_URL formats
-    const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-    
-    // Use public-maps endpoint for better compatibility
     let url = `/public-maps/photo?reference=${encodeURIComponent(photoReference)}&maxwidth=${maxWidth}`;
     
     if (maxHeight) {
       url += `&maxheight=${maxHeight}`;
     }
     
-    return `${baseUrl}${url}`;
+    return `${API_BASE_URL}${url}`;
   },
   
   // Test if API is available
