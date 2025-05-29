@@ -119,35 +119,44 @@ const fetchApi = async <T>(
   const token = localStorage.getItem('token');
   if (token) {
     headers['x-auth-token'] = token;
+  } else {
+    console.warn('No auth token found in localStorage');
   }
 
-  const config: RequestInit = {
-    method,
-    headers,
-    body: data ? JSON.stringify(data) : undefined,
-  };
+  // Ensure endpoint starts with /
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = `${API_BASE_URL}${normalizedEndpoint}`;
 
   try {
-    console.log(`Fetching ${method} ${API_BASE_URL}${endpoint}`);
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    console.log(`Fetching ${method} ${url}`, { headers, method, body: data });
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: 'include'
+    });
     
-    // Try to parse response as JSON
-    const responseData = await response.json();
-    
-    if (!response.ok) {
-      const errorMessage = responseData.message || `Error: ${response.status} ${response.statusText}`;
-      console.error('API error:', errorMessage);
-      throw new Error(errorMessage);
-    }
+    // Handle non-JSON responses
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const responseData = await response.json();
+      
+      if (!response.ok) {
+        const errorMessage = responseData.message || `Error: ${response.status} ${response.statusText}`;
+        console.error('API error:', errorMessage);
+        throw new Error(errorMessage);
+      }
 
-    return responseData as T;
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error('API fetch error:', error.message);
-      throw error;
+      return responseData as T;
+    } else {
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+      return {} as T;
     }
-    console.error('Unexpected API error:', error);
-    throw new Error('An unexpected error occurred');
+  } catch (error) {
+    console.error('API fetch error:', error);
+    throw error;
   }
 };
 
@@ -240,6 +249,22 @@ export const bookingService = {
     const now = new Date();
     const bookingDate = new Date(booking.date);
     return bookingDate >= now && booking.status !== 'cancelled' && booking.status !== 'completed';
+  },
+
+  // Modify an existing booking
+  modifyBooking: async (bookingId: string, updates: Partial<BookingRequest>): Promise<Booking> => {
+    try {
+      const response = await fetchApi<Booking>(`/bookings/${bookingId}`, 'PUT', updates);
+      
+      if (!response) {
+        throw new Error('Failed to modify booking. Please try again.');
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Modify booking error:', error);
+      throw error;
+    }
   }
 };
 

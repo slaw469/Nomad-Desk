@@ -7,6 +7,7 @@ import Loading from '../Common/Loading';
 import { bookingService, type Booking } from '../../services/bookingService';
 import networkService, { type Connection } from '../../services/networkService';
 import favoritesService, { type Favorite } from '../../services/favoritesService'; // NEW: Import favorites service
+import ModifyBookingModal from '../Bookings/ModifyBookingModal';
 
 // Import icons (keeping your existing icon components)
 const NetworkIcon = () => (
@@ -93,6 +94,8 @@ const Dashboard: React.FC = () => {
     favoriteSpaces: 0,
     pendingRequests: 0
   });
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
 
   // Get user initials for avatar
   const getUserInitials = () => {
@@ -205,9 +208,20 @@ const Dashboard: React.FC = () => {
   };
 
   // Handle booking modification
-  const handleModifyBooking = async (bookingId: string) => {
-    // TODO: Implement booking modification
-    console.log('Modify booking:', bookingId);
+  const handleModifyBooking = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setIsModifyModalOpen(true);
+  };
+
+  const handleBookingModified = (updatedBooking: Booking) => {
+    // Update the bookings list with the modified booking
+    setUpcomingBookings(prevBookings => 
+      prevBookings.map(booking => 
+        booking.id === updatedBooking.id ? updatedBooking : booking
+      )
+    );
+    setIsModifyModalOpen(false);
+    setSelectedBooking(null);
   };
 
   // Handle booking cancellation
@@ -304,7 +318,7 @@ const Dashboard: React.FC = () => {
                   <>
                     <button 
                       className={`${styles.actionButton} ${styles.primaryButton}`}
-                      onClick={() => handleModifyBooking(booking.id)}
+                      onClick={() => handleModifyBooking(booking)}
                     >
                       Modify
                     </button>
@@ -603,6 +617,18 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {selectedBooking && (
+        <ModifyBookingModal
+          booking={selectedBooking}
+          isOpen={isModifyModalOpen}
+          onClose={() => {
+            setIsModifyModalOpen(false);
+            setSelectedBooking(null);
+          }}
+          onModified={handleBookingModified}
+        />
+      )}
     </div>
   );
 };
