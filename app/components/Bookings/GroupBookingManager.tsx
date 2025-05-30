@@ -12,6 +12,7 @@ import {
 import Loading from '../Common/Loading';
 import BackButton from '../Common/BackButton';
 import styles from './GroupBookingManager.module.css';
+import Modal from '../Common/Modal';
 
 const GroupBookingManager: React.FC = () => {
   const { id } = useParams({ strict: false });
@@ -183,6 +184,53 @@ const GroupBookingManager: React.FC = () => {
     <div className={styles.managerContainer}>
       <BackButton />
       
+      <Modal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        title="Invite People"
+      >
+        <div className={styles.inviteForm}>
+          <div className={styles.formGroup}>
+            <label htmlFor="modal-inviteEmail">Email Address</label>
+            <input
+              type="email"
+              id="modal-inviteEmail"
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+              placeholder="Enter email address"
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="modal-inviteMessage">Personal Message (Optional)</label>
+            <textarea
+              id="modal-inviteMessage"
+              value={inviteMessage}
+              onChange={(e) => setInviteMessage(e.target.value)}
+              placeholder="Add a personal message to your invitation"
+              rows={3}
+            />
+          </div>
+          <div className={styles.modalActions}>
+            <button
+              onClick={() => setShowInviteModal(false)}
+              className={styles.cancelButton}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={async () => {
+                await handleSendInvite();
+                setShowInviteModal(false);
+              }}
+              disabled={inviteLoading || !inviteEmail.trim()}
+              className={styles.sendInviteButton}
+            >
+              {inviteLoading ? 'Sending...' : 'Send Invitation'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
       <div className={styles.header}>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>{booking.groupName}</h1>
