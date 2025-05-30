@@ -378,4 +378,109 @@ const GroupBookingManager: React.FC = () => {
                           Invited {new Date(participant.invitedAt).toLocaleDateString()}
                         </div>
                       </div>
+                      <div className={styles.participantActions}>
+                        <button
+                          onClick={() => handleRemoveParticipant(participant.user.id)}
+                          className={styles.removeButton}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'invites' && (
+          <div className={styles.invitesTab}>
+            <h3>Send Invitations</h3>
+            <div className={styles.inviteForm}>
+              <div className={styles.formGroup}>
+                <label htmlFor="inviteEmail">Email Address</label>
+                <input
+                  type="email"
+                  id="inviteEmail"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder="Enter email address"
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="inviteMessage">Personal Message (Optional)</label>
+                <textarea
+                  id="inviteMessage"
+                  value={inviteMessage}
+                  onChange={(e) => setInviteMessage(e.target.value)}
+                  placeholder="Add a personal message to your invitation"
+                  rows={3}
+                />
+              </div>
+              <button
+                onClick={handleSendInvite}
+                disabled={inviteLoading || !inviteEmail.trim()}
+                className={styles.sendInviteButton}
+              >
+                {inviteLoading ? 'Sending...' : 'Send Invitation'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div className={styles.settingsTab}>
+            <h3>Group Settings</h3>
+            <div className={styles.settingsList}>
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <h4>Allow Participant Invites</h4>
+                  <p>Let participants invite others to join the group</p>
+                </div>
+                <div className={styles.settingControl}>
+                  <input
+                    type="checkbox"
+                    checked={booking.groupSettings.allowParticipantInvites}
+                    onChange={() => {/* TODO: Implement settings update */}}
+                  />
+                </div>
+              </div>
+              
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <h4>Require Approval</h4>
+                  <p>Approve new participants before they can join</p>
+                </div>
+                <div className={styles.settingControl}>
+                  <input
+                    type="checkbox"
+                    checked={booking.groupSettings.requireApproval}
+                    onChange={() => {/* TODO: Implement settings update */}}
+                  />
+                </div>
+              </div>
+              
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <h4>Send Reminders</h4>
+                  <p>Send email reminders before the meeting</p>
+                </div>
+                <div className={styles.settingControl}>
+                  <input
+                    type="checkbox"
+                    checked={booking.groupSettings.sendReminders}
+                    onChange={() => {/* TODO: Implement settings update */}}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default GroupBookingManager;
                   
