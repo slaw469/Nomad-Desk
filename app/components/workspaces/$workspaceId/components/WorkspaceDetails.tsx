@@ -1,5 +1,5 @@
 // app/components/workspaces/$workspaceId/components/WorkspaceDetails.tsx
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import styles from '../../workspace.module.css';
 import AmenityList from './AmenityList';
 import RulesList from './RulesList';

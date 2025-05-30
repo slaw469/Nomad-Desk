@@ -1,5 +1,5 @@
 // app/routes/workspaces/$workspaceId/components/WorkspaceGallery.tsx
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import styles from '../../workspace.module.css';
 
 interface Photo {
