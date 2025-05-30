@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { GroupBooking, GroupBookingCardProps } from '../../types/groupBooking';
+import { GroupBookingCardProps } from '../../types/groupBooking';
 import { groupBookingService } from '../../services/bookingService';
 import styles from './GroupBookingCard.module.css';
 

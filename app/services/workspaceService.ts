@@ -1,5 +1,5 @@
 // app/services/workspaceService.ts - ENHANCED VERSION FOR POPULAR SPACES
-import mapsService, { Location, NearbySearchResult, PlaceDetailsResult } from './mapsService';
+import mapsService, { Location, NearbySearchResult } from './mapsService';
 
 // Interface for workspace data
 export interface Workspace {

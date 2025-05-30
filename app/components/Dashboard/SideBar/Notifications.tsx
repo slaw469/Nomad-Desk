@@ -1,7 +1,7 @@
 // app/components/Dashboard/SideBar/Notifications.tsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { useAuth } from "../../../contexts/AuthContext";
+
 import styles from './SideBarStyles/notifications.module.css';
 import notificationService, { NotificationItem, NotificationFilters } from '../../../services/notificationService';
 import Loading from '../../Common/Loading';
@@ -91,7 +91,7 @@ const RefreshIcon = () => (
 );
 
 const Notifications: React.FC = () => {
-  const { user } = useAuth();
+
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);

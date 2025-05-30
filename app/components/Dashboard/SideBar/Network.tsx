@@ -1,7 +1,7 @@
 // app/components/Dashboard/SideBar/Network.tsx - FIXED API URL
 import React, { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
-import { useAuth } from "../../../contexts/AuthContext";
+
 import BackButton from '../../Common/BackButton';
 import styles from './sidebarstyles/network.module.css';
 
@@ -78,7 +78,7 @@ interface Connection {
 type ActiveTab = 'all' | 'requests' | 'suggestions' | 'discover';
 
 const Network: React.FC = () => {
-  const { user: currentUser } = useAuth();
+
   const [activeTab, setActiveTab] = useState<ActiveTab>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);

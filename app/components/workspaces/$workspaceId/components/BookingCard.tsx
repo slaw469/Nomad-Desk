@@ -1,6 +1,6 @@
 // app/components/workspaces/$workspaceId/components/BookingCard.tsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearch } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import styles from '../../workspace.module.css';
 import { bookingService, type BookingRequest } from '../../../../services/bookingService';
 import Loading from '../../../Common/Loading';
@@ -18,14 +18,7 @@ interface BookingCardProps {
   onContactHost?: () => void; // NEW: Optional callback for contact host
 }
 
-interface SearchParams {
-  date?: string;
-  numberOfPeople?: string;
-  startTime?: string;
-  endTime?: string;
-  roomType?: string;
-  specialRequests?: string;
-}
+
 
 export default function BookingCard({
   workspaceId,
@@ -64,19 +57,7 @@ export default function BookingCard({
   };
 
   // Helper function to format time for API (24-hour format)
-  const formatTimeForApi = (time12h: string): string => {
-    const [time, period] = time12h.split(' ');
-    let [hours, minutes] = time.split(':');
-    let hour = parseInt(hours);
-    
-    if (period === 'PM' && hour !== 12) {
-      hour += 12;
-    } else if (period === 'AM' && hour === 12) {
-      hour = 0;
-    }
-    
-    return `${hour.toString().padStart(2, '0')}:${minutes}`;
-  };
+  
 
   // Generate time options
   const generateTimeOptions = (isEndTime = false) => {

@@ -77,7 +77,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             console.log('📱 Found stored auth data, validating...');
             
             // Parse stored user data
-            const userData = JSON.parse(storedUser);
+            
             
             // Verify token validity by getting current user
             const currentUser = await authService.getCurrentUser(token);

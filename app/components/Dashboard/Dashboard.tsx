@@ -5,13 +5,13 @@ import { useAuth } from "../../contexts/AuthContext";
 import styles from './Dashboard.module.css';
 import Loading from '../Common/Loading';
 import { bookingService, type Booking } from '../../services/bookingService';
-import networkService, { type Connection } from '../../services/networkService';
+import networkService from '../../services/networkService';
 import favoritesService, { type Favorite } from '../../services/favoritesService'; // NEW: Import favorites service
 import ModifyBookingModal from '../Bookings/ModifyBookingModal';
 import ReviewModal from '../Reviews/ReviewModal';
 import Icons from '../Common/Icons';
 
-const { CalendarIcon, BookmarkIcon, StarIcon } = Icons;
+const { CalendarIcon, BookmarkIcon } = Icons;
 
 // Import icons (keeping your existing icon components)
 const NetworkIcon = () => (
@@ -124,9 +124,8 @@ const Dashboard: React.FC = () => {
       const [
         upcomingBookingsData,
         pastBookingsData,
-        connectionsData,
         networkStats,
-        favoritesData // NEW: Fetch favorites data
+        favoritesData
       ] = await Promise.all([
         bookingService.getUpcomingBookings().catch(err => {
           console.warn('Failed to fetch upcoming bookings:', err);
@@ -136,15 +135,11 @@ const Dashboard: React.FC = () => {
           console.warn('Failed to fetch past bookings:', err);
           return [];
         }),
-        networkService.getConnections().catch(err => {
-          console.warn('Failed to fetch connections:', err);
-          return [];
-        }),
         networkService.getConnectionStats().catch(err => {
           console.warn('Failed to fetch network stats:', err);
           return { totalConnections: 0, pendingRequests: 0, mutualConnections: {} };
         }),
-        favoritesService.getFavorites().catch(err => { // NEW: Fetch favorites
+        favoritesService.getFavorites().catch(err => {
           console.warn('Failed to fetch favorites:', err);
           return [];
         })

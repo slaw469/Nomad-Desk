@@ -141,13 +141,7 @@ const getApiRoute = (path: string) => {
 };
 
 // Helper to handle API errors
-const handleApiError = (error: any): never => {
-  console.error('API error:', error);
-  if (error instanceof Error) {
-    throw error;
-  }
-  throw new Error('An unexpected API error occurred');
-};
+
 
 // Generic fetch function for API calls
 const fetchApi = async <T>(

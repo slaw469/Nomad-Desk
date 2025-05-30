@@ -1,6 +1,6 @@
 // app/components/Bookings/GroupBookingForm.tsx - GROUP BOOKING FORM COMPONENT
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { groupBookingService } from '../../services/bookingService';
 import { 
@@ -68,10 +68,7 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
   ];
 
   // Common tags for group bookings
-  const availableTags = [
-    'study', 'meeting', 'workshop', 'presentation', 'collaboration',
-    'networking', 'training', 'conference', 'brainstorming', 'social'
-  ];
+  
 
   // Get tomorrow's date as minimum date
   const getMinDate = () => {
@@ -111,14 +108,7 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
   };
 
   // Handle tag selection
-  const handleTagToggle = (tag: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.includes(tag)
-        ? prev.tags.filter(t => t !== tag)
-        : [...prev.tags, tag]
-    }));
-  };
+  
 
   // Validate form
   const validateForm = (): boolean => {
