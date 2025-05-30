@@ -35,7 +35,7 @@ export const loadGoogleMapsApi = (apiKey: string, libraries: string[] = []): Pro
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=${callbackName}&libraries=${libraries.join(',')}`;
     script.async = true;
     script.defer = true;
-    
+
     // Handle errors
     script.onerror = () => {
       reject(new Error('Failed to load Google Maps API'));
@@ -66,9 +66,7 @@ export const getGoogleMapsApi = (): typeof google.maps => {
  * Check if the Google Maps API is loaded
  * @returns True if the API is loaded, false otherwise
  */
-export const isGoogleMapsApiLoaded = (): boolean => {
-  return !!window.google && !!window.google.maps;
-};
+export const isGoogleMapsApiLoaded = (): boolean => !!window.google && !!window.google.maps;
 
 // Declare global Google Maps types
 declare global {

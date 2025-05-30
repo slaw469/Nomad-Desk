@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, {
+  useState, useEffect, useRef, useCallback,
+} from 'react';
 import { bookingService, Booking, BookingRequest } from '../../services/bookingService';
 import styles from './ModifyBookingModal.module.css';
 
@@ -13,7 +15,7 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({
   booking,
   isOpen,
   onClose,
-  onModified
+  onModified,
 }) => {
   console.log('=== Component Render ===');
   console.log('Props:', { isOpen, bookingId: booking.id });
@@ -40,7 +42,7 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({
     return () => {
       console.log('=== Component Unmounting ===');
       isMountedRef.current = false;
-      
+
       if (successTimeoutRef.current) {
         console.log('Clearing success timeout on unmount');
         clearTimeout(successTimeoutRef.current);
@@ -55,7 +57,9 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({
   useEffect(() => {
     console.log('=== Effect: isOpen Changed ===');
     console.log('isOpen:', isOpen);
-    console.log('Current States:', { loading, success, error, isClosing });
+    console.log('Current States:', {
+      loading, success, error, isClosing,
+    });
     console.log('Submit Count:', submitCountRef.current);
 
     if (!isOpen && isMountedRef.current) {
@@ -70,7 +74,9 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({
 
   const handleClose = useCallback(() => {
     console.log('=== handleClose Called ===');
-    console.log('States:', { loading, success, error, isClosing });
+    console.log('States:', {
+      loading, success, error, isClosing,
+    });
     console.log('Submit Count:', submitCountRef.current);
     console.log('Component Mounted:', isMountedRef.current);
 
@@ -80,7 +86,7 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({
     }
 
     setIsClosing(true);
-    
+
     closeTimeoutRef.current = window.setTimeout(() => {
       console.log('=== Close Timeout Executing ===');
       console.log('Component still mounted:', isMountedRef.current);
@@ -96,7 +102,7 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isMountedRef.current) {
       console.log('Component not mounted, skipping submit');
       return;
@@ -105,8 +111,12 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({
     submitCountRef.current += 1;
     console.log('=== Form Submit Attempt ===');
     console.log('Submit Count:', submitCountRef.current);
-    console.log('States:', { loading, success, error, isClosing });
-    console.log('Form Data:', { date, startTime, endTime, numberOfPeople });
+    console.log('States:', {
+      loading, success, error, isClosing,
+    });
+    console.log('Form Data:', {
+      date, startTime, endTime, numberOfPeople,
+    });
     console.log('Component Mounted:', isMountedRef.current);
 
     if (loading) {
@@ -124,11 +134,11 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({
       const selectedDate = new Date(date);
       selectedDate.setDate(selectedDate.getDate() + 1);
       const adjustedDate = selectedDate.toISOString().split('T')[0];
-      
+
       console.log('Date adjustment:', {
         originalDate: date,
-        adjustedDate: adjustedDate,
-        timezoneOffset: new Date().getTimezoneOffset()
+        adjustedDate,
+        timezoneOffset: new Date().getTimezoneOffset(),
       });
 
       const bookingData: BookingRequest = {
@@ -143,7 +153,7 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({
         numberOfPeople,
         specialRequests,
         isGroupBooking: booking.isGroupBooking || false,
-        roomType: booking.roomType || 'Individual Desk'
+        roomType: booking.roomType || 'Individual Desk',
       };
 
       const updatedBooking = await bookingService.updateBooking(booking.id, bookingData);
@@ -156,7 +166,7 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({
         updatedBookingRef.current = updatedBooking;
         setLoading(false);
         setSuccess('Booking successfully modified!');
-        
+
         console.log('=== Setting Success Timeout ===');
         successTimeoutRef.current = window.setTimeout(() => {
           console.log('=== Success Timeout Executing ===');
@@ -180,7 +190,9 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({
   };
 
   console.log('=== Pre-render State ===');
-  console.log('States:', { loading, success, error, isClosing });
+  console.log('States:', {
+    loading, success, error, isClosing,
+  });
   console.log('Submit Count:', submitCountRef.current);
   console.log('Component Mounted:', isMountedRef.current);
 
@@ -191,10 +203,10 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({
       <div className={styles.modal}>
         <div className={styles.modalHeader}>
           <h2>Modify Booking</h2>
-          <button 
+          <button
             onClick={() => {
               if (!loading && submitCountRef.current === 0) handleClose();
-            }} 
+            }}
             className={styles.closeButton}
             disabled={loading || submitCountRef.current > 0}
           >
@@ -208,10 +220,10 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({
           </div>
         )}
 
-        <div 
+        <div
           className={`${styles.successContainer} ${success ? styles.visible : ''}`}
         >
-          <div 
+          <div
             className={`${styles.success} ${isClosing ? styles.fadeOut : ''}`}
             onAnimationStart={() => console.log('Success animation started')}
             onAnimationEnd={() => console.log('Success animation ended')}

@@ -1,5 +1,5 @@
 // app/components/workspaces/$workspaceId/components/WorkspaceDetails.tsx
-import  { useState } from 'react';
+import { useState } from 'react';
 import styles from '../../workspace.module.css';
 import AmenityList from './AmenityList';
 import RulesList from './RulesList';
@@ -50,25 +50,25 @@ export default function WorkspaceDetails({
   reviews,
   coordinates,
   address,
-  title
+  title,
 }: WorkspaceDetailsProps) {
   const [activeTab, setActiveTab] = useState('overview');
-  
+
   const tabs = [
     { id: 'overview', label: 'Overview' },
     { id: 'photos', label: 'Photos' },
     { id: 'reviews', label: 'Reviews' },
-    { id: 'location', label: 'Location' }
+    { id: 'location', label: 'Location' },
   ];
-  
+
   return (
     <div className={styles.workspaceDetails}>
-      <TabNavigation 
-        tabs={tabs} 
-        activeTab={activeTab} 
-        onChange={(tab) => setActiveTab(tab)} 
+      <TabNavigation
+        tabs={tabs}
+        activeTab={activeTab}
+        onChange={(tab) => setActiveTab(tab)}
       />
-      
+
       <div className={styles.tabContent}>
         {activeTab === 'overview' && (
           <>
@@ -76,19 +76,19 @@ export default function WorkspaceDetails({
               <h2 className={styles.sectionTitle}>About this space</h2>
               <p className={styles.sectionContent}>{description}</p>
             </div>
-            
+
             <div className={styles.tabSection}>
               <h2 className={styles.sectionTitle}>Amenities</h2>
               <AmenityList amenities={amenities} />
             </div>
-            
+
             <div className={styles.tabSection}>
               <h2 className={styles.sectionTitle}>House Rules</h2>
               <RulesList rules={houseRules} />
             </div>
           </>
         )}
-        
+
         {activeTab === 'photos' && (
           <div className={styles.tabSection}>
             <h2 className={styles.sectionTitle}>Photos</h2>
@@ -101,17 +101,17 @@ export default function WorkspaceDetails({
             </div>
           </div>
         )}
-        
+
         {activeTab === 'reviews' && (
           <div className={styles.tabSection}>
             <h2 className={styles.sectionTitle}>Reviews</h2>
             <ReviewSection reviews={reviews} />
           </div>
         )}
-        
+
         {activeTab === 'location' && (
           <div className={styles.tabSection}>
-            <LocationSection 
+            <LocationSection
               title={title}
               address={address}
               coordinates={coordinates}

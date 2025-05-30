@@ -3,11 +3,9 @@ import React from 'react';
 import LSpage from './LSutils/LSpage';
 
 /**
- * This component now just renders LSpage directly since AuthProvider 
+ * This component now just renders LSpage directly since AuthProvider
  * is already provided at the top level in main.tsx
  */
-const WrappedLSPage: React.FC = () => {
-  return <LSpage />;
-};
+const WrappedLSPage: React.FC = () => <LSpage />;
 
 export default WrappedLSPage;

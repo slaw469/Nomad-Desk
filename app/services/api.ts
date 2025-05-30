@@ -30,10 +30,10 @@ export interface SignupData {
 
 // Generic fetch function for API calls
 const fetchApi = async <T>(
-  endpoint: string, 
-  method: string = 'GET', 
-  data?: any, 
-  token?: string
+  endpoint: string,
+  method = 'GET',
+  data?: any,
+  token?: string,
 ): Promise<T> => {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -52,14 +52,14 @@ const fetchApi = async <T>(
   try {
     console.log(`Fetching ${method} ${API_BASE_URL}${endpoint}`);
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    
+
     // If status is 401 Unauthorized and this is a getCurrentUser request,
     // return null instead of throwing an error
     if (response.status === 401 && endpoint === '/auth/user') {
       console.log('User not authenticated, returning null');
       return null as T;
     }
-    
+
     // Try to parse response as JSON
     let responseData;
     try {
@@ -68,7 +68,7 @@ const fetchApi = async <T>(
       // If response is not JSON, use an empty object
       responseData = {};
     }
-    
+
     if (!response.ok) {
       const errorMessage = responseData.message || `Error: ${response.status} ${response.statusText}`;
       console.error('API error:', errorMessage);
@@ -89,22 +89,16 @@ const fetchApi = async <T>(
 // Auth Service methods
 export const authService = {
   // Login user
-  login: async (loginData: LoginData): Promise<AuthResponse> => {
-    return fetchApi<AuthResponse>('/auth/login', 'POST', loginData);
-  },
+  login: async (loginData: LoginData): Promise<AuthResponse> => fetchApi<AuthResponse>('/auth/login', 'POST', loginData),
 
   // Register user
-  register: async (signupData: SignupData): Promise<AuthResponse> => {
-    return fetchApi<AuthResponse>('/auth/register', 'POST', signupData);
-  },
+  register: async (signupData: SignupData): Promise<AuthResponse> => fetchApi<AuthResponse>('/auth/register', 'POST', signupData),
 
   // Get current user
-  getCurrentUser: async (token: string): Promise<{ id: string; name: string; email: string; avatar?: string } | null> => {
-    return fetchApi('/auth/user', 'GET', undefined, token);
-  }
+  getCurrentUser: async (token: string): Promise<{ id: string; name: string; email: string; avatar?: string } | null> => fetchApi('/auth/user', 'GET', undefined, token),
 };
 
 // Export default for convenience
 export default {
-  auth: authService
+  auth: authService,
 };

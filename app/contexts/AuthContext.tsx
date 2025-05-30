@@ -1,5 +1,7 @@
 // app/contexts/AuthContext.tsx - UPDATED: Better OAuth handling
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext, useContext, useState, useEffect, ReactNode,
+} from 'react';
 import { authService, LoginData, SignupData } from '../services/api';
 
 interface User {
@@ -29,11 +31,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Custom hook with proper error handling
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  
+
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider. Make sure your component is wrapped with AuthProvider.');
   }
-  
+
   return context;
 };
 
@@ -49,7 +51,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Helper function to navigate to a path
   const navigateTo = (path: string) => {
     try {
@@ -71,14 +73,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('🔍 Checking authentication state...');
         const token = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
-        
+
         if (token && storedUser) {
           try {
             console.log('📱 Found stored auth data, validating...');
-            
+
             // Parse stored user data
-            
-            
+
             // Verify token validity by getting current user
             const currentUser = await authService.getCurrentUser(token);
             if (currentUser) {
@@ -111,7 +112,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoading(false);
       }
     };
-    
+
     checkAuth();
   }, []);
 
@@ -124,20 +125,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (data: LoginData) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       console.log('🔐 Attempting login...');
       const response = await authService.login(data);
-      
+
       // Store auth info
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
-      
+
       setUser(response.user);
       setIsAuthenticated(true);
-      
+
       console.log('✅ Login successful:', response.user.name);
-      
+
       // Navigate to dashboard after successful login
       navigateTo('/dashboard');
     } catch (err) {
@@ -157,20 +158,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signup = async (data: SignupData) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       console.log('📝 Attempting signup...');
       const response = await authService.register(data);
-      
+
       // Store auth info
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
-      
+
       setUser(response.user);
       setIsAuthenticated(true);
-      
+
       console.log('✅ Signup successful:', response.user.name);
-      
+
       // Navigate to dashboard after successful signup
       navigateTo('/dashboard');
     } catch (err) {
@@ -190,7 +191,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const socialLogin = async (provider: string) => {
     try {
       console.log(`🔗 Initiating ${provider} OAuth...`);
-      
+
       // Save the current path for redirect after login
       const currentPath = window.location.pathname;
       if (currentPath !== '/' && currentPath !== '/login' && currentPath !== '/signup') {
@@ -198,7 +199,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } else {
         localStorage.setItem('redirectAfterLogin', '/dashboard');
       }
-      
+
       // Redirect to backend OAuth route
       const oauthUrl = `${BACKEND_URL}/api/auth/${provider}`;
       console.log('🚀 Redirecting to:', oauthUrl);
@@ -221,10 +222,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('redirectAfterLogin');
-      
+
       setUser(null);
       setIsAuthenticated(false);
-      
+
       console.log('✅ Logout successful');
       navigateTo('/');
     } catch (error) {
@@ -241,7 +242,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signup,
     logout,
     socialLogin,
-    clearError
+    clearError,
   };
 
   return (

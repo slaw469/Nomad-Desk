@@ -13,7 +13,7 @@ const GoogleMap: React.FC = () => {
 
     // Remove any existing Google Maps scripts
     const existingScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
-    existingScripts.forEach(script => script.remove());
+    existingScripts.forEach((script) => script.remove());
 
     const script = document.createElement('script');
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async`;
@@ -40,8 +40,8 @@ const GoogleMap: React.FC = () => {
   };
 
   return (
-    <div id="map" style={{ width: '100%', height: '300px' }}></div>
+    <div id="map" style={{ width: '100%', height: '300px' }} />
   );
 };
 
-export default GoogleMap; 
+export default GoogleMap;

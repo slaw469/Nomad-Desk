@@ -1,7 +1,7 @@
 // app/components/LandingPageComponents/components/Header.tsx
 import React from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
-import styles from "../../../styles/landing.module.css";
+import styles from '../../../styles/landing.module.css';
 import { useAuth } from '../../../contexts/AuthContext';
 
 const Header: React.FC = () => {
@@ -40,20 +40,20 @@ const Header: React.FC = () => {
       <div className={styles.logo}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
           <svg className={styles.logoIcon} viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15 15H35V35H15V15Z" fill="white"/>
-            <path d="M15 15L25 25L35 15L25 5L15 15Z" fill="#4A6FDC"/>
-            <path d="M15 35L25 25L15 15V35Z" fill="#2DD4BF"/>
-            <path d="M35 35L25 25L35 15V35Z" fill="white"/>
+            <path d="M15 15H35V35H15V15Z" fill="white" />
+            <path d="M15 15L25 25L35 15L25 5L15 15Z" fill="#4A6FDC" />
+            <path d="M15 35L25 25L15 15V35Z" fill="#2DD4BF" />
+            <path d="M35 35L25 25L35 15V35Z" fill="white" />
           </svg>
           <span className={styles.logoText}>NOMAD DESK</span>
         </Link>
       </div>
-      
+
       <div className={styles.navLinks}>
         <Link to="/workspaces">Find Spaces</Link>
         {/* Replace the Link with a button for sections on the same page */}
-        <button 
-          onClick={() => scrollToSection('how-it-works', '/')} 
+        <button
+          onClick={() => scrollToSection('how-it-works', '/')}
           className={styles.navLinkButton}
         >
           How It Works
@@ -61,13 +61,13 @@ const Header: React.FC = () => {
         <Link to="/features">Features</Link>
         <Link to="/about">About Us</Link>
       </div>
-      
+
       <div className={styles.ctaButtons}>
         {isAuthenticated ? (
           <>
             <Link to="/dashboard" className={`${styles.ctaButton} ${styles.secondaryButton}`}>Dashboard</Link>
-            <button 
-              onClick={handleLogout} 
+            <button
+              onClick={handleLogout}
               className={`${styles.ctaButton} ${styles.primaryButton}`}
               style={{ border: 'none', cursor: 'pointer' }}
             >

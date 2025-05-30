@@ -9,24 +9,22 @@ import PopularSpacesSection from './PopularSpacesSection'; // Use the enhanced v
 import TestimonialsSection from './TestimonialsSection';
 import NewsletterSection from './NewsletterSection';
 import Footer from './Footer';
-import styles from "../../../styles/landing.module.css";
+import styles from '../../../styles/landing.module.css';
 
-const LandingPage: React.FC = () => {
-  return (
-    <div className={styles.body}>
-      <Header />
-      <main>
-        <HeroSection />
-        <FeaturesSection />
-        <HowItWorksSection />
-        {/* FIXED: Use the correct component name */}
-        <PopularSpacesSection />
-        <TestimonialsSection />
-        <NewsletterSection />
-      </main>
-      <Footer />
-    </div>
-  );
-};
+const LandingPage: React.FC = () => (
+  <div className={styles.body}>
+    <Header />
+    <main>
+      <HeroSection />
+      <FeaturesSection />
+      <HowItWorksSection />
+      {/* FIXED: Use the correct component name */}
+      <PopularSpacesSection />
+      <TestimonialsSection />
+      <NewsletterSection />
+    </main>
+    <Footer />
+  </div>
+);
 
 export default LandingPage;

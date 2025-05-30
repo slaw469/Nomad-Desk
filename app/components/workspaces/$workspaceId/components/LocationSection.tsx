@@ -16,7 +16,7 @@ interface LocationSectionProps {
 const LocationSection: React.FC<LocationSectionProps> = ({
   title,
   address,
-  coordinates
+  coordinates,
 }) => {
   const [apiKey, setApiKey] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
@@ -42,18 +42,19 @@ const LocationSection: React.FC<LocationSectionProps> = ({
       <h2 className={styles.sectionTitle}>Location</h2>
       <div className={styles.mapContainer}>
         {loading ? (
-          <div style={{ 
-            height: '400px', 
-            display: 'flex', 
-            alignItems: 'center', 
+          <div style={{
+            height: '400px',
+            display: 'flex',
+            alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: '#f8fafc',
-            borderRadius: '12px'
-          }}>
+            borderRadius: '12px',
+          }}
+          >
             <p>Loading map...</p>
           </div>
         ) : apiKey ? (
-          <GoogleMap 
+          <GoogleMap
             apiKey={apiKey}
             center={coordinates}
             markerTitle={title}
@@ -62,14 +63,15 @@ const LocationSection: React.FC<LocationSectionProps> = ({
             width="100%"
           />
         ) : (
-          <div style={{ 
-            height: '400px', 
-            display: 'flex', 
-            alignItems: 'center', 
+          <div style={{
+            height: '400px',
+            display: 'flex',
+            alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: '#f8fafc',
-            borderRadius: '12px'
-          }}>
+            borderRadius: '12px',
+          }}
+          >
             <p>Unable to load map</p>
           </div>
         )}
@@ -84,7 +86,12 @@ const LocationSection: React.FC<LocationSectionProps> = ({
             ))}
           </p>
           <p className={styles.mapCardCoordinates}>
-            Lat: {coordinates.lat.toFixed(4)}, Lng: {coordinates.lng.toFixed(4)}
+            Lat:
+            {' '}
+            {coordinates.lat.toFixed(4)}
+            , Lng:
+            {' '}
+            {coordinates.lng.toFixed(4)}
           </p>
         </div>
       </div>

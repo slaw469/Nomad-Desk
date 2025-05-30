@@ -7,11 +7,11 @@ interface IconProps {
 }
 
 export const CalendarIcon: React.FC<IconProps> = ({ size = 20, color = 'currentColor', className = '' }) => (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
     stroke={color}
     strokeWidth="2"
     strokeLinecap="round"
@@ -27,11 +27,11 @@ export const CalendarIcon: React.FC<IconProps> = ({ size = 20, color = 'currentC
 );
 
 export const BookmarkIcon: React.FC<IconProps> = ({ size = 20, color = 'currentColor', className = '' }) => (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
     stroke={color}
     strokeWidth="2"
     strokeLinecap="round"
@@ -44,11 +44,11 @@ export const BookmarkIcon: React.FC<IconProps> = ({ size = 20, color = 'currentC
 );
 
 export const StarIcon: React.FC<IconProps> = ({ size = 20, color = 'currentColor', className = '' }) => (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
     stroke={color}
     strokeWidth="2"
     strokeLinecap="round"
@@ -64,7 +64,7 @@ export const StarIcon: React.FC<IconProps> = ({ size = 20, color = 'currentColor
 const Icons = {
   CalendarIcon,
   BookmarkIcon,
-  StarIcon
+  StarIcon,
 };
 
-export default Icons; 
+export default Icons;

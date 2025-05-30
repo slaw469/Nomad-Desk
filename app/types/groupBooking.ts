@@ -17,14 +17,14 @@ export interface GroupParticipant {
       name: string;
     };
   }
-  
-  export interface GroupSettings {
+
+export interface GroupSettings {
     allowParticipantInvites: boolean;
     requireApproval: boolean;
     sendReminders: boolean;
   }
-  
-  export interface GroupBooking {
+
+export interface GroupBooking {
     id: string;
     // Basic booking fields
     user: string;
@@ -42,7 +42,7 @@ export interface GroupParticipant {
     numberOfPeople: number;
     specialRequests?: string;
     status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no-show';
-    
+
     // Group-specific fields
     isGroupBooking: true;
     groupName: string;
@@ -60,24 +60,24 @@ export interface GroupParticipant {
     isPublic: boolean;
     tags: string[];
     groupSettings: GroupSettings;
-    
+
     // Computed properties (virtuals)
     acceptedParticipants?: GroupParticipant[];
     pendingParticipants?: GroupParticipant[];
     currentParticipantCount: number;
     hasMinimumParticipants: boolean;
     canAcceptMoreParticipants: boolean;
-    
+
     // Additional metadata
     userRole?: 'organizer' | 'participant';
     participantStatus?: 'organizer' | 'invited' | 'accepted' | 'declined' | 'pending' | 'none';
-    
+
     // Timestamps
     createdAt: string;
     updatedAt: string;
   }
-  
-  export interface GroupInvite {
+
+export interface GroupInvite {
     id: string;
     booking: string | GroupBooking;
     inviter: {
@@ -101,17 +101,17 @@ export interface GroupParticipant {
     viewedAt?: string;
     remindersSent: number;
     lastReminderSent?: string;
-    
+
     // Computed properties
     isExpired?: boolean;
     canRespond?: boolean;
     daysUntilExpiration?: number;
-    
+
     createdAt: string;
     updatedAt: string;
   }
-  
-  export interface GroupBookingRequest {
+
+export interface GroupBookingRequest {
     workspaceId: string;
     workspaceName: string;
     workspaceAddress: string;
@@ -130,19 +130,19 @@ export interface GroupParticipant {
     specialRequests?: string;
     groupSettings?: Partial<GroupSettings>;
   }
-  
-  export interface GroupInvitationRequest {
+
+export interface GroupInvitationRequest {
     email?: string;
     userId?: string;
     personalMessage?: string;
   }
-  
-  export interface GroupInvitationResponse {
+
+export interface GroupInvitationResponse {
     response: 'accepted' | 'declined';
     message?: string;
   }
-  
-  export interface GroupBookingStats {
+
+export interface GroupBookingStats {
     groupName: string;
     totalCapacity: number;
     currentParticipants: number;
@@ -165,8 +165,8 @@ export interface GroupParticipant {
     inviteCode: string;
     isPublic: boolean;
   }
-  
-  export interface GroupParticipantsResponse {
+
+export interface GroupParticipantsResponse {
     organizer: {
       id: string;
       name: string;
@@ -184,13 +184,13 @@ export interface GroupParticipant {
       available: number;
     };
   }
-  
-  export interface CreateGroupBookingResponse {
+
+export interface CreateGroupBookingResponse {
     booking: GroupBooking;
     message: string;
   }
-  
-  export interface SendInvitationsResponse {
+
+export interface SendInvitationsResponse {
     message: string;
     successCount: number;
     failureCount: number;
@@ -202,16 +202,16 @@ export interface GroupParticipant {
       inviteId?: string;
     }>;
   }
-  
-  export interface JoinGroupResponse {
+
+export interface JoinGroupResponse {
     success: boolean;
     status: 'accepted' | 'pending';
     booking: GroupBooking;
     requiresApproval: boolean;
     message: string;
   }
-  
-  export interface GroupInviteNotification {
+
+export interface GroupInviteNotification {
     id: string;
     type: 'session';
     title: string;
@@ -237,14 +237,14 @@ export interface GroupParticipant {
     };
     createdAt: string;
   }
-  
-  // Utility types for filtering and sorting
-  export type GroupBookingStatus = 'confirmed' | 'cancelled' | 'completed' | 'pending';
-  export type GroupUserRole = 'organizer' | 'participant';
-  export type ParticipantStatus = 'invited' | 'accepted' | 'declined' | 'pending';
-  export type InviteStatus = 'pending' | 'accepted' | 'declined' | 'expired' | 'cancelled';
-  
-  export interface GroupBookingFilters {
+
+// Utility types for filtering and sorting
+export type GroupBookingStatus = 'confirmed' | 'cancelled' | 'completed' | 'pending';
+export type GroupUserRole = 'organizer' | 'participant';
+export type ParticipantStatus = 'invited' | 'accepted' | 'declined' | 'pending';
+export type InviteStatus = 'pending' | 'accepted' | 'declined' | 'expired' | 'cancelled';
+
+export interface GroupBookingFilters {
     status?: GroupBookingStatus;
     role?: GroupUserRole;
     dateFrom?: string;
@@ -252,8 +252,8 @@ export interface GroupParticipant {
     tags?: string[];
     location?: string;
   }
-  
-  export interface PublicGroupBooking {
+
+export interface PublicGroupBooking {
     id: string;
     groupName: string;
     groupDescription?: string;
@@ -276,9 +276,9 @@ export interface GroupParticipant {
       profession?: string;
     };
   }
-  
-  // Form validation types
-  export interface GroupBookingFormData {
+
+// Form validation types
+export interface GroupBookingFormData {
     workspace: {
       id: string;
       name: string;
@@ -301,8 +301,8 @@ export interface GroupParticipant {
     requireApproval: boolean;
     sendReminders: boolean;
   }
-  
-  export interface GroupBookingFormErrors {
+
+export interface GroupBookingFormErrors {
     workspace?: string;
     date?: string;
     startTime?: string;
@@ -315,11 +315,11 @@ export interface GroupParticipant {
     tags?: string;
     general?: string;
   }
-  
-  // Event types for group booking actions
-  export type GroupBookingEvent = 
+
+// Event types for group booking actions
+export type GroupBookingEvent =
     | 'created'
-    | 'updated' 
+    | 'updated'
     | 'cancelled'
     | 'participant_joined'
     | 'participant_left'
@@ -329,8 +329,8 @@ export interface GroupParticipant {
     | 'invitation_declined'
     | 'minimum_reached'
     | 'maximum_reached';
-  
-  export interface GroupBookingEventData {
+
+export interface GroupBookingEventData {
     type: GroupBookingEvent;
     bookingId: string;
     userId?: string;
@@ -338,9 +338,9 @@ export interface GroupParticipant {
     message?: string;
     timestamp: string;
   }
-  
-  // Hook return types
-  export interface UseGroupBookingReturn {
+
+// Hook return types
+export interface UseGroupBookingReturn {
     groupBooking: GroupBooking | null;
     loading: boolean;
     error: string | null;
@@ -352,8 +352,8 @@ export interface GroupParticipant {
     canLeave: boolean;
     refreshBooking: () => Promise<void>;
   }
-  
-  export interface UseGroupBookingsReturn {
+
+export interface UseGroupBookingsReturn {
     groupBookings: GroupBooking[];
     loading: boolean;
     error: string | null;
@@ -364,25 +364,25 @@ export interface GroupParticipant {
     updateGroupBooking: (id: string, data: Partial<GroupBookingRequest>) => Promise<GroupBooking>;
     cancelGroupBooking: (id: string, reason?: string) => Promise<void>;
   }
-  
-  // API response types
-  export interface ApiResponse<T> {
+
+// API response types
+export interface ApiResponse<T> {
     data?: T;
     message: string;
     success: boolean;
     error?: string;
   }
-  
-  export interface PaginatedResponse<T> {
+
+export interface PaginatedResponse<T> {
     data: T[];
     total: number;
     page: number;
     limit: number;
     hasMore: boolean;
   }
-  
-  // Component prop types
-  export interface GroupBookingCardProps {
+
+// Component prop types
+export interface GroupBookingCardProps {
     booking: GroupBooking;
     onJoin?: (bookingId: string) => Promise<void>;
     onLeave?: (bookingId: string) => Promise<void>;
@@ -391,22 +391,22 @@ export interface GroupParticipant {
     showActions?: boolean;
     compact?: boolean;
   }
-  
-  export interface GroupInviteModalProps {
+
+export interface GroupInviteModalProps {
     isOpen: boolean;
     onClose: () => void;
     bookingId: string;
     onInvitesSent?: (results: SendInvitationsResponse) => void;
   }
-  
-  export interface GroupParticipantsModalProps {
+
+export interface GroupParticipantsModalProps {
     isOpen: boolean;
     onClose: () => void;
     booking: GroupBooking;
     onParticipantRemoved?: (participantId: string) => void;
   }
-  
-  export interface JoinGroupModalProps {
+
+export interface JoinGroupModalProps {
     isOpen: boolean;
     onClose: () => void;
     inviteCode?: string;

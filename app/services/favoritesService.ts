@@ -41,9 +41,9 @@ export interface FavoriteStats {
 
 // Generic fetch function for API calls
 const fetchApi = async <T>(
-  endpoint: string, 
-  method: string = 'GET', 
-  data?: any
+  endpoint: string,
+  method = 'GET',
+  data?: any,
 ): Promise<T> => {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -64,10 +64,10 @@ const fetchApi = async <T>(
   try {
     console.log(`Fetching ${method} ${API_BASE_URL}${endpoint}`);
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    
+
     // Try to parse response as JSON
     const responseData = await response.json();
-    
+
     if (!response.ok) {
       const errorMessage = responseData.message || `Error: ${response.status} ${response.statusText}`;
       console.error('API error:', errorMessage);
@@ -88,54 +88,45 @@ const fetchApi = async <T>(
 // Favorites Service methods
 export const favoritesService = {
   // Get all favorites
-  getFavorites: async (): Promise<Favorite[]> => {
-    return fetchApi<Favorite[]>('/favorites');
-  },
-  
+  getFavorites: async (): Promise<Favorite[]> => fetchApi<Favorite[]>('/favorites'),
+
   // Add workspace to favorites
-  addFavorite: async (favoriteData: FavoriteRequest): Promise<Favorite> => {
-    return fetchApi<Favorite>('/favorites', 'POST', favoriteData);
-  },
-  
+  addFavorite: async (favoriteData: FavoriteRequest): Promise<Favorite> => fetchApi<Favorite>('/favorites', 'POST', favoriteData),
+
   // Remove workspace from favorites
-  removeFavorite: async (workspaceId: string): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>(`/favorites/${workspaceId}`, 'DELETE');
-  },
-  
+  removeFavorite: async (workspaceId: string): Promise<{ message: string }> => fetchApi<{ message: string }>(`/favorites/${workspaceId}`, 'DELETE'),
+
   // Check if workspace is favorited
   isFavorited: async (workspaceId: string): Promise<boolean> => {
     const response = await fetchApi<{ isFavorited: boolean }>(`/favorites/check/${workspaceId}`);
     return response.isFavorited;
   },
-  
+
   // Get favorites statistics
-  getFavoriteStats: async (): Promise<FavoriteStats> => {
-    return fetchApi<FavoriteStats>('/favorites/stats');
-  },
-  
+  getFavoriteStats: async (): Promise<FavoriteStats> => fetchApi<FavoriteStats>('/favorites/stats'),
+
   // Toggle favorite status (add if not favorited, remove if favorited)
   toggleFavorite: async (
     workspaceId: string,
-    workspaceData?: Omit<FavoriteRequest, 'workspaceId'>
+    workspaceData?: Omit<FavoriteRequest, 'workspaceId'>,
   ): Promise<{ isFavorited: boolean; message: string }> => {
     try {
       const isFavorited = await favoritesService.isFavorited(workspaceId);
-      
+
       if (isFavorited) {
         await favoritesService.removeFavorite(workspaceId);
         return { isFavorited: false, message: 'Removed from favorites' };
-      } else {
-        if (!workspaceData) {
-          throw new Error('Workspace data required to add favorite');
-        }
-        await favoritesService.addFavorite({ workspaceId, ...workspaceData });
-        return { isFavorited: true, message: 'Added to favorites' };
       }
+      if (!workspaceData) {
+        throw new Error('Workspace data required to add favorite');
+      }
+      await favoritesService.addFavorite({ workspaceId, ...workspaceData });
+      return { isFavorited: true, message: 'Added to favorites' };
     } catch (error) {
       console.error('Toggle favorite error:', error);
       throw error;
     }
-  }
+  },
 };
 
 export default favoritesService;

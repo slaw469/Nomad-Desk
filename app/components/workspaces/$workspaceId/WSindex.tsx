@@ -69,7 +69,7 @@ export default function WorkspaceDetail() {
   const [workspace, setWorkspace] = React.useState<WorkspaceData | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  
+
   React.useEffect(() => {
     const fetchWorkspaceData = async () => {
       if (!workspaceId) {
@@ -83,7 +83,7 @@ export default function WorkspaceDetail() {
         // Get the workspace details from the API
         const placeDetails = await mapsService.getPlaceDetails(
           workspaceId,
-          'name,formatted_address,geometry,photos,rating,types,website,formatted_phone_number,opening_hours,reviews'
+          'name,formatted_address,geometry,photos,rating,types,website,formatted_phone_number,opening_hours,reviews',
         );
 
         // Get similar workspaces
@@ -92,8 +92,8 @@ export default function WorkspaceDetail() {
           workspaceService.determineWorkspaceType(placeDetails.types),
           {
             lat: placeDetails.geometry.location.lat,
-            lng: placeDetails.geometry.location.lng
-          }
+            lng: placeDetails.geometry.location.lng,
+          },
         );
 
         // Transform the data into our workspace format
@@ -108,46 +108,46 @@ export default function WorkspaceDetail() {
           hours: placeDetails.opening_hours?.weekday_text?.[0] || 'Hours not available',
           description: `${placeDetails.name} is a ${workspaceService.determineWorkspaceType(placeDetails.types).toLowerCase()} located in ${placeDetails.formatted_address.split(',')[1].trim()}. This workspace offers a comfortable environment for work and study.`,
           amenities: [
-            { name: "Free Wi-Fi", icon: "wifi" },
-            { name: "Power Outlets", icon: "power" },
+            { name: 'Free Wi-Fi', icon: 'wifi' },
+            { name: 'Power Outlets', icon: 'power' },
             ...(placeDetails.types.includes('library') ? [
-              { name: "Study Rooms", icon: "study" },
-              { name: "Quiet Zone", icon: "quiet" },
+              { name: 'Study Rooms', icon: 'study' },
+              { name: 'Quiet Zone', icon: 'quiet' },
             ] : []),
             ...(placeDetails.types.includes('cafe') ? [
-              { name: "Coffee", icon: "cafe" },
-              { name: "Food Available", icon: "food" },
-            ] : [])
+              { name: 'Coffee', icon: 'cafe' },
+              { name: 'Food Available', icon: 'food' },
+            ] : []),
           ],
           houseRules: [
-            { text: "Please be respectful of other users" },
-            { text: "Keep noise to a minimum" },
-            { text: "Clean up after yourself" }
+            { text: 'Please be respectful of other users' },
+            { text: 'Keep noise to a minimum' },
+            { text: 'Clean up after yourself' },
           ],
           photos: placeDetails.photos ? placeDetails.photos.map((photo, index) => ({
             url: mapsService.getPhotoUrl(photo.photo_reference, 800),
-            alt: `${placeDetails.name} - Photo ${index + 1}`
+            alt: `${placeDetails.name} - Photo ${index + 1}`,
           })) : [],
-          reviews: placeDetails.reviews ? placeDetails.reviews.map(review => ({
+          reviews: placeDetails.reviews ? placeDetails.reviews.map((review) => ({
             id: review.time.toString(),
             reviewer: {
               name: review.author_name,
-              avatar: review.author_name.split(' ').map(n => n[0]).join('').toUpperCase()
+              avatar: review.author_name.split(' ').map((n) => n[0]).join('').toUpperCase(),
             },
             date: new Date(review.time * 1000).toLocaleDateString('en-US', {
               year: 'numeric',
               month: 'long',
-              day: 'numeric'
+              day: 'numeric',
             }),
             rating: review.rating,
-            text: review.text
+            text: review.text,
           })) : [],
           coordinates: {
             lat: placeDetails.geometry.location.lat,
-            lng: placeDetails.geometry.location.lng
+            lng: placeDetails.geometry.location.lng,
           },
           address: placeDetails.formatted_address,
-          similar: similarWorkspaces.map(similar => ({
+          similar: similarWorkspaces.map((similar) => ({
             id: similar.id,
             title: similar.name,
             type: similar.type,
@@ -155,12 +155,12 @@ export default function WorkspaceDetail() {
             amenities: similar.amenities || ['Wi-Fi'],
             price: workspaceService.getWorkspacePrice(similar.types),
             rating: similar.rating || 4.5,
-            photo: similar.photos && similar.photos.length > 0 
+            photo: similar.photos && similar.photos.length > 0
               ? mapsService.getPhotoUrl(similar.photos[0])
-              : '/api/placeholder/400/250'
-          }))
+              : '/api/placeholder/400/250',
+          })),
         };
-        
+
         setWorkspace(workspaceData);
       } catch (error) {
         console.error('Error fetching workspace data:', error);
@@ -169,10 +169,10 @@ export default function WorkspaceDetail() {
         setLoading(false);
       }
     };
-    
+
     fetchWorkspaceData();
   }, [workspaceId]);
-  
+
   if (loading) {
     return <Loading message="Loading workspace details..." />;
   }
@@ -188,23 +188,23 @@ export default function WorkspaceDetail() {
       </div>
     );
   }
-  
+
   return (
     <div className={styles.workspaceContainer}>
-      <WorkspaceHeader 
-        title={workspace.title} 
-        type={workspace.type} 
-        location={workspace.location} 
-        rating={workspace.rating} 
-        reviewCount={workspace.reviewCount} 
-        distance={workspace.distance} 
-        hours={workspace.hours} 
+      <WorkspaceHeader
+        title={workspace.title}
+        type={workspace.type}
+        location={workspace.location}
+        rating={workspace.rating}
+        reviewCount={workspace.reviewCount}
+        distance={workspace.distance}
+        hours={workspace.hours}
       />
-      
+
       <WorkspaceGallery photos={workspace.photos} />
-      
+
       <div className={styles.workspaceContent}>
-        <WorkspaceDetails 
+        <WorkspaceDetails
           description={workspace.description}
           amenities={workspace.amenities}
           houseRules={workspace.houseRules}
@@ -214,20 +214,20 @@ export default function WorkspaceDetail() {
           address={workspace.address}
           title={workspace.title}
         />
-        
-        <BookingCard 
+
+        <BookingCard
           workspaceId={workspace.id}
           workspaceName={workspace.title}
           workspaceAddress={workspace.address}
           workspaceType={workspace.type}
           workspacePhoto={workspace.photos[0]?.url}
-          price={workspace.type === 'Library' ? 'Free' : workspace.type === 'Café' ? 'Purchase Recommended' : 'Contact for Pricing'} 
-          priceDescription={workspace.type === 'Library' ? 'Public Library' : 'per hour'} 
-          rating={workspace.rating} 
-          reviewCount={workspace.reviewCount} 
+          price={workspace.type === 'Library' ? 'Free' : workspace.type === 'Café' ? 'Purchase Recommended' : 'Contact for Pricing'}
+          priceDescription={workspace.type === 'Library' ? 'Public Library' : 'per hour'}
+          rating={workspace.rating}
+          reviewCount={workspace.reviewCount}
         />
       </div>
-      
+
       <SimilarWorkspaces workspaces={workspace.similar} />
     </div>
   );

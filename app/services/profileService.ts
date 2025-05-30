@@ -52,9 +52,9 @@ export interface StudyPreferences {
 
 // Generic fetch function for API calls
 const fetchApi = async <T>(
-  endpoint: string, 
-  method: string = 'GET', 
-  data?: any
+  endpoint: string,
+  method = 'GET',
+  data?: any,
 ): Promise<T> => {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -75,10 +75,10 @@ const fetchApi = async <T>(
   try {
     console.log(`Fetching ${method} ${API_BASE_URL}${endpoint}`);
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    
+
     // Try to parse response as JSON
     const responseData = await response.json();
-    
+
     if (!response.ok) {
       const errorMessage = responseData.message || `Error: ${response.status} ${response.statusText}`;
       console.error('API error:', errorMessage);
@@ -99,64 +99,50 @@ const fetchApi = async <T>(
 // Profile Service methods
 export const profileService = {
   // Get current user profile
-  getCurrentProfile: async (): Promise<UserProfile> => {
-    return fetchApi<UserProfile>('/profile');
-  },
-  
+  getCurrentProfile: async (): Promise<UserProfile> => fetchApi<UserProfile>('/profile'),
+
   // Update user profile
-  updateProfile: async (profileData: Partial<UserProfile>): Promise<UserProfile> => {
-    return fetchApi<UserProfile>('/profile', 'PUT', profileData);
-  },
-  
+  updateProfile: async (profileData: Partial<UserProfile>): Promise<UserProfile> => fetchApi<UserProfile>('/profile', 'PUT', profileData),
+
   // Upload profile avatar
   uploadAvatar: async (file: File): Promise<{ avatarUrl: string }> => {
     const formData = new FormData();
     formData.append('avatar', file);
-    
+
     const headers: HeadersInit = {};
     const token = localStorage.getItem('token');
     if (token) {
       headers['x-auth-token'] = token;
     }
-    
+
     const response = await fetch(`${API_BASE_URL}/profile/avatar`, {
       method: 'POST',
       headers,
-      body: formData
+      body: formData,
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || 'Failed to upload avatar');
     }
-    
+
     return response.json();
   },
-  
+
   // Get user profile by ID
-  getProfileById: async (userId: string): Promise<UserProfile> => {
-    return fetchApi<UserProfile>(`/profile/${userId}`);
-  },
-  
+  getProfileById: async (userId: string): Promise<UserProfile> => fetchApi<UserProfile>(`/profile/${userId}`),
+
   // Search for users
-  searchUsers: async (query: string): Promise<UserProfile[]> => {
-    return fetchApi<UserProfile[]>(`/profile/search?q=${encodeURIComponent(query)}`);
-  },
-  
+  searchUsers: async (query: string): Promise<UserProfile[]> => fetchApi<UserProfile[]>(`/profile/search?q=${encodeURIComponent(query)}`),
+
   // Get suggested connections
-  getSuggestedConnections: async (): Promise<UserProfile[]> => {
-    return fetchApi<UserProfile[]>('/profile/suggested-connections');
-  },
-  
+  getSuggestedConnections: async (): Promise<UserProfile[]> => fetchApi<UserProfile[]>('/profile/suggested-connections'),
+
   // Update study preferences
-  updateStudyPreferences: async (preferences: StudyPreferences): Promise<UserProfile> => {
-    return fetchApi<UserProfile>('/profile/study-preferences', 'PUT', preferences);
-  },
-  
+  updateStudyPreferences: async (preferences: StudyPreferences): Promise<UserProfile> => fetchApi<UserProfile>('/profile/study-preferences', 'PUT', preferences),
+
   // Update user preferences
-  updatePreferences: async (preferences: UserPreferences): Promise<UserProfile> => {
-    return fetchApi<UserProfile>('/profile/preferences', 'PUT', preferences);
-  }
+  updatePreferences: async (preferences: UserPreferences): Promise<UserProfile> => fetchApi<UserProfile>('/profile/preferences', 'PUT', preferences),
 };
 
 export default profileService;

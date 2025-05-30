@@ -7,7 +7,7 @@ const TermsOfService: React.FC = () => {
     container: {
       minHeight: '100vh',
       backgroundColor: '#fff',
-      fontFamily: 'Inter, sans-serif'
+      fontFamily: 'Inter, sans-serif',
     } as React.CSSProperties,
     header: {
       padding: '20px 40px',
@@ -15,7 +15,7 @@ const TermsOfService: React.FC = () => {
       boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
       position: 'sticky' as const,
       top: 0,
-      zIndex: 100
+      zIndex: 100,
     },
     backButton: {
       display: 'inline-flex',
@@ -24,73 +24,73 @@ const TermsOfService: React.FC = () => {
       color: '#4A6FDC',
       textDecoration: 'none',
       fontWeight: '500',
-      transition: 'all 0.3s ease'
+      transition: 'all 0.3s ease',
     },
     hero: {
       background: 'linear-gradient(135deg, #4A6FDC 0%, #2DD4BF 100%)',
       padding: '60px 40px',
       textAlign: 'center' as const,
-      color: 'white'
+      color: 'white',
     },
     heroTitle: {
       fontSize: '2.5rem',
       fontWeight: '700',
-      marginBottom: '15px'
+      marginBottom: '15px',
     },
     heroSubtitle: {
       fontSize: '1.1rem',
-      opacity: 0.9
+      opacity: 0.9,
     },
     main: {
       padding: '60px 40px',
       maxWidth: '800px',
-      margin: '0 auto'
+      margin: '0 auto',
     },
     lastUpdated: {
       color: '#6B7280',
       fontSize: '0.9rem',
       marginBottom: '40px',
-      textAlign: 'center' as const
+      textAlign: 'center' as const,
     },
     content: {
       lineHeight: '1.7',
-      color: '#374151'
+      color: '#374151',
     },
     sectionTitle: {
       fontSize: '1.5rem',
       fontWeight: '600',
       color: '#1F2937',
       marginTop: '40px',
-      marginBottom: '20px'
+      marginBottom: '20px',
     },
     subsectionTitle: {
       fontSize: '1.2rem',
       fontWeight: '600',
       color: '#374151',
       marginTop: '30px',
-      marginBottom: '15px'
+      marginBottom: '15px',
     },
     paragraph: {
-      marginBottom: '16px'
+      marginBottom: '16px',
     },
     list: {
       paddingLeft: '20px',
-      marginBottom: '16px'
+      marginBottom: '16px',
     },
     listItem: {
-      marginBottom: '8px'
+      marginBottom: '8px',
     },
     contactInfo: {
       background: '#F9FAFB',
       padding: '20px',
       borderRadius: '8px',
-      marginTop: '40px'
+      marginTop: '40px',
     },
     contactTitle: {
       fontSize: '1.1rem',
       fontWeight: '600',
       color: '#1F2937',
-      marginBottom: '10px'
+      marginBottom: '10px',
     },
     important: {
       background: '#FEF3C7',
@@ -98,8 +98,8 @@ const TermsOfService: React.FC = () => {
       padding: '15px',
       borderRadius: '8px',
       marginBottom: '20px',
-      color: '#92400E'
-    }
+      color: '#92400E',
+    },
   };
 
   return (
@@ -107,8 +107,8 @@ const TermsOfService: React.FC = () => {
       <header style={styles.header}>
         <Link to="/" style={styles.backButton}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M19 12H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           Back to Home
         </Link>
@@ -123,35 +123,37 @@ const TermsOfService: React.FC = () => {
 
       <main style={styles.main}>
         <p style={styles.lastUpdated}>Last updated: January 15, 2025</p>
-        
+
         <div style={styles.content}>
           <div style={styles.important}>
-            <strong>Important:</strong> By using Nomad Desk, you agree to these terms. 
+            <strong>Important:</strong>
+            {' '}
+            By using Nomad Desk, you agree to these terms.
             Please read them carefully before using our services.
           </div>
 
           <p style={styles.paragraph}>
-            Welcome to Nomad Desk! These Terms of Service ("Terms") govern your use of our 
-            workspace discovery platform and services. By accessing or using Nomad Desk, 
+            Welcome to Nomad Desk! These Terms of Service ("Terms") govern your use of our
+            workspace discovery platform and services. By accessing or using Nomad Desk,
             you agree to be bound by these Terms.
           </p>
 
           <h2 style={styles.sectionTitle}>1. Acceptance of Terms</h2>
           <p style={styles.paragraph}>
-            By creating an account or using our services, you acknowledge that you have read, 
-            understood, and agree to be bound by these Terms and our Privacy Policy. If you 
+            By creating an account or using our services, you acknowledge that you have read,
+            understood, and agree to be bound by these Terms and our Privacy Policy. If you
             do not agree to these Terms, you may not use our services.
           </p>
 
           <h2 style={styles.sectionTitle}>2. Description of Service</h2>
           <p style={styles.paragraph}>
-            Nomad Desk is a platform that helps users discover and book workspaces including 
-            libraries, cafés, co-working spaces, and other work-friendly locations. We connect 
+            Nomad Desk is a platform that helps users discover and book workspaces including
+            libraries, cafés, co-working spaces, and other work-friendly locations. We connect
             users with workspace providers but are not responsible for the actual workspace services.
           </p>
 
           <h2 style={styles.sectionTitle}>3. User Accounts</h2>
-          
+
           <h3 style={styles.subsectionTitle}>Account Creation</h3>
           <p style={styles.paragraph}>To use our services, you must:</p>
           <ul style={styles.list}>
@@ -171,7 +173,7 @@ const TermsOfService: React.FC = () => {
           </ul>
 
           <h2 style={styles.sectionTitle}>4. Booking and Payments</h2>
-          
+
           <h3 style={styles.subsectionTitle}>Booking Process</h3>
           <ul style={styles.list}>
             <li style={styles.listItem}>Bookings are subject to availability and workspace policies</li>
@@ -210,65 +212,65 @@ const TermsOfService: React.FC = () => {
 
           <h2 style={styles.sectionTitle}>6. Intellectual Property</h2>
           <p style={styles.paragraph}>
-            All content on Nomad Desk, including text, graphics, logos, images, and software, 
-            is the property of Nomad Desk or its licensors and is protected by copyright, 
+            All content on Nomad Desk, including text, graphics, logos, images, and software,
+            is the property of Nomad Desk or its licensors and is protected by copyright,
             trademark, and other intellectual property laws.
           </p>
 
           <h2 style={styles.sectionTitle}>7. Third-Party Services</h2>
           <p style={styles.paragraph}>
-            Our platform may contain links to third-party websites or integrate with third-party 
-            services. We are not responsible for the content, privacy policies, or practices of 
+            Our platform may contain links to third-party websites or integrate with third-party
+            services. We are not responsible for the content, privacy policies, or practices of
             these third parties.
           </p>
 
           <h2 style={styles.sectionTitle}>8. Disclaimers and Limitations</h2>
-          
+
           <h3 style={styles.subsectionTitle}>Service Availability</h3>
           <p style={styles.paragraph}>
-            We strive to provide uninterrupted service but cannot guarantee 100% uptime. 
+            We strive to provide uninterrupted service but cannot guarantee 100% uptime.
             We may temporarily suspend or restrict access for maintenance or other reasons.
           </p>
 
           <h3 style={styles.subsectionTitle}>Workspace Quality</h3>
           <p style={styles.paragraph}>
-            While we verify our workspace partners, we cannot guarantee the quality, safety, 
-            or suitability of any workspace. Users should exercise their own judgment when 
+            While we verify our workspace partners, we cannot guarantee the quality, safety,
+            or suitability of any workspace. Users should exercise their own judgment when
             selecting and using workspaces.
           </p>
 
           <h3 style={styles.subsectionTitle}>Limitation of Liability</h3>
           <p style={styles.paragraph}>
-            To the maximum extent permitted by law, Nomad Desk shall not be liable for any 
-            indirect, incidental, special, consequential, or punitive damages arising from 
+            To the maximum extent permitted by law, Nomad Desk shall not be liable for any
+            indirect, incidental, special, consequential, or punitive damages arising from
             your use of our services.
           </p>
 
           <h2 style={styles.sectionTitle}>9. Termination</h2>
           <p style={styles.paragraph}>
-            We may terminate or suspend your account and access to our services at any time, 
-            with or without notice, for any reason, including violation of these Terms. 
+            We may terminate or suspend your account and access to our services at any time,
+            with or without notice, for any reason, including violation of these Terms.
             You may also terminate your account at any time through your account settings.
           </p>
 
           <h2 style={styles.sectionTitle}>10. Changes to Terms</h2>
           <p style={styles.paragraph}>
-            We reserve the right to modify these Terms at any time. We will notify you of 
-            material changes by posting the updated Terms on our platform and updating the 
-            "Last updated" date. Your continued use of our services after changes become 
+            We reserve the right to modify these Terms at any time. We will notify you of
+            material changes by posting the updated Terms on our platform and updating the
+            "Last updated" date. Your continued use of our services after changes become
             effective constitutes acceptance of the new Terms.
           </p>
 
           <h2 style={styles.sectionTitle}>11. Governing Law</h2>
           <p style={styles.paragraph}>
-            These Terms shall be governed by and construed in accordance with the laws of 
+            These Terms shall be governed by and construed in accordance with the laws of
             the State of California, without regard to its conflict of law provisions.
           </p>
 
           <h2 style={styles.sectionTitle}>12. Dispute Resolution</h2>
           <p style={styles.paragraph}>
-            Any disputes arising out of or relating to these Terms or our services shall be 
-            resolved through binding arbitration in accordance with the rules of the American 
+            Any disputes arising out of or relating to these Terms or our services shall be
+            resolved through binding arbitration in accordance with the rules of the American
             Arbitration Association, except where prohibited by law.
           </p>
 

@@ -12,29 +12,29 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const navigate = useNavigate();
   const routerState = useRouterState();
   const { isAuthenticated, isLoading } = useAuth();
-  
+
   useEffect(() => {
     // Check if user is authenticated after loading
     if (!isLoading && !isAuthenticated) {
       // Save the current path to redirect back after login
       const currentPath = routerState.location.pathname;
       localStorage.setItem('redirectAfterLogin', currentPath);
-      
+
       // Redirect to login
       navigate({ to: '/login' });
     }
   }, [navigate, routerState.location.pathname, isAuthenticated, isLoading]);
-  
+
   // Show loading state while checking authentication
   if (isLoading) {
-    return <Loading message="Checking authentication..." fullScreen={true} />;
+    return <Loading message="Checking authentication..." fullScreen />;
   }
-  
+
   // If not authenticated, don't render children
   if (!isAuthenticated) {
-    return <Loading message="Redirecting to login..." fullScreen={true} />;
+    return <Loading message="Redirecting to login..." fullScreen />;
   }
-  
+
   // If authenticated, render children
   return <>{children}</>;
 };

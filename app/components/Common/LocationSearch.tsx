@@ -27,7 +27,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   placeholder = 'Search for a location',
   className = '',
   onPlaceSelected,
-  defaultValue = ''
+  defaultValue = '',
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
@@ -38,28 +38,28 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   // Initialize Autocomplete
   const initializeAutocomplete = async () => {
     if (!inputRef.current) {
-      console.warn("Unable to initialize autocomplete: missing input ref");
+      console.warn('Unable to initialize autocomplete: missing input ref');
       setError('Failed to initialize location search');
       setLoading(false);
       return;
     }
-    
+
     try {
       // Ensure Google Maps is loaded with Places library
       await loadGoogleMapsApi(apiKey, ['places']);
-      
+
       // Create autocomplete instance
       const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
         types: ['geocode', 'establishment'],
-        fields: ['address_components', 'geometry', 'name', 'formatted_address', 'place_id']
+        fields: ['address_components', 'geometry', 'name', 'formatted_address', 'place_id'],
       });
-      
+
       // Store reference to autocomplete
       autocompleteRef.current = autocomplete;
-      
+
       // Add place_changed event listener
       autocomplete.addListener('place_changed', handlePlaceChanged);
-      console.log("Autocomplete initialized successfully");
+      console.log('Autocomplete initialized successfully');
       setLoading(false);
     } catch (err) {
       console.error('Error initializing autocomplete:', err);
@@ -71,22 +71,22 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   // Handle place changed event
   const handlePlaceChanged = () => {
     if (!autocompleteRef.current) {
-      console.warn("Autocomplete reference is null");
+      console.warn('Autocomplete reference is null');
       return;
     }
-    
+
     const place = autocompleteRef.current.getPlace();
-    
+
     if (!place.geometry || !place.geometry.location) {
       console.error('No geometry found for this place:', place);
       return;
     }
-    
+
     // Call the onPlaceSelected callback if provided
     if (onPlaceSelected) {
       onPlaceSelected(place);
     }
-    
+
     // Update the input value
     if (place.formatted_address) {
       setInputValue(place.formatted_address);
@@ -96,7 +96,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   // Initialize on component mount
   useEffect(() => {
     initializeAutocomplete();
-    
+
     // Cleanup function
     return () => {
       if (autocompleteRef.current && window.google && window.google.maps && window.google.maps.event) {
@@ -124,11 +124,11 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
           padding: '10px 12px',
           fontSize: '14px',
           borderRadius: '8px',
-          border: '1px solid #E5E7EB'
+          border: '1px solid #E5E7EB',
         }}
         disabled={loading || !!error}
       />
-      
+
       {error && (
         <div style={{ color: '#EF4444', fontSize: '12px', marginTop: '5px' }}>
           {error}

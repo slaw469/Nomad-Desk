@@ -33,7 +33,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
   height = '400px',
   width = '100%',
   className = '',
-  onLoad
+  onLoad,
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -48,13 +48,13 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
       setError('Failed to initialize map - missing container');
       return;
     }
-    
+
     try {
       // Ensure Google Maps is loaded
       await loadGoogleMapsApi(apiKey, ['places']);
-      
+
       console.log('Initializing map with center:', center);
-      
+
       // Create a new map instance
       const mapInstance = new window.google.maps.Map(mapRef.current, {
         center,
@@ -65,48 +65,48 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
         scaleControl: true,
         streetViewControl: true,
         rotateControl: true,
-        fullscreenControl: true
+        fullscreenControl: true,
       });
-      
+
       // Add a marker if title is provided
       if (markerTitle) {
         const marker = new window.google.maps.Marker({
           position: center,
           map: mapInstance,
           title: markerTitle,
-          animation: window.google.maps.Animation.DROP
+          animation: window.google.maps.Animation.DROP,
         });
-        
+
         // Create info window if we have an address
         if (address) {
           const infoContent: MarkerInfoContent = {
             title: markerTitle,
-            address
+            address,
           };
-          
+
           const infoWindow = new window.google.maps.InfoWindow({
-            content: createInfoWindowContent(infoContent)
+            content: createInfoWindowContent(infoContent),
           });
-          
+
           // Open the info window when marker is clicked
           marker.addListener('click', () => {
             infoWindow.open(mapInstance, marker);
           });
-          
+
           // Open info window by default
           infoWindow.open(mapInstance, marker);
         }
       }
-      
+
       // Set the map instance and loading state
       setMap(mapInstance);
       setLoading(false);
-      
+
       // Call onLoad callback if provided
       if (onLoad) {
         onLoad(mapInstance);
       }
-      
+
       console.log('Map initialized successfully');
     } catch (err) {
       console.error('Error initializing map:', err);
@@ -116,19 +116,17 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
   };
 
   // Create HTML content for info window
-  const createInfoWindowContent = (content: MarkerInfoContent): string => {
-    return `
+  const createInfoWindowContent = (content: MarkerInfoContent): string => `
       <div style="padding: 10px; max-width: 200px;">
         <h3 style="margin: 0 0 10px; font-size: 16px; color: #2A3347;">${content.title}</h3>
         ${content.address ? `<p style="margin: 0; font-size: 14px; color: #4B5563;">${content.address}</p>` : ''}
       </div>
     `;
-  };
 
   // Initialize map on component mount
   useEffect(() => {
     initializeMap();
-    
+
     // Cleanup function
     return () => {
       if (map) {
@@ -156,12 +154,13 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: '#F8FAFC'
-        }}>
+          backgroundColor: '#F8FAFC',
+        }}
+        >
           <p>Loading map...</p>
         </div>
       )}
-      
+
       {error && (
         <div style={{
           position: 'absolute',
@@ -175,19 +174,20 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
           backgroundColor: '#F8FAFC',
           color: '#EF4444',
           padding: '20px',
-          textAlign: 'center'
-        }}>
+          textAlign: 'center',
+        }}
+        >
           <p>{error}</p>
         </div>
       )}
-      
-      <div 
-        ref={mapRef} 
-        style={{ 
-          height: '100%', 
+
+      <div
+        ref={mapRef}
+        style={{
+          height: '100%',
           width: '100%',
           borderRadius: '12px',
-          overflow: 'hidden'
+          overflow: 'hidden',
         }}
       />
     </div>

@@ -17,8 +17,8 @@ const WorkspaceSearchPage: React.FC = () => {
   const [userLocation, setUserLocation] = useState<Location | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [apiKey, setApiKey] = useState<string>('');
-  const [,setError] = useState<string | null>(null);
-  
+  const [, setError] = useState<string | null>(null);
+
   // Fetch API key on component mount
   useEffect(() => {
     const fetchApiKey = async () => {
@@ -42,7 +42,7 @@ const WorkspaceSearchPage: React.FC = () => {
           (position) => {
             const location = {
               lat: position.coords.latitude,
-              lng: position.coords.longitude
+              lng: position.coords.longitude,
             };
             setUserLocation(location);
             // Automatically load popular workspaces in user's area
@@ -58,8 +58,8 @@ const WorkspaceSearchPage: React.FC = () => {
           {
             enableHighAccuracy: true,
             timeout: 10000,
-            maximumAge: 300000 // 5 minutes
-          }
+            maximumAge: 300000, // 5 minutes
+          },
         );
       } else {
         console.warn('Geolocation not supported');
@@ -83,31 +83,31 @@ const WorkspaceSearchPage: React.FC = () => {
   };
 
   // Load popular workspaces based on location and filter
-  const loadPopularWorkspaces = async (location: Location, filterType: string = 'all') => {
+  const loadPopularWorkspaces = async (location: Location, filterType = 'all') => {
     setLoadingPopular(true);
     try {
       // Search for workspaces based on filter
       const searchParams = {
         location,
         radius: 5000, // 5km radius for popular workspaces
-        type: filterType === 'all' ? undefined : 
-              filterType === 'coworking' ? 'establishment' : filterType
+        type: filterType === 'all' ? undefined
+          : filterType === 'coworking' ? 'establishment' : filterType,
       };
 
       const results = await workspaceService.searchWorkspaces(searchParams);
-      
+
       // Sort by rating and limit to top workspaces
       const sortedResults = results
-        .filter(workspace => workspace.rating && workspace.rating >= 4.0) // Only highly rated
+        .filter((workspace) => workspace.rating && workspace.rating >= 4.0) // Only highly rated
         .sort((a, b) => (b.rating || 0) - (a.rating || 0))
         .slice(0, 6); // Limit to 6 popular workspaces
 
       // Add distance information
-      const workspacesWithDistance = sortedResults.map(workspace => {
+      const workspacesWithDistance = sortedResults.map((workspace) => {
         const distance = workspaceService.calculateDistance(location, workspace.coordinates);
         return {
           ...workspace,
-          distance: workspaceService.formatDistance(distance)
+          distance: workspaceService.formatDistance(distance),
         };
       });
 
@@ -126,7 +126,7 @@ const WorkspaceSearchPage: React.FC = () => {
     setSelectedLocation(location);
     setLocationAddress(address);
     setMapVisible(true);
-    
+
     // Update popular workspaces based on new location
     loadPopularWorkspaces(location, activeFilter);
   };
@@ -137,9 +137,7 @@ const WorkspaceSearchPage: React.FC = () => {
   };
 
   // Get photo URL
-  const getPhotoUrl = (photoReference: string) => {
-    return mapsService.getPhotoUrl(photoReference);
-  };
+  const getPhotoUrl = (photoReference: string) => mapsService.getPhotoUrl(photoReference);
 
   return (
     <div className={styles.workspaceSearchPageContainer}>
@@ -147,17 +145,17 @@ const WorkspaceSearchPage: React.FC = () => {
       <div className={styles.searchNavigation}>
         <Link to="/dashboard" className={styles.backButton}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M19 12H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           Back to Dashboard
         </Link>
-        
+
         <div className={styles.searchBreadcrumb}>
           <Link to="/dashboard" className={styles.breadcrumbLink}>Dashboard</Link>
           <span className={styles.breadcrumbSeparator}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
           <span className={styles.breadcrumbCurrent}>Search Workspaces</span>
@@ -181,11 +179,11 @@ const WorkspaceSearchPage: React.FC = () => {
             <div className={styles.mapToggle} onClick={toggleMap}>
               <span>{mapVisible ? 'Hide Map' : 'Show Map'}</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path 
-                  d={mapVisible ? "M19 9l-7 7-7-7" : "M5 15l7-7 7 7"} 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
+                <path
+                  d={mapVisible ? 'M19 9l-7 7-7-7' : 'M5 15l7-7 7 7'}
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
                   strokeLinejoin="round"
                 />
               </svg>
@@ -215,28 +213,28 @@ const WorkspaceSearchPage: React.FC = () => {
           <p>Filter workspaces by type to find exactly what you need</p>
         </div>
         <div className={styles.filterButtons}>
-          <button 
+          <button
             className={`${styles.filterButton} ${activeFilter === 'all' ? styles.active : ''}`}
             onClick={() => handleFilterChange('all')}
           >
             <span className={styles.filterIcon}>🏢</span>
             All Types
           </button>
-          <button 
+          <button
             className={`${styles.filterButton} ${activeFilter === 'library' ? styles.active : ''}`}
             onClick={() => handleFilterChange('library')}
           >
             <span className={styles.filterIcon}>📚</span>
             Libraries
           </button>
-          <button 
+          <button
             className={`${styles.filterButton} ${activeFilter === 'cafe' ? styles.active : ''}`}
             onClick={() => handleFilterChange('cafe')}
           >
             <span className={styles.filterIcon}>☕</span>
             Cafés
           </button>
-          <button 
+          <button
             className={`${styles.filterButton} ${activeFilter === 'coworking' ? styles.active : ''}`}
             onClick={() => handleFilterChange('coworking')}
           >
@@ -257,21 +255,24 @@ const WorkspaceSearchPage: React.FC = () => {
       <div className={styles.popularWorkspaces}>
         <div className={styles.sectionHeader}>
           <h2>
-            {activeFilter === 'all' 
-              ? 'Popular Workspaces in Your Area' 
-              : `Popular ${activeFilter === 'cafe' ? 'Cafés' : 
-                         activeFilter === 'library' ? 'Libraries' : 
-                         activeFilter === 'coworking' ? 'Co-working Spaces' : 
-                         activeFilter === 'book_store' ? 'Bookstores' : 'Workspaces'} in Your Area`
-            }
+            {activeFilter === 'all'
+              ? 'Popular Workspaces in Your Area'
+              : `Popular ${activeFilter === 'cafe' ? 'Cafés'
+                : activeFilter === 'library' ? 'Libraries'
+                  : activeFilter === 'coworking' ? 'Co-working Spaces'
+                    : activeFilter === 'book_store' ? 'Bookstores' : 'Workspaces'} in Your Area`}
           </h2>
           {!loadingPopular && popularWorkspaces.length > 0 && (
             <p className={styles.sectionSubtitle}>
-              Showing {popularWorkspaces.length} highly-rated spaces near you
+              Showing
+              {' '}
+              {popularWorkspaces.length}
+              {' '}
+              highly-rated spaces near you
             </p>
           )}
         </div>
-        
+
         {loadingPopular ? (
           <div className={styles.loadingIndicator}>
             <Loading message="Finding popular workspaces..." />
@@ -282,10 +283,10 @@ const WorkspaceSearchPage: React.FC = () => {
               <div key={workspace.id} className={styles.workspaceCard}>
                 <div className={styles.cardImage}>
                   <Link to="/workspaces/map/$placeId" params={{ placeId: workspace.id }}>
-                    <img 
-                      src={workspace.photos && workspace.photos.length > 0 
+                    <img
+                      src={workspace.photos && workspace.photos.length > 0
                         ? getPhotoUrl(workspace.photos[0])
-                        : `/api/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`} 
+                        : `/api/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`}
                       alt={workspace.name}
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
@@ -295,7 +296,7 @@ const WorkspaceSearchPage: React.FC = () => {
                   </Link>
                   <div className={styles.cardFavorite}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M20.84 4.61C20.3292 4.099 19.7228 3.69364 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69364 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.57831 8.50903 2.99871 7.05 2.99871C5.59096 2.99871 4.19169 3.57831 3.16 4.61C2.1283 5.64169 1.54871 7.04097 1.54871 8.5C1.54871 9.95903 2.1283 11.3583 3.16 12.39L4.22 13.45L12 21.23L19.78 13.45L20.84 12.39C21.351 11.8792 21.7563 11.2728 22.0329 10.6054C22.3095 9.93792 22.4518 9.22252 22.4518 8.5C22.4518 7.77748 22.3095 7.06208 22.0329 6.39464C21.7563 5.7272 21.351 5.12076 20.84 4.61Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M20.84 4.61C20.3292 4.099 19.7228 3.69364 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69364 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.57831 8.50903 2.99871 7.05 2.99871C5.59096 2.99871 4.19169 3.57831 3.16 4.61C2.1283 5.64169 1.54871 7.04097 1.54871 8.5C1.54871 9.95903 2.1283 11.3583 3.16 12.39L4.22 13.45L12 21.23L19.78 13.45L20.84 12.39C21.351 11.8792 21.7563 11.2728 22.0329 10.6054C22.3095 9.93792 22.4518 9.22252 22.4518 8.5C22.4518 7.77748 22.3095 7.06208 22.0329 6.39464C21.7563 5.7272 21.351 5.12076 20.84 4.61Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </div>
                 </div>
@@ -304,7 +305,10 @@ const WorkspaceSearchPage: React.FC = () => {
                     {workspace.name}
                   </Link>
                   <p className={styles.cardLocation}>
-                    {workspace.distance} • {workspace.address.split(',')[0]}
+                    {workspace.distance}
+                    {' '}
+                    •
+                    {workspace.address.split(',')[0]}
                   </p>
                   <div className={styles.cardAmenities}>
                     <span className={styles.cardAmenity}>{workspace.type}</span>
@@ -318,7 +322,7 @@ const WorkspaceSearchPage: React.FC = () => {
                       {workspace.rating ? (
                         <>
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="#4A6FDC" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="#4A6FDC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="#4A6FDC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
                           {workspace.rating.toFixed(1)}
                         </>

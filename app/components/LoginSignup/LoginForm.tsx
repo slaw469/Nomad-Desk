@@ -10,7 +10,9 @@ interface LoginFormProps {
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
-  const { login, socialLogin, isLoading, error, clearError } = useAuth();
+  const {
+    login, socialLogin, isLoading, error, clearError,
+  } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -27,13 +29,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
     e.preventDefault();
     clearError();
     setFormError('');
-    
+
     // Basic validation
     if (!email || !password) {
       setFormError('Please enter both email and password');
       return;
     }
-    
+
     try {
       await login({ email, password, rememberMe });
     } catch (err) {
@@ -54,7 +56,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
           {formError}
         </div>
       )}
-      
+
       <div className={styles.formGroup}>
         <label htmlFor="login-email" className={styles.formLabel}>
           Email Address
@@ -70,7 +72,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
           disabled={isLoading}
         />
       </div>
-      
+
       <div className={styles.formGroup}>
         <label htmlFor="login-password" className={styles.formLabel}>
           Password
@@ -86,7 +88,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
           disabled={isLoading}
         />
       </div>
-      
+
       <div className={styles.formCheckboxGroup}>
         <input
           type="checkbox"
@@ -101,30 +103,31 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
           Forgot Password?
         </a>
       </div>
-      
-      <button 
-        type="submit" 
+
+      <button
+        type="submit"
         className={`${styles.btn} ${styles.btnPrimary}`}
         disabled={isLoading}
       >
         {isLoading ? 'Signing In...' : 'Sign In'}
       </button>
-      
+
       <Divider />
-      
+
       {/* Only include Google button */}
       <div className={styles.socialButtons}>
-        <SocialButton 
-          provider="google" 
+        <SocialButton
+          provider="google"
           disabled={isLoading}
           onClick={() => handleSocialLoginClick('google')}
         />
       </div>
-      
+
       <div className={styles.accountText}>
-        Don't have an account?{' '}
-        <a 
-          href="#" 
+        Don't have an account?
+        {' '}
+        <a
+          href="#"
           className={styles.formLink}
           onClick={(e) => {
             e.preventDefault();

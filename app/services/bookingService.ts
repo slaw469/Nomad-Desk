@@ -1,16 +1,16 @@
 // app/services/bookingService.ts - COMPLETE WITH GROUP BOOKING SUPPORT
 
-import { 
-  GroupBooking, 
-  GroupBookingRequest, 
-  GroupInvitationRequest, 
+import {
+  GroupBooking,
+  GroupBookingRequest,
+  GroupInvitationRequest,
   GroupInvitationResponse,
   GroupBookingStats,
   GroupParticipantsResponse,
   SendInvitationsResponse,
   JoinGroupResponse,
   PublicGroupBooking,
-  GroupBookingFilters
+  GroupBookingFilters,
 } from '../types/groupBooking';
 
 // Base API URL from environment or fallback
@@ -45,7 +45,7 @@ export interface Booking {
   cancellationDate?: string;
   createdAt: string;
   updatedAt: string;
-  
+
   // Group booking fields (optional)
   isGroupBooking?: boolean;
   groupName?: string;
@@ -62,7 +62,7 @@ export interface Booking {
   inviteCode?: string;
   isPublic?: boolean;
   tags?: string[];
-  
+
   // Virtual fields from backend
   durationMinutes?: number;
   formattedDate?: string;
@@ -123,9 +123,9 @@ export interface Review {
 
 // Generic fetch function for API calls
 const fetchApi = async <T>(
-  endpoint: string, 
-  method: string = 'GET', 
-  data?: any
+  endpoint: string,
+  method = 'GET',
+  data?: any,
 ): Promise<T> => {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -149,14 +149,14 @@ const fetchApi = async <T>(
       method,
       headers,
       body: data ? JSON.stringify(data) : undefined,
-      credentials: 'include'
+      credentials: 'include',
     });
-    
+
     // Handle non-JSON responses
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
       const responseData = await response.json();
-      
+
       if (!response.ok) {
         const errorMessage = responseData.message || `Error: ${response.status} ${response.statusText}`;
         console.error('API error:', errorMessage);
@@ -164,12 +164,11 @@ const fetchApi = async <T>(
       }
 
       return responseData as T;
-    } else {
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-      }
-      return {} as T;
     }
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+    return {} as T;
   } catch (error) {
     console.error('API fetch error:', error);
     throw error;
@@ -182,78 +181,54 @@ const fetchApi = async <T>(
 
 export const bookingService = {
   // Get all bookings (includes group bookings)
-  getAllBookings: async (): Promise<Booking[]> => {
-    return fetchApi<Booking[]>('/bookings');
-  },
-  
+  getAllBookings: async (): Promise<Booking[]> => fetchApi<Booking[]>('/bookings'),
+
   // Get upcoming bookings (includes group bookings)
-  getUpcomingBookings: async (): Promise<Booking[]> => {
-    return fetchApi<Booking[]>('/bookings/upcoming');
-  },
-  
+  getUpcomingBookings: async (): Promise<Booking[]> => fetchApi<Booking[]>('/bookings/upcoming'),
+
   // Get past bookings (includes group bookings)
-  getPastBookings: async (): Promise<Booking[]> => {
-    return fetchApi<Booking[]>('/bookings/past');
-  },
-  
+  getPastBookings: async (): Promise<Booking[]> => fetchApi<Booking[]>('/bookings/past'),
+
   // Get booking by ID
-  getBookingById: async (bookingId: string): Promise<Booking> => {
-    return fetchApi<Booking>(`/bookings/${bookingId}`);
-  },
-  
+  getBookingById: async (bookingId: string): Promise<Booking> => fetchApi<Booking>(`/bookings/${bookingId}`),
+
   // Create a new individual booking
-  createBooking: async (bookingData: BookingRequest): Promise<Booking> => {
-    return fetchApi<Booking>('/bookings', 'POST', bookingData);
-  },
-  
+  createBooking: async (bookingData: BookingRequest): Promise<Booking> => fetchApi<Booking>('/bookings', 'POST', bookingData),
+
   // Update booking
-  updateBooking: async (bookingId: string, bookingData: Partial<BookingRequest>): Promise<Booking> => {
-    return fetchApi<Booking>(`/bookings/${bookingId}`, 'PUT', bookingData);
-  },
-  
+  updateBooking: async (bookingId: string, bookingData: Partial<BookingRequest>): Promise<Booking> => fetchApi<Booking>(`/bookings/${bookingId}`, 'PUT', bookingData),
+
   // Cancel booking
-  cancelBooking: async (bookingId: string): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>(`/bookings/${bookingId}/cancel`, 'PUT');
-  },
-  
+  cancelBooking: async (bookingId: string): Promise<{ message: string }> => fetchApi<{ message: string }>(`/bookings/${bookingId}/cancel`, 'PUT'),
+
   // Delete booking
-  deleteBooking: async (bookingId: string): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>(`/bookings/${bookingId}`, 'DELETE');
-  },
-  
+  deleteBooking: async (bookingId: string): Promise<{ message: string }> => fetchApi<{ message: string }>(`/bookings/${bookingId}`, 'DELETE'),
+
   // Check workspace availability
   checkAvailability: async (
-    workspaceId: string, 
-    date: string, 
-    startTime: string, 
-    endTime: string
+    workspaceId: string,
+    date: string,
+    startTime: string,
+    endTime: string,
   ): Promise<AvailabilityResponse> => {
     const params = new URLSearchParams({
       workspaceId,
       date,
       startTime,
-      endTime
+      endTime,
     });
     return fetchApi<AvailabilityResponse>(`/bookings/availability?${params}`);
   },
 
   // Get booking statistics (updated for group bookings)
-  getBookingStats: async (): Promise<BookingStats> => {
-    return fetchApi<BookingStats>('/bookings/stats');
-  },
+  getBookingStats: async (): Promise<BookingStats> => fetchApi<BookingStats>('/bookings/stats'),
 
   // Helper functions
-  formatDateForApi: (date: Date): string => {
-    return date.toISOString().split('T')[0];
-  },
+  formatDateForApi: (date: Date): string => date.toISOString().split('T')[0],
 
-  formatTimeForApi: (date: Date): string => {
-    return date.toTimeString().split(' ')[0].substring(0, 5);
-  },
+  formatTimeForApi: (date: Date): string => date.toTimeString().split(' ')[0].substring(0, 5),
 
-  parseApiDate: (dateString: string): Date => {
-    return new Date(dateString);
-  },
+  parseApiDate: (dateString: string): Date => new Date(dateString),
 
   canCancelBooking: (booking: Booking): boolean => {
     const now = new Date();
@@ -271,11 +246,11 @@ export const bookingService = {
   modifyBooking: async (bookingId: string, updates: Partial<BookingRequest>): Promise<Booking> => {
     try {
       const response = await fetchApi<Booking>(`/bookings/${bookingId}`, 'PUT', updates);
-      
+
       if (!response) {
         throw new Error('Failed to modify booking. Please try again.');
       }
-      
+
       return response;
     } catch (error) {
       console.error('Modify booking error:', error);
@@ -289,9 +264,9 @@ export const bookingService = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-auth-token': localStorage.getItem('token') || ''
+        'x-auth-token': localStorage.getItem('token') || '',
       },
-      body: JSON.stringify({ rating, review })
+      body: JSON.stringify({ rating, review }),
     });
 
     if (!response.ok) {
@@ -301,15 +276,13 @@ export const bookingService = {
   },
 
   // Get reviews for a workspace
-  getWorkspaceReviews: async (workspaceId: string): Promise<Review[]> => {
-    return fetchApi<Review[]>(`/workspaces/${workspaceId}/reviews`);
-  },
+  getWorkspaceReviews: async (workspaceId: string): Promise<Review[]> => fetchApi<Review[]>(`/workspaces/${workspaceId}/reviews`),
 
   // Book again using an existing booking as template
-  bookAgain: async (bookingId: string): Promise<Booking> => {
+  bookAgain: async (bookingId: string): Promise<Booking> =>
     // Just get the booking details - don't try to create a new booking
-    return fetchApi<Booking>(`/bookings/${bookingId}`);
-  }
+    fetchApi<Booking>(`/bookings/${bookingId}`),
+
 };
 
 // =============================================================================
@@ -318,69 +291,49 @@ export const bookingService = {
 
 export const groupBookingService = {
   // Create a new group booking
-  createGroupBooking: async (bookingData: GroupBookingRequest): Promise<GroupBooking> => {
-    return fetchApi<GroupBooking>('/bookings/group', 'POST', bookingData);
-  },
+  createGroupBooking: async (bookingData: GroupBookingRequest): Promise<GroupBooking> => fetchApi<GroupBooking>('/bookings/group', 'POST', bookingData),
 
   // Get group booking details
-  getGroupBooking: async (bookingId: string): Promise<GroupBooking> => {
-    return fetchApi<GroupBooking>(`/bookings/group/${bookingId}`);
-  },
+  getGroupBooking: async (bookingId: string): Promise<GroupBooking> => fetchApi<GroupBooking>(`/bookings/group/${bookingId}`),
 
   // Update group booking (organizer only)
   updateGroupBooking: async (
-    bookingId: string, 
-    updates: Partial<GroupBookingRequest>
-  ): Promise<{ message: string; booking: GroupBooking; updatedFields: string[] }> => {
-    return fetchApi(`/bookings/group/${bookingId}`, 'PUT', updates);
-  },
+    bookingId: string,
+    updates: Partial<GroupBookingRequest>,
+  ): Promise<{ message: string; booking: GroupBooking; updatedFields: string[] }> => fetchApi(`/bookings/group/${bookingId}`, 'PUT', updates),
 
   // Cancel group booking (organizer only)
   cancelGroupBooking: async (
-    bookingId: string, 
-    reason?: string
-  ): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>(`/bookings/group/${bookingId}`, 'DELETE', { reason });
-  },
+    bookingId: string,
+    reason?: string,
+  ): Promise<{ message: string }> => fetchApi<{ message: string }>(`/bookings/group/${bookingId}`, 'DELETE', { reason }),
 
   // Send invitations to join group
   sendGroupInvitations: async (
-    bookingId: string, 
-    invitations: GroupInvitationRequest[]
-  ): Promise<SendInvitationsResponse> => {
-    return fetchApi<SendInvitationsResponse>(`/bookings/group/${bookingId}/invite`, 'POST', { invitations });
-  },
+    bookingId: string,
+    invitations: GroupInvitationRequest[],
+  ): Promise<SendInvitationsResponse> => fetchApi<SendInvitationsResponse>(`/bookings/group/${bookingId}/invite`, 'POST', { invitations }),
 
   // Respond to group invitation (accept/decline)
   respondToGroupInvitation: async (
-    bookingId: string, 
-    response: GroupInvitationResponse
-  ): Promise<{ message: string; status: string; groupName: string }> => {
-    return fetchApi(`/bookings/group/${bookingId}/respond`, 'PUT', response);
-  },
+    bookingId: string,
+    response: GroupInvitationResponse,
+  ): Promise<{ message: string; status: string; groupName: string }> => fetchApi(`/bookings/group/${bookingId}/respond`, 'PUT', response),
 
   // Get group participants
-  getGroupParticipants: async (bookingId: string): Promise<GroupParticipantsResponse> => {
-    return fetchApi<GroupParticipantsResponse>(`/bookings/group/${bookingId}/participants`);
-  },
+  getGroupParticipants: async (bookingId: string): Promise<GroupParticipantsResponse> => fetchApi<GroupParticipantsResponse>(`/bookings/group/${bookingId}/participants`),
 
   // Remove participant from group (organizer only)
   removeParticipant: async (
-    bookingId: string, 
-    participantId: string
-  ): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>(`/bookings/group/${bookingId}/participants/${participantId}`, 'DELETE');
-  },
+    bookingId: string,
+    participantId: string,
+  ): Promise<{ message: string }> => fetchApi<{ message: string }>(`/bookings/group/${bookingId}/participants/${participantId}`, 'DELETE'),
 
   // Join group by invite code
-  joinGroupByCode: async (inviteCode: string): Promise<JoinGroupResponse> => {
-    return fetchApi<JoinGroupResponse>(`/bookings/group/join/${inviteCode}`, 'POST');
-  },
+  joinGroupByCode: async (inviteCode: string): Promise<JoinGroupResponse> => fetchApi<JoinGroupResponse>(`/bookings/group/join/${inviteCode}`, 'POST'),
 
   // Leave group (participant only)
-  leaveGroup: async (bookingId: string): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>(`/bookings/group/${bookingId}/leave`, 'POST');
-  },
+  leaveGroup: async (bookingId: string): Promise<{ message: string }> => fetchApi<{ message: string }>(`/bookings/group/${bookingId}/leave`, 'POST'),
 
   // Get user's group bookings
   getMyGroupBookings: async (filters?: GroupBookingFilters): Promise<GroupBooking[]> => {
@@ -427,9 +380,7 @@ export const groupBookingService = {
   },
 
   // Get group booking statistics
-  getGroupBookingStats: async (bookingId: string): Promise<GroupBookingStats> => {
-    return fetchApi<GroupBookingStats>(`/bookings/group/${bookingId}/stats`);
-  },
+  getGroupBookingStats: async (bookingId: string): Promise<GroupBookingStats> => fetchApi<GroupBookingStats>(`/bookings/group/${bookingId}/stats`),
 
   // Search group bookings by invite code
   searchByInviteCode: async (inviteCode: string): Promise<PublicGroupBooking | null> => {
@@ -444,51 +395,35 @@ export const groupBookingService = {
   },
 
   // Helper functions for group bookings
-  isUserOrganizer: (booking: GroupBooking, userId: string): boolean => {
-    return booking.organizer.id === userId;
-  },
+  isUserOrganizer: (booking: GroupBooking, userId: string): boolean => booking.organizer.id === userId,
 
-  isUserParticipant: (booking: GroupBooking, userId: string): boolean => {
-    return booking.participants.some(p => p.user.id === userId);
-  },
+  isUserParticipant: (booking: GroupBooking, userId: string): boolean => booking.participants.some((p) => p.user.id === userId),
 
   getUserParticipantStatus: (booking: GroupBooking, userId: string): string => {
     if (groupBookingService.isUserOrganizer(booking, userId)) {
       return 'organizer';
     }
-    const participant = booking.participants.find(p => p.user.id === userId);
+    const participant = booking.participants.find((p) => p.user.id === userId);
     return participant ? participant.status : 'none';
   },
 
-  canUserInvite: (booking: GroupBooking, userId: string): boolean => {
-    return groupBookingService.isUserOrganizer(booking, userId) || 
-           booking.groupSettings.allowParticipantInvites;
-  },
+  canUserInvite: (booking: GroupBooking, userId: string): boolean => groupBookingService.isUserOrganizer(booking, userId)
+           || booking.groupSettings.allowParticipantInvites,
 
-  canUserManage: (booking: GroupBooking, userId: string): boolean => {
-    return groupBookingService.isUserOrganizer(booking, userId);
-  },
+  canUserManage: (booking: GroupBooking, userId: string): boolean => groupBookingService.isUserOrganizer(booking, userId),
 
-  canUserLeave: (booking: GroupBooking, userId: string): boolean => {
-    return groupBookingService.isUserParticipant(booking, userId) && 
-           !groupBookingService.isUserOrganizer(booking, userId);
-  },
+  canUserLeave: (booking: GroupBooking, userId: string): boolean => groupBookingService.isUserParticipant(booking, userId)
+           && !groupBookingService.isUserOrganizer(booking, userId),
 
-  getAvailableSpots: (booking: GroupBooking): number => {
-    return booking.maxParticipants - booking.currentParticipantCount;
-  },
+  getAvailableSpots: (booking: GroupBooking): number => booking.maxParticipants - booking.currentParticipantCount,
 
-  canAcceptMoreParticipants: (booking: GroupBooking): boolean => {
-    return booking.currentParticipantCount < booking.maxParticipants;
-  },
+  canAcceptMoreParticipants: (booking: GroupBooking): boolean => booking.currentParticipantCount < booking.maxParticipants,
 
-  hasMinimumParticipants: (booking: GroupBooking): boolean => {
-    return booking.currentParticipantCount >= booking.minParticipants;
-  }
+  hasMinimumParticipants: (booking: GroupBooking): boolean => booking.currentParticipantCount >= booking.minParticipants,
 };
 
 // Export both services as default
-export default { 
-  bookingService, 
-  groupBookingService 
+export default {
+  bookingService,
+  groupBookingService,
 };

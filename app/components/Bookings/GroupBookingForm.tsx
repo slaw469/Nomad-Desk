@@ -3,10 +3,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { groupBookingService } from '../../services/bookingService';
-import { 
-  GroupBookingFormData, 
+import {
+  GroupBookingFormData,
   GroupBookingFormErrors,
-  GroupBookingRequest 
+  GroupBookingRequest,
 } from '../../types/groupBooking';
 import styles from './GroupBookingForm.module.css';
 
@@ -27,7 +27,7 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
   workspaceType,
   workspacePhoto,
   onBookingCreated,
-  onCancel
+  onCancel,
 }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -40,7 +40,7 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
       name: workspaceName,
       address: workspaceAddress,
       type: workspaceType,
-      photo: workspacePhoto
+      photo: workspacePhoto,
     },
     date: '',
     startTime: '',
@@ -55,7 +55,7 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
     specialRequests: '',
     allowParticipantInvites: false,
     requireApproval: true,
-    sendReminders: true
+    sendReminders: true,
   });
 
   // Available room types for group bookings
@@ -64,11 +64,10 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
     'Event Space',
     'Workshop Room',
     'Meeting Room',
-    'Group Study Room (2-4 people)'
+    'Group Study Room (2-4 people)',
   ];
 
   // Common tags for group bookings
-  
 
   // Get tomorrow's date as minimum date
   const getMinDate = () => {
@@ -93,22 +92,21 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
 
   // Handle input changes
   const handleInputChange = (field: keyof GroupBookingFormData, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
 
     // Clear field error when user starts typing
     if (errors[field as keyof GroupBookingFormErrors]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: undefined
+        [field]: undefined,
       }));
     }
   };
 
   // Handle tag selection
-  
 
   // Validate form
   const validateForm = (): boolean => {
@@ -119,7 +117,7 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
     if (!formData.endTime) newErrors.endTime = 'End time is required';
     if (!formData.roomType) newErrors.roomType = 'Room type is required';
     if (!formData.groupName.trim()) newErrors.groupName = 'Group name is required';
-    
+
     if (formData.startTime >= formData.endTime) {
       newErrors.endTime = 'End time must be after start time';
     }
@@ -147,7 +145,7 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -176,14 +174,14 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
         groupSettings: {
           allowParticipantInvites: formData.allowParticipantInvites,
           requireApproval: formData.requireApproval,
-          sendReminders: formData.sendReminders
-        }
+          sendReminders: formData.sendReminders,
+        },
       };
 
       const createdBooking = await groupBookingService.createGroupBooking(bookingRequest);
-      
+
       console.log('✅ Group booking created:', createdBooking);
-      
+
       if (onBookingCreated) {
         onBookingCreated(createdBooking);
       } else {
@@ -193,7 +191,7 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
     } catch (error) {
       console.error('❌ Failed to create group booking:', error);
       setErrors({
-        general: error instanceof Error ? error.message : 'Failed to create group booking'
+        general: error instanceof Error ? error.message : 'Failed to create group booking',
       });
     } finally {
       setLoading(false);
@@ -205,7 +203,9 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
       <div className={styles.formHeader}>
         <h2 className={styles.formTitle}>Create Group Booking</h2>
         <p className={styles.formSubtitle}>
-          Organize a study session or meeting at {workspaceName}
+          Organize a study session or meeting at
+          {' '}
+          {workspaceName}
         </p>
       </div>
 
@@ -228,11 +228,13 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
         {/* Basic Details */}
         <div className={styles.formSection}>
           <h3 className={styles.sectionTitle}>Basic Details</h3>
-          
+
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label htmlFor="groupName" className={styles.label}>
-                Group Name <span className={styles.required}>*</span>
+                Group Name
+                {' '}
+                <span className={styles.required}>*</span>
               </label>
               <input
                 type="text"
@@ -264,7 +266,8 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
                 rows={3}
               />
               <div className={styles.charCount}>
-                {formData.groupDescription.length}/500
+                {formData.groupDescription.length}
+                /500
               </div>
             </div>
           </div>
@@ -273,11 +276,13 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
         {/* Date and Time */}
         <div className={styles.formSection}>
           <h3 className={styles.sectionTitle}>Date & Time</h3>
-          
+
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label htmlFor="date" className={styles.label}>
-                Date <span className={styles.required}>*</span>
+                Date
+                {' '}
+                <span className={styles.required}>*</span>
               </label>
               <input
                 type="date"
@@ -294,7 +299,9 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
 
             <div className={styles.formGroup}>
               <label htmlFor="startTime" className={styles.label}>
-                Start Time <span className={styles.required}>*</span>
+                Start Time
+                {' '}
+                <span className={styles.required}>*</span>
               </label>
               <select
                 id="startTime"
@@ -303,7 +310,7 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
                 className={`${styles.select} ${errors.startTime ? styles.inputError : ''}`}
               >
                 <option value="">Select start time</option>
-                {timeOptions.map(time => (
+                {timeOptions.map((time) => (
                   <option key={time} value={time}>{time}</option>
                 ))}
               </select>
@@ -314,7 +321,9 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
 
             <div className={styles.formGroup}>
               <label htmlFor="endTime" className={styles.label}>
-                End Time <span className={styles.required}>*</span>
+                End Time
+                {' '}
+                <span className={styles.required}>*</span>
               </label>
               <select
                 id="endTime"
@@ -324,8 +333,8 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
               >
                 <option value="">Select end time</option>
                 {timeOptions
-                  .filter(time => !formData.startTime || time > formData.startTime)
-                  .map(time => (
+                  .filter((time) => !formData.startTime || time > formData.startTime)
+                  .map((time) => (
                     <option key={time} value={time}>{time}</option>
                   ))}
               </select>
@@ -339,11 +348,13 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
         {/* Room Selection */}
         <div className={styles.formSection}>
           <h3 className={styles.sectionTitle}>Room & Participants</h3>
-          
+
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label htmlFor="roomType" className={styles.label}>
-                Room Type <span className={styles.required}>*</span>
+                Room Type
+                {' '}
+                <span className={styles.required}>*</span>
               </label>
               <select
                 id="roomType"
@@ -351,7 +362,7 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
                 onChange={(e) => handleInputChange('roomType', e.target.value)}
                 className={`${styles.select} ${errors.roomType ? styles.inputError : ''}`}
               >
-                {groupRoomTypes.map(type => (
+                {groupRoomTypes.map((type) => (
                   <option key={type} value={type}>{type}</option>
                 ))}
               </select>

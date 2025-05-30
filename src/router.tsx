@@ -34,38 +34,40 @@ import TrustSafety from '../app/components/Legal/TrustSafety';
 import '../app/styles/font-fix.css';
 
 // Error boundary component for routes
-const RouteErrorComponent = ({ error }: { error: Error }) => {
+function RouteErrorComponent({ error }: { error: Error }) {
   console.error('Route error:', error);
-  
+
   return (
-    <div style={{ 
-      padding: '50px', 
-      textAlign: 'center', 
+    <div style={{
+      padding: '50px',
+      textAlign: 'center',
       color: 'red',
       backgroundColor: '#fff',
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
-      alignItems: 'center'
-    }}>
+      alignItems: 'center',
+    }}
+    >
       <h1>Something went wrong</h1>
       <p>We're sorry, but something unexpected happened.</p>
       <details style={{ marginTop: '20px', textAlign: 'left' }}>
         <summary>Error details</summary>
-        <pre style={{ 
-          background: '#f5f5f5', 
-          padding: '10px', 
+        <pre style={{
+          background: '#f5f5f5',
+          padding: '10px',
           borderRadius: '4px',
           fontSize: '12px',
           maxWidth: '600px',
-          overflow: 'auto'
-        }}>
+          overflow: 'auto',
+        }}
+        >
           {error.message}
         </pre>
       </details>
-      <button 
-        onClick={() => window.location.reload()} 
+      <button
+        onClick={() => window.location.reload()}
         style={{
           marginTop: '20px',
           padding: '10px 20px',
@@ -73,14 +75,14 @@ const RouteErrorComponent = ({ error }: { error: Error }) => {
           color: 'white',
           border: 'none',
           borderRadius: '4px',
-          cursor: 'pointer'
+          cursor: 'pointer',
         }}
       >
         Refresh Page
       </button>
     </div>
   );
-};
+}
 
 // Define the root route with error boundary
 const rootRoute = new RootRoute({
@@ -294,13 +296,11 @@ const oauthSuccessRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/oauth-success',
   component: OAuthSuccess,
-  validateSearch: (search: Record<string, unknown>) => {
-    return {
-      token: search.token as string,
-      user: search.user as string,
-      error: search.error as string,
-    }
-  },
+  validateSearch: (search: Record<string, unknown>) => ({
+    token: search.token as string,
+    user: search.user as string,
+    error: search.error as string,
+  }),
   errorComponent: RouteErrorComponent,
 });
 
@@ -484,7 +484,7 @@ const routeTree = rootRoute.addChildren([
 ]);
 
 // Create the router with error handling
-export const router = new Router({ 
+export const router = new Router({
   routeTree,
   defaultErrorComponent: RouteErrorComponent,
   context: undefined,

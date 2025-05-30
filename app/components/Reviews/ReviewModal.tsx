@@ -12,7 +12,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
-  workspaceName
+  workspaceName,
 }) => {
   const [rating, setRating] = useState<number>(5);
   const [review, setReview] = useState<string>('');
@@ -22,7 +22,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return; // Prevent double submission
-    
+
     setIsSubmitting(true);
     setError(null);
 
@@ -48,17 +48,25 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className={styles.modalOverlay} onClick={(e) => {
-      if (e.target === e.currentTarget && !isSubmitting) onClose();
-    }}>
-      <div className={styles.modal} onClick={e => e.stopPropagation()}>
-        <button 
-          className={styles.closeButton} 
+    <div
+      className={styles.modalOverlay}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isSubmitting) onClose();
+      }}
+    >
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <button
+          className={styles.closeButton}
           onClick={onClose}
           disabled={isSubmitting}
-        >×</button>
-        <h2 className={styles.modalTitle}>Review {workspaceName}</h2>
-        
+        >
+          ×
+        </button>
+        <h2 className={styles.modalTitle}>
+          Review
+          {workspaceName}
+        </h2>
+
         <form onSubmit={handleSubmit} className={styles.reviewForm}>
           <div className={styles.ratingSection}>
             <label>Your Rating</label>
@@ -115,4 +123,4 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   );
 };
 
-export default ReviewModal; 
+export default ReviewModal;

@@ -7,7 +7,7 @@ const PrivacyPolicy: React.FC = () => {
     container: {
       minHeight: '100vh',
       backgroundColor: '#fff',
-      fontFamily: 'Inter, sans-serif'
+      fontFamily: 'Inter, sans-serif',
     } as React.CSSProperties,
     header: {
       padding: '20px 40px',
@@ -15,7 +15,7 @@ const PrivacyPolicy: React.FC = () => {
       boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
       position: 'sticky' as const,
       top: 0,
-      zIndex: 100
+      zIndex: 100,
     },
     backButton: {
       display: 'inline-flex',
@@ -24,74 +24,74 @@ const PrivacyPolicy: React.FC = () => {
       color: '#4A6FDC',
       textDecoration: 'none',
       fontWeight: '500',
-      transition: 'all 0.3s ease'
+      transition: 'all 0.3s ease',
     },
     hero: {
       background: 'linear-gradient(135deg, #4A6FDC 0%, #2DD4BF 100%)',
       padding: '60px 40px',
       textAlign: 'center' as const,
-      color: 'white'
+      color: 'white',
     },
     heroTitle: {
       fontSize: '2.5rem',
       fontWeight: '700',
-      marginBottom: '15px'
+      marginBottom: '15px',
     },
     heroSubtitle: {
       fontSize: '1.1rem',
-      opacity: 0.9
+      opacity: 0.9,
     },
     main: {
       padding: '60px 40px',
       maxWidth: '800px',
-      margin: '0 auto'
+      margin: '0 auto',
     },
     lastUpdated: {
       color: '#6B7280',
       fontSize: '0.9rem',
       marginBottom: '40px',
-      textAlign: 'center' as const
+      textAlign: 'center' as const,
     },
     content: {
       lineHeight: '1.7',
-      color: '#374151'
+      color: '#374151',
     },
     sectionTitle: {
       fontSize: '1.5rem',
       fontWeight: '600',
       color: '#1F2937',
       marginTop: '40px',
-      marginBottom: '20px'
+      marginBottom: '20px',
     },
     subsectionTitle: {
       fontSize: '1.2rem',
       fontWeight: '600',
       color: '#374151',
       marginTop: '30px',
-      marginBottom: '15px'
+      marginBottom: '15px',
     },
     paragraph: {
-      marginBottom: '16px'
+      marginBottom: '16px',
     },
     list: {
       paddingLeft: '20px',
-      marginBottom: '16px'
+      marginBottom: '16px',
     },
     listItem: {
-      marginBottom: '8px'
+      marginBottom: '8px',
     },
     contactInfo: {
       background: '#F9FAFB',
       padding: '20px',
       borderRadius: '8px',
-      marginTop: '40px'
+      marginTop: '40px',
     },
     contactTitle: {
       fontSize: '1.1rem',
       fontWeight: '600',
       color: '#1F2937',
-      marginBottom: '10px'
-    }
+      marginBottom: '10px',
+    },
   };
 
   return (
@@ -99,8 +99,8 @@ const PrivacyPolicy: React.FC = () => {
       <header style={styles.header}>
         <Link to="/" style={styles.backButton}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M19 12H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           Back to Home
         </Link>
@@ -115,15 +115,15 @@ const PrivacyPolicy: React.FC = () => {
 
       <main style={styles.main}>
         <p style={styles.lastUpdated}>Last updated: January 15, 2025</p>
-        
+
         <div style={styles.content}>
           <p style={styles.paragraph}>
-            At Nomad Desk, we take your privacy seriously. This Privacy Policy explains how we collect, 
+            At Nomad Desk, we take your privacy seriously. This Privacy Policy explains how we collect,
             use, disclose, and safeguard your information when you use our workspace discovery platform.
           </p>
 
           <h2 style={styles.sectionTitle}>1. Information We Collect</h2>
-          
+
           <h3 style={styles.subsectionTitle}>Personal Information</h3>
           <p style={styles.paragraph}>We may collect personal information that you provide to us, including:</p>
           <ul style={styles.list}>
@@ -158,7 +158,7 @@ const PrivacyPolicy: React.FC = () => {
 
           <h2 style={styles.sectionTitle}>3. Information Sharing</h2>
           <p style={styles.paragraph}>We may share your information in the following circumstances:</p>
-          
+
           <h3 style={styles.subsectionTitle}>With Workspace Partners</h3>
           <p style={styles.paragraph}>
             We share necessary booking information with workspace owners to facilitate your reservations.
@@ -166,13 +166,13 @@ const PrivacyPolicy: React.FC = () => {
 
           <h3 style={styles.subsectionTitle}>Service Providers</h3>
           <p style={styles.paragraph}>
-            We work with trusted third-party service providers who help us operate our platform, 
+            We work with trusted third-party service providers who help us operate our platform,
             process payments, and provide customer support.
           </p>
 
           <h3 style={styles.subsectionTitle}>Legal Requirements</h3>
           <p style={styles.paragraph}>
-            We may disclose your information if required by law or to protect our rights, 
+            We may disclose your information if required by law or to protect our rights,
             property, or safety of our users.
           </p>
 
@@ -215,29 +215,29 @@ const PrivacyPolicy: React.FC = () => {
 
           <h2 style={styles.sectionTitle}>7. Data Retention</h2>
           <p style={styles.paragraph}>
-            We retain your personal information only as long as necessary to provide our services 
-            and comply with legal obligations. When you delete your account, we will remove your 
+            We retain your personal information only as long as necessary to provide our services
+            and comply with legal obligations. When you delete your account, we will remove your
             personal information within 30 days, except where retention is required by law.
           </p>
 
           <h2 style={styles.sectionTitle}>8. Children's Privacy</h2>
           <p style={styles.paragraph}>
-            Our service is not intended for children under 13 years of age. We do not knowingly 
-            collect personal information from children under 13. If we become aware that we have 
+            Our service is not intended for children under 13 years of age. We do not knowingly
+            collect personal information from children under 13. If we become aware that we have
             collected such information, we will take steps to delete it immediately.
           </p>
 
           <h2 style={styles.sectionTitle}>9. International Data Transfers</h2>
           <p style={styles.paragraph}>
-            Your information may be transferred to and processed in countries other than your own. 
-            We ensure appropriate safeguards are in place to protect your information in accordance 
+            Your information may be transferred to and processed in countries other than your own.
+            We ensure appropriate safeguards are in place to protect your information in accordance
             with this Privacy Policy and applicable data protection laws.
           </p>
 
           <h2 style={styles.sectionTitle}>10. Changes to This Policy</h2>
           <p style={styles.paragraph}>
-            We may update this Privacy Policy from time to time. We will notify you of any material 
-            changes by posting the new Privacy Policy on this page and updating the "Last updated" 
+            We may update this Privacy Policy from time to time. We will notify you of any material
+            changes by posting the new Privacy Policy on this page and updating the "Last updated"
             date. We encourage you to review this Privacy Policy periodically.
           </p>
 

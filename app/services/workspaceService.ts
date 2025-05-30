@@ -44,7 +44,7 @@ const isGoodForWork = (types: string[], rating?: number): boolean => {
     'restaurant',
     'university',
     'school',
-    'establishment'
+    'establishment',
   ];
 
   // Bad types that indicate not suitable for work
@@ -58,12 +58,12 @@ const isGoodForWork = (types: string[], rating?: number): boolean => {
     'cemetery',
     'funeral_home',
     'gym',
-    'hospital'
+    'hospital',
   ];
 
   return (
-    goodTypes.some(type => types.includes(type)) &&
-    !badTypes.some(type => types.includes(type))
+    goodTypes.some((type) => types.includes(type))
+    && !badTypes.some((type) => types.includes(type))
   );
 };
 
@@ -94,7 +94,7 @@ const getWorkspacePrice = (types: string[]): string => {
 // Helper function to determine amenities based on types
 const determineAmenities = (types: string[]): string[] => {
   const amenities = ['Wi-Fi'];
-  
+
   if (types.includes('library')) {
     amenities.push('Study Rooms', 'Quiet Zone');
   }
@@ -104,7 +104,7 @@ const determineAmenities = (types: string[]): string[] => {
   if (types.includes('book_store')) {
     amenities.push('Reading Area');
   }
-  
+
   return amenities;
 };
 
@@ -113,14 +113,16 @@ export const workspaceService = {
   // Enhanced search for workspaces
   searchWorkspaces: async (params: WorkspaceSearchParams): Promise<Workspace[]> => {
     try {
-      const { location, radius = 5000, type, keyword, minRating, excludeId, limit } = params;
-      
+      const {
+        location, radius = 5000, type, keyword, minRating, excludeId, limit,
+      } = params;
+
       // Search for workspaces
       const results = await mapsService.searchNearbyPlaces(
         location,
         radius,
         type || 'establishment',
-        keyword
+        keyword,
       );
 
       // Apply filters
@@ -149,12 +151,12 @@ export const workspaceService = {
         address: result.vicinity,
         coordinates: {
           lat: result.geometry.location.lat,
-          lng: result.geometry.location.lng
+          lng: result.geometry.location.lng,
         },
         amenities: determineAmenities(result.types),
-        photos: result.photos?.map(photo => photo.photo_reference) || [],
+        photos: result.photos?.map((photo) => photo.photo_reference) || [],
         rating: result.rating || 0,
-        types: result.types || []
+        types: result.types || [],
       }));
     } catch (error) {
       console.error('Error searching workspaces:', error);
@@ -169,15 +171,14 @@ export const workspaceService = {
     const φ2 = (destination.lat * Math.PI) / 180;
     const Δφ = ((destination.lat - origin.lat) * Math.PI) / 180;
     const Δλ = ((destination.lng - origin.lng) * Math.PI) / 180;
-    
-    const a =
-      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2)
+      + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    
+
     return R * c; // Distance in meters
   },
-  
+
   // Format distance
   formatDistance: (distance: number): string => {
     if (distance < 1000) {
@@ -197,9 +198,9 @@ export const workspaceService = {
         radius: 5000,
         type,
         excludeId: workspaceId,
-        limit: 4 // Limit to 4 similar places
+        limit: 4, // Limit to 4 similar places
       });
-      
+
       return results;
     } catch (error) {
       console.error('Error fetching similar workspaces:', error);
@@ -211,7 +212,7 @@ export const workspaceService = {
   determineWorkspaceType,
   getWorkspacePrice,
   determineAmenities,
-  isGoodForWork
+  isGoodForWork,
 };
 
 export default workspaceService;

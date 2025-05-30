@@ -10,7 +10,9 @@ interface SignupFormProps {
 }
 
 const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
-  const { signup, socialLogin, isLoading, error, clearError } = useAuth();
+  const {
+    signup, socialLogin, isLoading, error, clearError,
+  } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,7 +41,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
     e.preventDefault();
     clearError();
     setFormError('');
-    
+
     // Basic validation
     if (!passwordsMatch) {
       setFormError('Passwords do not match');
@@ -50,12 +52,12 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
       setFormError('You must agree to the terms of service');
       return;
     }
-    
+
     if (password.length < 6) {
       setFormError('Password must be at least 6 characters long');
       return;
     }
-    
+
     try {
       await signup({ name, email, password });
     } catch (err) {
@@ -76,7 +78,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           {formError}
         </div>
       )}
-      
+
       <div className={styles.formGroup}>
         <label htmlFor="signup-name" className={styles.formLabel}>
           Full Name
@@ -92,7 +94,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           disabled={isLoading}
         />
       </div>
-      
+
       <div className={styles.formGroup}>
         <label htmlFor="signup-email" className={styles.formLabel}>
           Email Address
@@ -108,7 +110,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           disabled={isLoading}
         />
       </div>
-      
+
       <div className={styles.formGroup}>
         <label htmlFor="signup-password" className={styles.formLabel}>
           Password
@@ -124,7 +126,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           disabled={isLoading}
         />
       </div>
-      
+
       <div className={styles.formGroup}>
         <label htmlFor="signup-confirm-password" className={styles.formLabel}>
           Confirm Password
@@ -143,7 +145,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           <span className={styles.formError}>Passwords do not match</span>
         )}
       </div>
-      
+
       <div className={styles.formCheckboxGroup}>
         <input
           type="checkbox"
@@ -155,33 +157,40 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           disabled={isLoading}
         />
         <label htmlFor="terms">
-          I agree to the <a href="#" className={styles.formLink}>Terms of Service</a> and <a href="#" className={styles.formLink}>Privacy Policy</a>
+          I agree to the
+          {' '}
+          <a href="#" className={styles.formLink}>Terms of Service</a>
+          {' '}
+          and
+          {' '}
+          <a href="#" className={styles.formLink}>Privacy Policy</a>
         </label>
       </div>
-      
-      <button 
-        type="submit" 
+
+      <button
+        type="submit"
         className={`${styles.btn} ${styles.btnPrimary}`}
         disabled={isLoading}
       >
         {isLoading ? 'Creating Account...' : 'Create Account'}
       </button>
-      
+
       <Divider />
-      
+
       {/* Only include Google button */}
       <div className={styles.socialButtons}>
-        <SocialButton 
-          provider="google" 
+        <SocialButton
+          provider="google"
           disabled={isLoading}
           onClick={() => handleSocialLoginClick('google')}
         />
       </div>
-      
+
       <div className={styles.accountText}>
-        Already have an account?{' '}
-        <a 
-          href="#" 
+        Already have an account?
+        {' '}
+        <a
+          href="#"
           className={styles.formLink}
           onClick={(e) => {
             e.preventDefault();

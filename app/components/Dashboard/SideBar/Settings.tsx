@@ -1,69 +1,87 @@
 // app/components/Dashboard/SideBar/Settings.tsx - REVOLUTIONARY 2025 EDITION
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from '../../../contexts/AuthContext';
 import styles from './SideBarStyles/settings.module.css';
 
 // Modern Icon Components with glassmorphism support
-const BackIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
+function BackIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
-const AccountIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
+function AccountIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
-const SecurityIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 22S8 18 8 12V5L12 3L16 5V12C16 18 12 22 12 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
+function SecurityIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 22S8 18 8 12V5L12 3L16 5V12C16 18 12 22 12 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
-const NotificationIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M18 8A6 6 0 0 0 6 8C6 15 3 17 3 17H21S18 15 18 8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M13.73 21A1.999 1.999 0 0 1 10.27 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
+function NotificationIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M18 8A6 6 0 0 0 6 8C6 15 3 17 3 17H21S18 15 18 8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M13.73 21A1.999 1.999 0 0 1 10.27 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
-const PrivacyIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
+function PrivacyIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
-const PreferencesIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
-    <path d="M19.4 15A1.65 1.65 0 0 0 21 13.09A1.65 1.65 0 0 0 19.4 9M2.6 15A1.65 1.65 0 0 1 1 13.09A1.65 1.65 0 0 1 2.6 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
+function PreferencesIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
+      <path d="M19.4 15A1.65 1.65 0 0 0 21 13.09A1.65 1.65 0 0 0 19.4 9M2.6 15A1.65 1.65 0 0 1 1 13.09A1.65 1.65 0 0 1 2.6 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
-const DataIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M14 2V8H20M16 13H8M16 17H8M10 9H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
+function DataIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M14 2V8H20M16 13H8M16 17H8M10 9H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
-const HelpIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-    <path d="M9.09 9A3 3 0 0 1 12 6C13.6569 6 15 7.34315 15 9C15 10.6569 13.6569 12 12 12V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <circle cx="12" cy="17" r="1" fill="currentColor"/>
-  </svg>
-);
+function HelpIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+      <path d="M9.09 9A3 3 0 0 1 12 6C13.6569 6 15 7.34315 15 9C15 10.6569 13.6569 12 12 12V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="12" cy="17" r="1" fill="currentColor" />
+    </svg>
+  );
+}
 
-const DangerIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M10.29 3.86L1.82 18A2 2 0 0 0 3.54 21H20.46A2 2 0 0 0 22.18 18L13.71 3.86A2 2 0 0 0 10.29 3.86Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M12 9V13M12 17H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
+function DangerIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10.29 3.86L1.82 18A2 2 0 0 0 3.54 21H20.46A2 2 0 0 0 22.18 18L13.71 3.86A2 2 0 0 0 10.29 3.86Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12 9V13M12 17H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 // Types for our settings
 interface UserSettings {
@@ -110,7 +128,7 @@ interface ActiveSession {
 const Settings: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  
+
   // State management
   const [activeSection, setActiveSection] = useState('account');
   const [settings, setSettings] = useState<UserSettings | null>(null);
@@ -119,12 +137,12 @@ const Settings: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  
+
   // Password change state
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
 
   // Load settings data
@@ -136,18 +154,18 @@ const Settings: React.FC = () => {
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      
+
       // Use the existing profile endpoint for now until settings routes are added
       const response = await fetch('http://localhost:5003/api/profile', {
         headers: {
-          'x-auth-token': localStorage.getItem('token') || ''
-        }
+          'x-auth-token': localStorage.getItem('token') || '',
+        },
       });
-      
+
       if (!response.ok) throw new Error('Failed to fetch settings');
-      
+
       const profileData = await response.json();
-      
+
       // Transform profile data to match our settings interface
       const settingsData: UserSettings = {
         id: profileData.id,
@@ -168,24 +186,24 @@ const Settings: React.FC = () => {
             preferredEnvironments: ['library', 'cafe'],
             noiseLevel: 'quiet',
             preferredTimes: ['morning', 'afternoon'],
-            groupSize: 'small'
-          }
+            groupSize: 'small',
+          },
         },
         notificationStats: {
           total: 0,
           unread: 0,
-          byType: {}
-        }
+          byType: {},
+        },
       };
 
       // Try to get notification stats
       try {
         const notifResponse = await fetch('http://localhost:5003/api/notifications/stats', {
           headers: {
-            'x-auth-token': localStorage.getItem('token') || ''
-          }
+            'x-auth-token': localStorage.getItem('token') || '',
+          },
         });
-        
+
         if (notifResponse.ok) {
           const notifStats = await notifResponse.json();
           settingsData.notificationStats = notifStats;
@@ -193,7 +211,7 @@ const Settings: React.FC = () => {
       } catch (notifErr) {
         console.log('Could not fetch notification stats:', notifErr);
       }
-      
+
       setSettings(settingsData);
     } catch (err) {
       console.error('Settings fetch error:', err);
@@ -212,17 +230,17 @@ const Settings: React.FC = () => {
           device: 'Current Device - Chrome on macOS',
           location: 'San Francisco, CA',
           lastActive: 'Active now',
-          isCurrent: true
+          isCurrent: true,
         },
         {
           id: 'mobile',
           device: 'iPhone - Safari',
           location: 'San Francisco, CA',
           lastActive: 'Yesterday',
-          isCurrent: false
-        }
+          isCurrent: false,
+        },
       ];
-      
+
       setSessions(mockSessions);
     } catch (err) {
       console.error('Failed to fetch sessions:', err);
@@ -234,11 +252,11 @@ const Settings: React.FC = () => {
     try {
       setSaving(true);
       setError(null);
-      
+
       // Use existing profile endpoint for account updates
       let url = '';
-      let method = 'PUT';
-      
+      const method = 'PUT';
+
       if (endpoint === 'account') {
         url = 'http://localhost:5003/api/profile';
       } else {
@@ -247,14 +265,14 @@ const Settings: React.FC = () => {
         setTimeout(() => setSuccessMessage(null), 3000);
         return;
       }
-      
+
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'x-auth-token': localStorage.getItem('token') || ''
+          'x-auth-token': localStorage.getItem('token') || '',
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
@@ -264,13 +282,13 @@ const Settings: React.FC = () => {
 
       const result = await response.json();
       setSuccessMessage(successMsg);
-      
+
       // Refresh settings
       await fetchSettings();
-      
+
       // Clear success message after 3 seconds
       setTimeout(() => setSuccessMessage(null), 3000);
-      
+
       return result;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save settings');
@@ -283,7 +301,7 @@ const Settings: React.FC = () => {
   // Account settings save
   const saveAccountSettings = async () => {
     if (!settings) return;
-    
+
     await saveSettings('account', {
       name: settings.name,
       email: settings.email,
@@ -292,7 +310,7 @@ const Settings: React.FC = () => {
       timezone: settings.timezone,
       bio: settings.bio,
       interests: settings.interests,
-      skills: settings.skills
+      skills: settings.skills,
     }, 'Account settings saved successfully!');
   };
 
@@ -316,14 +334,14 @@ const Settings: React.FC = () => {
     setPasswordData({
       currentPassword: '',
       newPassword: '',
-      confirmPassword: ''
+      confirmPassword: '',
     });
   };
 
   // Preferences save
   const savePreferences = async () => {
     if (!settings) return;
-    
+
     await saveSettings('preferences', settings.preferences, 'Preferences saved successfully!');
   };
 
@@ -331,17 +349,17 @@ const Settings: React.FC = () => {
   const exportData = async () => {
     try {
       setSaving(true);
-      
+
       // Create export data from current settings
       const exportData = {
         profile: settings,
         exportedAt: new Date().toISOString(),
-        note: 'This is a sample export. Full data export will include bookings, favorites, and notifications when backend is integrated.'
+        note: 'This is a sample export. Full data export will include bookings, favorites, and notifications when backend is integrated.',
       };
-      
+
       // Download the data
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { 
-        type: 'application/json' 
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+        type: 'application/json',
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -370,13 +388,13 @@ const Settings: React.FC = () => {
     { id: 'preferences', label: 'Preferences', icon: PreferencesIcon },
     { id: 'data', label: 'Data & Export', icon: DataIcon },
     { id: 'help', label: 'Help & Support', icon: HelpIcon },
-    { id: 'danger', label: 'Danger Zone', icon: DangerIcon }
+    { id: 'danger', label: 'Danger Zone', icon: DangerIcon },
   ];
 
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
-        <div className={styles.loadingSpinner}></div>
+        <div className={styles.loadingSpinner} />
         <p>Loading your settings...</p>
       </div>
     );
@@ -398,14 +416,14 @@ const Settings: React.FC = () => {
     <div className={styles.settingsContainer}>
       {/* Header with Back Button */}
       <div className={styles.settingsHeader}>
-        <button 
+        <button
           onClick={() => navigate({ to: '/dashboard' })}
           className={styles.backButton}
         >
           <BackIcon />
           <span>Back to Dashboard</span>
         </button>
-        
+
         <div className={styles.headerContent}>
           <div className={styles.headerIcon}>
             <PreferencesIcon />
@@ -418,15 +436,15 @@ const Settings: React.FC = () => {
 
         {/* Status Messages */}
         {error && (
-          <div className={styles.statusMessage + ' ' + styles.errorMessage}>
+          <div className={`${styles.statusMessage} ${styles.errorMessage}`}>
             <DangerIcon />
             <span>{error}</span>
             <button onClick={() => setError(null)}>×</button>
           </div>
         )}
-        
+
         {successMessage && (
-          <div className={styles.statusMessage + ' ' + styles.successMessage}>
+          <div className={`${styles.statusMessage} ${styles.successMessage}`}>
             <PrivacyIcon />
             <span>{successMessage}</span>
             <button onClick={() => setSuccessMessage(null)}>×</button>
@@ -438,7 +456,7 @@ const Settings: React.FC = () => {
         {/* Sidebar Navigation */}
         <nav className={styles.settingsSidebar}>
           <div className={styles.sidebarNav}>
-            {navigationSections.map(section => (
+            {navigationSections.map((section) => (
               <button
                 key={section.id}
                 className={`${styles.navButton} ${activeSection === section.id ? styles.activeNavButton : ''}`}
@@ -469,14 +487,14 @@ const Settings: React.FC = () => {
                 {/* Basic Information */}
                 <div className={styles.formCard}>
                   <h3>Basic Information</h3>
-                  
+
                   <div className={styles.formGroup}>
                     <label htmlFor="name">Full Name</label>
                     <input
                       type="text"
                       id="name"
                       value={settings.name}
-                      onChange={(e) => setSettings({...settings, name: e.target.value})}
+                      onChange={(e) => setSettings({ ...settings, name: e.target.value })}
                       className={styles.modernInput}
                       placeholder="Enter your full name"
                     />
@@ -488,7 +506,7 @@ const Settings: React.FC = () => {
                       type="email"
                       id="email"
                       value={settings.email}
-                      onChange={(e) => setSettings({...settings, email: e.target.value})}
+                      onChange={(e) => setSettings({ ...settings, email: e.target.value })}
                       className={styles.modernInput}
                       placeholder="Enter your email"
                     />
@@ -503,7 +521,7 @@ const Settings: React.FC = () => {
                       type="text"
                       id="profession"
                       value={settings.profession || ''}
-                      onChange={(e) => setSettings({...settings, profession: e.target.value})}
+                      onChange={(e) => setSettings({ ...settings, profession: e.target.value })}
                       className={styles.modernInput}
                       placeholder="e.g., Software Developer, Student, Designer"
                     />
@@ -515,7 +533,7 @@ const Settings: React.FC = () => {
                       type="text"
                       id="location"
                       value={settings.location || ''}
-                      onChange={(e) => setSettings({...settings, location: e.target.value})}
+                      onChange={(e) => setSettings({ ...settings, location: e.target.value })}
                       className={styles.modernInput}
                       placeholder="e.g., San Francisco, CA"
                     />
@@ -525,13 +543,13 @@ const Settings: React.FC = () => {
                 {/* Profile Details */}
                 <div className={styles.formCard}>
                   <h3>Profile Details</h3>
-                  
+
                   <div className={styles.formGroup}>
                     <label htmlFor="bio">Bio</label>
                     <textarea
                       id="bio"
                       value={settings.bio || ''}
-                      onChange={(e) => setSettings({...settings, bio: e.target.value})}
+                      onChange={(e) => setSettings({ ...settings, bio: e.target.value })}
                       className={styles.modernTextarea}
                       placeholder="Tell others about yourself and your work/study interests..."
                       rows={4}
@@ -545,8 +563,8 @@ const Settings: React.FC = () => {
                       id="interests"
                       value={settings.interests?.join(', ') || ''}
                       onChange={(e) => setSettings({
-                        ...settings, 
-                        interests: e.target.value.split(',').map(s => s.trim()).filter(s => s)
+                        ...settings,
+                        interests: e.target.value.split(',').map((s) => s.trim()).filter((s) => s),
                       })}
                       className={styles.modernInput}
                       placeholder="e.g., Programming, Design, Photography, Reading"
@@ -558,7 +576,7 @@ const Settings: React.FC = () => {
                     <select
                       id="timezone"
                       value={settings.timezone || 'UTC'}
-                      onChange={(e) => setSettings({...settings, timezone: e.target.value})}
+                      onChange={(e) => setSettings({ ...settings, timezone: e.target.value })}
                       className={styles.modernSelect}
                     >
                       <option value="UTC">UTC</option>
@@ -575,7 +593,7 @@ const Settings: React.FC = () => {
               </div>
 
               <div className={styles.formActions}>
-                <button 
+                <button
                   onClick={saveAccountSettings}
                   disabled={saving}
                   className={styles.primaryButton}
@@ -597,7 +615,7 @@ const Settings: React.FC = () => {
                 {/* Password Management */}
                 <div className={styles.formCard}>
                   <h3>Password Management</h3>
-                  
+
                   {user?.googleId ? (
                     <div className={styles.infoCard}>
                       <p>You're signed in with Google. Password changes are managed through your Google account.</p>
@@ -611,8 +629,8 @@ const Settings: React.FC = () => {
                           id="currentPassword"
                           value={passwordData.currentPassword}
                           onChange={(e) => setPasswordData({
-                            ...passwordData, 
-                            currentPassword: e.target.value
+                            ...passwordData,
+                            currentPassword: e.target.value,
                           })}
                           className={styles.modernInput}
                           placeholder="Enter current password"
@@ -626,8 +644,8 @@ const Settings: React.FC = () => {
                           id="newPassword"
                           value={passwordData.newPassword}
                           onChange={(e) => setPasswordData({
-                            ...passwordData, 
-                            newPassword: e.target.value
+                            ...passwordData,
+                            newPassword: e.target.value,
                           })}
                           className={styles.modernInput}
                           placeholder="Enter new password (min 6 characters)"
@@ -641,15 +659,15 @@ const Settings: React.FC = () => {
                           id="confirmPassword"
                           value={passwordData.confirmPassword}
                           onChange={(e) => setPasswordData({
-                            ...passwordData, 
-                            confirmPassword: e.target.value
+                            ...passwordData,
+                            confirmPassword: e.target.value,
                           })}
                           className={styles.modernInput}
                           placeholder="Confirm new password"
                         />
                       </div>
 
-                      <button 
+                      <button
                         onClick={changePassword}
                         disabled={saving || !passwordData.currentPassword || !passwordData.newPassword}
                         className={styles.secondaryButton}
@@ -663,14 +681,17 @@ const Settings: React.FC = () => {
                 {/* Active Sessions */}
                 <div className={styles.formCard}>
                   <h3>Active Sessions</h3>
-                  
+
                   <div className={styles.sessionsList}>
-                    {sessions.map(session => (
+                    {sessions.map((session) => (
                       <div key={session.id} className={styles.sessionItem}>
                         <div className={styles.sessionInfo}>
                           <div className={styles.sessionDevice}>{session.device}</div>
                           <div className={styles.sessionMeta}>
-                            {session.location} • {session.lastActive}
+                            {session.location}
+                            {' '}
+                            •
+                            {session.lastActive}
                           </div>
                         </div>
                         <div className={styles.sessionActions}>
@@ -698,7 +719,7 @@ const Settings: React.FC = () => {
               <div className={styles.formGrid}>
                 <div className={styles.formCard}>
                   <h3>General Notifications</h3>
-                  
+
                   <div className={styles.toggleGroup}>
                     <div className={styles.toggleItem}>
                       <div className={styles.toggleInfo}>
@@ -713,11 +734,11 @@ const Settings: React.FC = () => {
                             ...settings,
                             preferences: {
                               ...settings.preferences,
-                              emailNotifications: e.target.checked
-                            }
+                              emailNotifications: e.target.checked,
+                            },
                           })}
                         />
-                        <span className={styles.slider}></span>
+                        <span className={styles.slider} />
                       </label>
                     </div>
 
@@ -734,11 +755,11 @@ const Settings: React.FC = () => {
                             ...settings,
                             preferences: {
                               ...settings.preferences,
-                              pushNotifications: e.target.checked
-                            }
+                              pushNotifications: e.target.checked,
+                            },
                           })}
                         />
-                        <span className={styles.slider}></span>
+                        <span className={styles.slider} />
                       </label>
                     </div>
                   </div>
@@ -760,7 +781,7 @@ const Settings: React.FC = () => {
               </div>
 
               <div className={styles.formActions}>
-                <button 
+                <button
                   onClick={savePreferences}
                   disabled={saving}
                   className={styles.primaryButton}
@@ -780,7 +801,7 @@ const Settings: React.FC = () => {
 
               <div className={styles.formCard}>
                 <h3>Profile Visibility</h3>
-                
+
                 <div className={styles.toggleItem}>
                   <div className={styles.toggleInfo}>
                     <strong>Private Profile</strong>
@@ -794,17 +815,17 @@ const Settings: React.FC = () => {
                         ...settings,
                         preferences: {
                           ...settings.preferences,
-                          privateProfile: e.target.checked
-                        }
+                          privateProfile: e.target.checked,
+                        },
                       })}
                     />
-                    <span className={styles.slider}></span>
+                    <span className={styles.slider} />
                   </label>
                 </div>
               </div>
 
               <div className={styles.formActions}>
-                <button 
+                <button
                   onClick={savePreferences}
                   disabled={saving}
                   className={styles.primaryButton}
@@ -825,11 +846,11 @@ const Settings: React.FC = () => {
               <div className={styles.formGrid}>
                 <div className={styles.formCard}>
                   <h3>Workspace Preferences</h3>
-                  
+
                   <div className={styles.formGroup}>
                     <label>Preferred Environments</label>
                     <div className={styles.checkboxGrid}>
-                      {['library', 'cafe', 'coworking', 'outdoors'].map(env => (
+                      {['library', 'cafe', 'coworking', 'outdoors'].map((env) => (
                         <label key={env} className={styles.checkboxItem}>
                           <input
                             type="checkbox"
@@ -838,17 +859,17 @@ const Settings: React.FC = () => {
                               const envs = settings.preferences.studyPreferences.preferredEnvironments;
                               const newEnvs = e.target.checked
                                 ? [...envs, env]
-                                : envs.filter(e => e !== env);
-                              
+                                : envs.filter((e) => e !== env);
+
                               setSettings({
                                 ...settings,
                                 preferences: {
                                   ...settings.preferences,
                                   studyPreferences: {
                                     ...settings.preferences.studyPreferences,
-                                    preferredEnvironments: newEnvs
-                                  }
-                                }
+                                    preferredEnvironments: newEnvs,
+                                  },
+                                },
                               });
                             }}
                           />
@@ -869,9 +890,9 @@ const Settings: React.FC = () => {
                           ...settings.preferences,
                           studyPreferences: {
                             ...settings.preferences.studyPreferences,
-                            noiseLevel: e.target.value
-                          }
-                        }
+                            noiseLevel: e.target.value,
+                          },
+                        },
                       })}
                       className={styles.modernSelect}
                     >
@@ -893,9 +914,9 @@ const Settings: React.FC = () => {
                           ...settings.preferences,
                           studyPreferences: {
                             ...settings.preferences.studyPreferences,
-                            groupSize: e.target.value
-                          }
-                        }
+                            groupSize: e.target.value,
+                          },
+                        },
                       })}
                       className={styles.modernSelect}
                     >
@@ -909,11 +930,11 @@ const Settings: React.FC = () => {
 
                 <div className={styles.formCard}>
                   <h3>Time Preferences</h3>
-                  
+
                   <div className={styles.formGroup}>
                     <label>Preferred Study Times</label>
                     <div className={styles.checkboxGrid}>
-                      {['morning', 'afternoon', 'evening', 'night'].map(time => (
+                      {['morning', 'afternoon', 'evening', 'night'].map((time) => (
                         <label key={time} className={styles.checkboxItem}>
                           <input
                             type="checkbox"
@@ -922,17 +943,17 @@ const Settings: React.FC = () => {
                               const times = settings.preferences.studyPreferences.preferredTimes;
                               const newTimes = e.target.checked
                                 ? [...times, time]
-                                : times.filter(t => t !== time);
-                              
+                                : times.filter((t) => t !== time);
+
                               setSettings({
                                 ...settings,
                                 preferences: {
                                   ...settings.preferences,
                                   studyPreferences: {
                                     ...settings.preferences.studyPreferences,
-                                    preferredTimes: newTimes
-                                  }
-                                }
+                                    preferredTimes: newTimes,
+                                  },
+                                },
                               });
                             }}
                           />
@@ -945,7 +966,7 @@ const Settings: React.FC = () => {
               </div>
 
               <div className={styles.formActions}>
-                <button 
+                <button
                   onClick={savePreferences}
                   disabled={saving}
                   className={styles.primaryButton}
@@ -966,8 +987,8 @@ const Settings: React.FC = () => {
               <div className={styles.formCard}>
                 <h3>Export Your Data</h3>
                 <p>Download a copy of all your data including profile, bookings, favorites, and notifications.</p>
-                
-                <button 
+
+                <button
                   onClick={exportData}
                   disabled={saving}
                   className={styles.secondaryButton}
@@ -1037,7 +1058,7 @@ const Settings: React.FC = () => {
                     <h3>Export Data Before Deletion</h3>
                     <p>Download all your data before deleting your account. This action cannot be undone.</p>
                   </div>
-                  <button 
+                  <button
                     onClick={exportData}
                     className={styles.secondaryButton}
                   >

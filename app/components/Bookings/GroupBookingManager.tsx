@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from '@tanstack/react-router';
 import { groupBookingService } from '../../services/bookingService';
-import { 
-  GroupBooking, 
-  GroupParticipantsResponse, 
+import {
+  GroupBooking,
+  GroupParticipantsResponse,
   GroupBookingStats,
-  GroupInvitationRequest 
+  GroupInvitationRequest,
 } from '../../types/groupBooking';
 import Loading from '../Common/Loading';
 import BackButton from '../Common/BackButton';
@@ -18,20 +18,20 @@ const GroupBookingManager: React.FC = () => {
   // Fix: Use 'groupId' instead of 'id' to match the router parameter
   const { groupId } = useParams({ strict: false });
   const navigate = useNavigate();
-  
+
   const [booking, setBooking] = useState<GroupBooking | null>(null);
   const [participants, setParticipants] = useState<GroupParticipantsResponse | null>(null);
   const [stats, setStats] = useState<GroupBookingStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'participants' | 'invites' | 'settings'>('overview');
-  
+
   // Invite modal state
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteMessage, setInviteMessage] = useState('');
   const [inviteLoading, setInviteLoading] = useState(false);
-  
+
   // Mock current user ID - in real app this would come from auth context
   const currentUserId = 'current-user-id';
 
@@ -43,17 +43,17 @@ const GroupBookingManager: React.FC = () => {
 
   const fetchGroupBookingData = async () => {
     if (!groupId) return;
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
       const [bookingData, participantsData, statsData] = await Promise.all([
         groupBookingService.getGroupBooking(groupId),
         groupBookingService.getGroupParticipants(groupId),
-        groupBookingService.getGroupBookingStats(groupId)
+        groupBookingService.getGroupBookingStats(groupId),
       ]);
-      
+
       setBooking(bookingData);
       setParticipants(participantsData);
       setStats(statsData);
@@ -67,17 +67,17 @@ const GroupBookingManager: React.FC = () => {
 
   const handleSendInvite = async () => {
     if (!inviteEmail.trim() || !groupId) return;
-    
+
     setInviteLoading(true);
-    
+
     try {
       const invitations: GroupInvitationRequest[] = [{
         email: inviteEmail.trim(),
-        personalMessage: inviteMessage.trim() || undefined
+        personalMessage: inviteMessage.trim() || undefined,
       }];
-      
+
       const result = await groupBookingService.sendGroupInvitations(groupId, invitations);
-      
+
       if (result.successCount > 0) {
         setInviteEmail('');
         setInviteMessage('');
@@ -94,7 +94,7 @@ const GroupBookingManager: React.FC = () => {
 
   const handleRemoveParticipant = async (participantId: string) => {
     if (!groupId || !window.confirm('Are you sure you want to remove this participant?')) return;
-    
+
     try {
       await groupBookingService.removeParticipant(groupId, participantId);
       await fetchGroupBookingData(); // Refresh data
@@ -106,10 +106,10 @@ const GroupBookingManager: React.FC = () => {
 
   const handleCancelBooking = async () => {
     if (!groupId) return;
-    
+
     const reason = window.prompt('Please provide a reason for cancellation:');
     if (!reason) return;
-    
+
     try {
       await groupBookingService.cancelGroupBooking(groupId, reason);
       navigate({ to: '/dashboard' });
@@ -119,14 +119,12 @@ const GroupBookingManager: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+  const formatDate = (dateString: string): string => new Date(dateString).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 
   const formatTime = (timeString: string): string => {
     const [hours, minutes] = timeString.split(':');
@@ -184,7 +182,7 @@ const GroupBookingManager: React.FC = () => {
   return (
     <div className={styles.managerContainer}>
       <BackButton />
-      
+
       <Modal
         isOpen={showInviteModal}
         onClose={() => setShowInviteModal(false)}
@@ -236,11 +234,20 @@ const GroupBookingManager: React.FC = () => {
         <div className={styles.headerContent}>
           <h1 className={styles.title}>{booking.groupName}</h1>
           <div className={styles.subtitle}>
-            <span>📍 {booking.workspace.name}</span>
-            <span>📅 {formatDate(booking.date)} at {formatTime(booking.startTime)}</span>
+            <span>
+              📍
+              {booking.workspace.name}
+            </span>
+            <span>
+              📅
+              {formatDate(booking.date)}
+              {' '}
+              at
+              {formatTime(booking.startTime)}
+            </span>
           </div>
         </div>
-        
+
         <div className={styles.headerActions}>
           <button
             onClick={() => setShowInviteModal(true)}
@@ -248,7 +255,7 @@ const GroupBookingManager: React.FC = () => {
           >
             + Invite People
           </button>
-          
+
           <button
             onClick={handleCancelBooking}
             className={`${styles.actionButton} ${styles.cancelButton}`}
@@ -265,17 +272,17 @@ const GroupBookingManager: React.FC = () => {
             <div className={styles.statNumber}>{stats.currentParticipants}</div>
             <div className={styles.statLabel}>Current Participants</div>
           </div>
-          
+
           <div className={styles.statCard}>
             <div className={styles.statNumber}>{stats.availableSpots}</div>
             <div className={styles.statLabel}>Available Spots</div>
           </div>
-          
+
           <div className={styles.statCard}>
             <div className={styles.statNumber}>{stats.inviteStats.pending}</div>
             <div className={styles.statLabel}>Pending Invites</div>
           </div>
-          
+
           <div className={`${styles.statCard} ${stats.hasMinimumParticipants ? styles.statSuccess : styles.statWarning}`}>
             <div className={styles.statIcon}>
               {stats.hasMinimumParticipants ? '✅' : '⚠️'}
@@ -299,7 +306,9 @@ const GroupBookingManager: React.FC = () => {
           onClick={() => setActiveTab('participants')}
           className={`${styles.tabButton} ${activeTab === 'participants' ? styles.activeTab : ''}`}
         >
-          Participants ({participants?.totalCount || 0})
+          Participants (
+          {participants?.totalCount || 0}
+          )
         </button>
         <button
           onClick={() => setActiveTab('invites')}
@@ -325,20 +334,34 @@ const GroupBookingManager: React.FC = () => {
                 <div className={styles.detailItem}>
                   <span className={styles.detailLabel}>Date & Time</span>
                   <span className={styles.detailValue}>
-                    {formatDate(booking.date)} from {formatTime(booking.startTime)} to {formatTime(booking.endTime)}
+                    {formatDate(booking.date)}
+                    {' '}
+                    from
+                    {formatTime(booking.startTime)}
+                    {' '}
+                    to
+                    {formatTime(booking.endTime)}
                   </span>
                 </div>
-                
+
                 <div className={styles.detailItem}>
                   <span className={styles.detailLabel}>Room Type</span>
                   <span className={styles.detailValue}>{booking.roomType}</span>
                 </div>
-                
+
                 <div className={styles.detailItem}>
                   <span className={styles.detailLabel}>Capacity</span>
-                  <span className={styles.detailValue}>{booking.minParticipants} - {booking.maxParticipants} people</span>
+                  <span className={styles.detailValue}>
+                    {booking.minParticipants}
+                    {' '}
+                    -
+                    {' '}
+                    {booking.maxParticipants}
+                    {' '}
+                    people
+                  </span>
                 </div>
-                
+
                 <div className={styles.detailItem}>
                   <span className={styles.detailLabel}>Status</span>
                   <span className={`${styles.statusBadge} ${styles[booking.status]}`}>
@@ -359,8 +382,11 @@ const GroupBookingManager: React.FC = () => {
               <div className={styles.tagsSection}>
                 <h3>Tags</h3>
                 <div className={styles.tagList}>
-                  {booking.tags.map(tag => (
-                    <span key={tag} className={styles.tag}>#{tag}</span>
+                  {booking.tags.map((tag) => (
+                    <span key={tag} className={styles.tag}>
+                      #
+                      {tag}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -409,9 +435,17 @@ const GroupBookingManager: React.FC = () => {
 
             {participants.participants.length > 0 && (
               <div className={styles.participantsSection}>
-                <h3>Participants ({participants.acceptedCount} accepted, {participants.pendingCount} pending)</h3>
+                <h3>
+                  Participants (
+                  {participants.acceptedCount}
+                  {' '}
+                  accepted,
+                  {participants.pendingCount}
+                  {' '}
+                  pending)
+                </h3>
                 <div className={styles.participantsList}>
-                  {participants.participants.map(participant => (
+                  {participants.participants.map((participant) => (
                     <div key={participant.user.id} className={styles.participantItem}>
                       <div className={styles.participantAvatar}>
                         {participant.user.avatar ? (
@@ -424,7 +458,9 @@ const GroupBookingManager: React.FC = () => {
                         <div className={styles.participantName}>{participant.user.name}</div>
                         <div className={styles.participantEmail}>{participant.user.email}</div>
                         <div className={styles.participantDate}>
-                          Invited {new Date(participant.invitedAt).toLocaleDateString()}
+                          Invited
+                          {' '}
+                          {new Date(participant.invitedAt).toLocaleDateString()}
                         </div>
                       </div>
                       <div className={styles.participantActions}>
@@ -491,11 +527,11 @@ const GroupBookingManager: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={booking.groupSettings.allowParticipantInvites}
-                    onChange={() => {/* TODO: Implement settings update */}}
+                    onChange={() => { /* TODO: Implement settings update */ }}
                   />
                 </div>
               </div>
-              
+
               <div className={styles.settingItem}>
                 <div className={styles.settingInfo}>
                   <h4>Require Approval</h4>
@@ -505,11 +541,11 @@ const GroupBookingManager: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={booking.groupSettings.requireApproval}
-                    onChange={() => {/* TODO: Implement settings update */}}
+                    onChange={() => { /* TODO: Implement settings update */ }}
                   />
                 </div>
               </div>
-              
+
               <div className={styles.settingItem}>
                 <div className={styles.settingInfo}>
                   <h4>Send Reminders</h4>
@@ -519,7 +555,7 @@ const GroupBookingManager: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={booking.groupSettings.sendReminders}
-                    onChange={() => {/* TODO: Implement settings update */}}
+                    onChange={() => { /* TODO: Implement settings update */ }}
                   />
                 </div>
               </div>

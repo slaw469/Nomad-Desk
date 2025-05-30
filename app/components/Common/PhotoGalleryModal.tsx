@@ -19,7 +19,7 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
   onClose,
   photos,
   initialIndex = 0,
-  workspaceName
+  workspaceName,
 }) => {
   const [activeIndex, setActiveIndex] = useState(initialIndex);
 
@@ -30,7 +30,7 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
-      
+
       switch (e.key) {
         case 'Escape':
           onClose();
@@ -51,15 +51,11 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
   if (!isOpen || !photos.length) return null;
 
   const navigateNext = () => {
-    setActiveIndex((prevIndex) => 
-      prevIndex === photos.length - 1 ? 0 : prevIndex + 1
-    );
+    setActiveIndex((prevIndex) => (prevIndex === photos.length - 1 ? 0 : prevIndex + 1));
   };
 
   const navigatePrevious = () => {
-    setActiveIndex((prevIndex) => 
-      prevIndex === 0 ? photos.length - 1 : prevIndex - 1
-    );
+    setActiveIndex((prevIndex) => (prevIndex === 0 ? photos.length - 1 : prevIndex - 1));
   };
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -79,7 +75,7 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   };
 
   const headerStyles: React.CSSProperties = {
@@ -92,14 +88,14 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
     alignItems: 'center',
     padding: '20px 30px',
     background: 'linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)',
-    zIndex: 1010
+    zIndex: 1010,
   };
 
   const titleStyles: React.CSSProperties = {
     color: 'white',
     fontSize: '1.2rem',
     fontWeight: '600',
-    margin: 0
+    margin: 0,
   };
 
   const closeButtonStyles: React.CSSProperties = {
@@ -114,7 +110,7 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
     justifyContent: 'center',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    fontSize: '20px'
+    fontSize: '20px',
   };
 
   const navigationStyles: React.CSSProperties = {
@@ -123,7 +119,7 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
     justifyContent: 'center',
     width: '100%',
     height: '100%',
-    position: 'relative'
+    position: 'relative',
   };
 
   const navButtonStyles: React.CSSProperties = {
@@ -141,7 +137,7 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
     justifyContent: 'center',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    zIndex: 1010
+    zIndex: 1010,
   };
 
   const imageContainerStyles: React.CSSProperties = {
@@ -150,7 +146,7 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
     alignItems: 'center',
     width: '100%',
     height: '100%',
-    padding: '80px 120px 120px'
+    padding: '80px 120px 120px',
   };
 
   const imageStyles: React.CSSProperties = {
@@ -158,7 +154,7 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
     maxHeight: '100%',
     objectFit: 'contain',
     borderRadius: '8px',
-    boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5)'
+    boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5)',
   };
 
   const footerStyles: React.CSSProperties = {
@@ -170,13 +166,13 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
     background: 'linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)',
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
   };
 
   const counterStyles: React.CSSProperties = {
     color: 'white',
     fontSize: '1rem',
-    fontWeight: '500'
+    fontWeight: '500',
   };
 
   const thumbnailContainerStyles: React.CSSProperties = {
@@ -184,7 +180,7 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
     gap: '10px',
     overflow: 'auto',
     maxWidth: '400px',
-    padding: '5px'
+    padding: '5px',
   };
 
   const thumbnailStyles: React.CSSProperties = {
@@ -196,21 +192,25 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
     opacity: 0.6,
     transition: 'all 0.3s ease',
     border: '2px solid transparent',
-    flexShrink: 0
+    flexShrink: 0,
   };
 
   const activeThumbnailStyles: React.CSSProperties = {
     ...thumbnailStyles,
     opacity: 1,
-    border: '2px solid white'
+    border: '2px solid white',
   };
 
   return (
     <div style={modalStyles} onClick={handleBackdropClick}>
       {/* Header */}
       <div style={headerStyles}>
-        <h2 style={titleStyles}>{workspaceName} Photos</h2>
-        <button 
+        <h2 style={titleStyles}>
+          {workspaceName}
+          {' '}
+          Photos
+        </h2>
+        <button
           onClick={onClose}
           style={closeButtonStyles}
           onMouseEnter={(e) => {
@@ -221,8 +221,8 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
           }}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
       </div>
@@ -241,19 +241,19 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
             }}
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
         )}
 
         <div style={imageContainerStyles}>
-          <img 
-            src={photos[activeIndex].url} 
+          <img
+            src={photos[activeIndex].url}
             alt={photos[activeIndex].alt}
             style={imageStyles}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = `http://localhost:5003/api/placeholder/800/600?text=Image+Not+Available`;
+              target.src = 'http://localhost:5003/api/placeholder/800/600?text=Image+Not+Available';
             }}
           />
         </div>
@@ -270,7 +270,7 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
             }}
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
         )}
@@ -279,9 +279,12 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
       {/* Footer */}
       <div style={footerStyles}>
         <div style={counterStyles}>
-          {activeIndex + 1} of {photos.length}
+          {activeIndex + 1}
+          {' '}
+          of
+          {photos.length}
         </div>
-        
+
         {photos.length > 1 && (
           <div style={thumbnailContainerStyles}>
             {photos.map((photo, index) => (

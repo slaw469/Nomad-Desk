@@ -58,9 +58,9 @@ export interface NotificationFilters {
 
 // Generic fetch function for API calls
 const fetchApi = async <T>(
-  endpoint: string, 
-  method: string = 'GET', 
-  data?: any
+  endpoint: string,
+  method = 'GET',
+  data?: any,
 ): Promise<T> => {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -81,10 +81,10 @@ const fetchApi = async <T>(
   try {
     console.log(`Fetching ${method} ${API_BASE_URL}${endpoint}`);
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    
+
     // Try to parse response as JSON
     const responseData = await response.json();
-    
+
     if (!response.ok) {
       const errorMessage = responseData.message || `Error: ${response.status} ${response.statusText}`;
       console.error('API error:', errorMessage);
@@ -107,7 +107,7 @@ export const notificationService = {
   // Get all notifications with optional filters
   getNotifications: async (filters?: NotificationFilters): Promise<NotificationItem[]> => {
     const params = new URLSearchParams();
-    
+
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
@@ -115,79 +115,57 @@ export const notificationService = {
         }
       });
     }
-    
+
     const queryString = params.toString();
     const endpoint = queryString ? `/notifications?${queryString}` : '/notifications';
-    
+
     return fetchApi<NotificationItem[]>(endpoint);
   },
-  
+
   // Get notification by ID
-  getNotificationById: async (notificationId: string): Promise<NotificationItem> => {
-    return fetchApi<NotificationItem>(`/notifications/${notificationId}`);
-  },
-  
+  getNotificationById: async (notificationId: string): Promise<NotificationItem> => fetchApi<NotificationItem>(`/notifications/${notificationId}`),
+
   // Mark notification as read
-  markAsRead: async (notificationId: string): Promise<NotificationItem> => {
-    return fetchApi<NotificationItem>(`/notifications/${notificationId}/read`, 'PUT');
-  },
-  
+  markAsRead: async (notificationId: string): Promise<NotificationItem> => fetchApi<NotificationItem>(`/notifications/${notificationId}/read`, 'PUT'),
+
   // Mark multiple notifications as read
-  markMultipleAsRead: async (notificationIds: string[]): Promise<{ message: string; updated: number }> => {
-    return fetchApi<{ message: string; updated: number }>('/notifications/mark-read', 'PUT', { ids: notificationIds });
-  },
-  
+  markMultipleAsRead: async (notificationIds: string[]): Promise<{ message: string; updated: number }> => fetchApi<{ message: string; updated: number }>('/notifications/mark-read', 'PUT', { ids: notificationIds }),
+
   // Mark all notifications as read
-  markAllAsRead: async (): Promise<{ message: string; updated: number }> => {
-    return fetchApi<{ message: string; updated: number }>('/notifications/mark-all-read', 'PUT');
-  },
-  
+  markAllAsRead: async (): Promise<{ message: string; updated: number }> => fetchApi<{ message: string; updated: number }>('/notifications/mark-all-read', 'PUT'),
+
   // Delete notification
-  deleteNotification: async (notificationId: string): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>(`/notifications/${notificationId}`, 'DELETE');
-  },
-  
+  deleteNotification: async (notificationId: string): Promise<{ message: string }> => fetchApi<{ message: string }>(`/notifications/${notificationId}`, 'DELETE'),
+
   // Delete multiple notifications
-  deleteMultipleNotifications: async (notificationIds: string[]): Promise<{ message: string; deleted: number }> => {
-    return fetchApi<{ message: string; deleted: number }>('/notifications/delete-multiple', 'DELETE', { ids: notificationIds });
-  },
-  
+  deleteMultipleNotifications: async (notificationIds: string[]): Promise<{ message: string; deleted: number }> => fetchApi<{ message: string; deleted: number }>('/notifications/delete-multiple', 'DELETE', { ids: notificationIds }),
+
   // Get notification statistics
-  getNotificationStats: async (): Promise<NotificationStats> => {
-    return fetchApi<NotificationStats>('/notifications/stats');
-  },
-  
+  getNotificationStats: async (): Promise<NotificationStats> => fetchApi<NotificationStats>('/notifications/stats'),
+
   // Get unread count
-  getUnreadCount: async (): Promise<{ count: number }> => {
-    return fetchApi<{ count: number }>('/notifications/unread-count');
-  },
-  
+  getUnreadCount: async (): Promise<{ count: number }> => fetchApi<{ count: number }>('/notifications/unread-count'),
+
   // Subscribe to push notifications
-  subscribeToPushNotifications: async (subscription: PushSubscription): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>('/notifications/subscribe', 'POST', subscription);
-  },
-  
+  subscribeToPushNotifications: async (subscription: PushSubscription): Promise<{ message: string }> => fetchApi<{ message: string }>('/notifications/subscribe', 'POST', subscription),
+
   // Unsubscribe from push notifications
-  unsubscribeFromPushNotifications: async (): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>('/notifications/unsubscribe', 'DELETE');
-  },
-  
+  unsubscribeFromPushNotifications: async (): Promise<{ message: string }> => fetchApi<{ message: string }>('/notifications/unsubscribe', 'DELETE'),
+
   // Update notification preferences
   updateNotificationPreferences: async (preferences: {
     email?: boolean;
     push?: boolean;
     types?: string[];
-  }): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>('/notifications/preferences', 'PUT', preferences);
-  },
-  
+  }): Promise<{ message: string }> => fetchApi<{ message: string }>('/notifications/preferences', 'PUT', preferences),
+
   // Real-time notification subscription (WebSocket)
   subscribeToRealTimeNotifications: (onNotification: (notification: NotificationItem) => void) => {
-    const wsUrl = API_BASE_URL.replace(/^http/, 'ws') + '/notifications/stream';
+    const wsUrl = `${API_BASE_URL.replace(/^http/, 'ws')}/notifications/stream`;
     const token = localStorage.getItem('token');
-    
+
     const ws = new WebSocket(`${wsUrl}?token=${token}`);
-    
+
     ws.onmessage = (event) => {
       try {
         const notification = JSON.parse(event.data);
@@ -196,22 +174,22 @@ export const notificationService = {
         console.error('Error parsing notification:', error);
       }
     };
-    
+
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
     };
-    
+
     ws.onclose = () => {
       console.log('WebSocket connection closed');
       // Implement reconnection logic if needed
     };
-    
+
     return () => {
       if (ws.readyState === WebSocket.OPEN) {
         ws.close();
       }
     };
-  }
+  },
 };
 
 export default notificationService;

@@ -1,65 +1,81 @@
 // app/components/Dashboard/SideBar/Network.tsx - FIXED API URL
-import  { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 
 import BackButton from '../../Common/BackButton';
 import styles from './SideBarStyles/network.module.css';
 
 // Icons (keeping your existing icons)
-const UserIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-    <circle cx="12" cy="7" r="4"></circle>
-  </svg>
-);
+function UserIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
 
-const MessageIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-  </svg>
-);
+function MessageIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+    </svg>
+  );
+}
 
-const CalendarIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-    <line x1="16" y1="2" x2="16" y2="6"></line>
-    <line x1="8" y1="2" x2="8" y2="6"></line>
-    <line x1="3" y1="10" x2="21" y2="10"></line>
-  </svg>
-);
+function CalendarIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+  );
+}
 
-const SearchIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="8"></circle>
-    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-  </svg>
-);
+function SearchIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+  );
+}
 
-const FilterIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-  </svg>
-);
+function FilterIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+    </svg>
+  );
+}
 
-const CloseIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="18" y1="6" x2="6" y2="18"></line>
-    <line x1="6" y1="6" x2="18" y2="18"></line>
-  </svg>
-);
+function CloseIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
 
-const PlusIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="12" y1="5" x2="12" y2="19"></line>
-    <line x1="5" y1="12" x2="19" y2="12"></line>
-  </svg>
-);
+function PlusIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+  );
+}
 
-const CheckIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="20 6 9 17 4 12"></polyline>
-  </svg>
-);
+function CheckIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
 
 // Interface for connection
 interface Connection {
@@ -78,7 +94,6 @@ interface Connection {
 type ActiveTab = 'all' | 'requests' | 'suggestions' | 'discover';
 
 const Network: React.FC = () => {
-
   const [activeTab, setActiveTab] = useState<ActiveTab>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -112,14 +127,14 @@ const Network: React.FC = () => {
         // Get user's connections
         const connectionsResponse = await fetch(`${API_BASE}/network/connections`, {
           headers: {
-            'x-auth-token': token
-          }
+            'x-auth-token': token,
+          },
         });
 
         if (connectionsResponse.ok) {
           const connectionsData = await connectionsResponse.json();
           console.log('✅ Connections data:', connectionsData);
-          
+
           const formattedConnections = connectionsData.map((conn: any) => ({
             id: conn.id,
             name: conn.user.name,
@@ -129,7 +144,7 @@ const Network: React.FC = () => {
             mutualConnections: conn.mutualConnections || 0,
             status: 'connected' as const,
             lastActive: conn.updatedAt,
-            interests: conn.user.interests || []
+            interests: conn.user.interests || [],
           }));
           setConnections(formattedConnections);
         } else {
@@ -139,14 +154,14 @@ const Network: React.FC = () => {
         // Get pending requests
         const requestsResponse = await fetch(`${API_BASE}/network/requests`, {
           headers: {
-            'x-auth-token': token
-          }
+            'x-auth-token': token,
+          },
         });
 
         if (requestsResponse.ok) {
           const requestsData = await requestsResponse.json();
           console.log('✅ Requests data:', requestsData);
-          
+
           const pendingConnections = requestsData.map((req: any) => ({
             id: req.id,
             name: req.sender.name,
@@ -156,10 +171,10 @@ const Network: React.FC = () => {
             mutualConnections: req.mutualConnections || 0,
             status: 'pending' as const,
             lastActive: req.createdAt,
-            interests: req.sender.interests || []
+            interests: req.sender.interests || [],
           }));
-          
-          setConnections(prev => [...prev, ...pendingConnections]);
+
+          setConnections((prev) => [...prev, ...pendingConnections]);
         } else {
           console.error('❌ Failed to fetch requests:', requestsResponse.status, requestsResponse.statusText);
         }
@@ -167,14 +182,14 @@ const Network: React.FC = () => {
         // Get suggested connections
         const suggestionsResponse = await fetch(`${API_BASE}/network/suggested`, {
           headers: {
-            'x-auth-token': token
-          }
+            'x-auth-token': token,
+          },
         });
 
         if (suggestionsResponse.ok) {
           const suggestionsData = await suggestionsResponse.json();
           console.log('✅ Suggestions data:', suggestionsData);
-          
+
           const suggestionConnections = suggestionsData.map((sugg: any) => ({
             id: sugg.id,
             name: sugg.user.name,
@@ -183,14 +198,13 @@ const Network: React.FC = () => {
             imageUrl: sugg.user.avatar || '/api/placeholder/80/80',
             mutualConnections: sugg.mutualConnections || 0,
             status: 'suggestion' as const,
-            interests: sugg.user.interests || []
+            interests: sugg.user.interests || [],
           }));
-          
-          setConnections(prev => [...prev, ...suggestionConnections]);
+
+          setConnections((prev) => [...prev, ...suggestionConnections]);
         } else {
           console.error('❌ Failed to fetch suggestions:', suggestionsResponse.status, suggestionsResponse.statusText);
         }
-
       } catch (error) {
         console.error('Error fetching network data:', error);
         // Fallback to mock data if API fails
@@ -203,8 +217,8 @@ const Network: React.FC = () => {
             imageUrl: '/api/placeholder/80/80',
             mutualConnections: 0,
             status: 'connected',
-            interests: ['Backend', 'API', 'Server']
-          }
+            interests: ['Backend', 'API', 'Server'],
+          },
         ]);
       } finally {
         setLoading(false);
@@ -222,8 +236,8 @@ const Network: React.FC = () => {
 
       const response = await fetch(`${API_BASE}/profile/search?q=${encodeURIComponent(query)}&limit=20`, {
         headers: {
-          'x-auth-token': token
-        }
+          'x-auth-token': token,
+        },
       });
 
       if (response.ok) {
@@ -232,11 +246,11 @@ const Network: React.FC = () => {
           id: user._id,
           name: user.name,
           profession: user.profession || 'Not specified',
-          location: user.location || 'Location not provided', 
+          location: user.location || 'Location not provided',
           imageUrl: user.avatar || '/api/placeholder/80/80',
           mutualConnections: 0,
           status: 'suggestion' as const,
-          interests: user.interests || []
+          interests: user.interests || [],
         }));
 
         setAllUsers(discoveredUsers);
@@ -263,9 +277,7 @@ const Network: React.FC = () => {
 
     // For discover tab, use all users
     if (activeTab === 'discover') {
-      dataToFilter = allUsers.filter((user: Connection) => 
-        !connections.some((conn: Connection) => conn.id === user.id) && user.status === 'suggestion'
-      );
+      dataToFilter = allUsers.filter((user: Connection) => !connections.some((conn: Connection) => conn.id === user.id) && user.status === 'suggestion');
     }
 
     return dataToFilter.filter((connection: Connection) => {
@@ -281,20 +293,20 @@ const Network: React.FC = () => {
       }
 
       // Filter by search query
-      if (searchQuery && !connection.name.toLowerCase().includes(searchQuery.toLowerCase()) && 
-          !connection.profession.toLowerCase().includes(searchQuery.toLowerCase())) {
+      if (searchQuery && !connection.name.toLowerCase().includes(searchQuery.toLowerCase())
+          && !connection.profession.toLowerCase().includes(searchQuery.toLowerCase())) {
         return false;
       }
 
       // Filter by selected interests
-      if (selectedInterests.length > 0 && 
-          !connection.interests?.some((interest: string) => selectedInterests.includes(interest))) {
+      if (selectedInterests.length > 0
+          && !connection.interests?.some((interest: string) => selectedInterests.includes(interest))) {
         return false;
       }
 
       // Filter by selected professions
-      if (selectedProfessions.length > 0 && 
-          !selectedProfessions.includes(connection.profession)) {
+      if (selectedProfessions.length > 0
+          && !selectedProfessions.includes(connection.profession)) {
         return false;
       }
 
@@ -309,14 +321,12 @@ const Network: React.FC = () => {
       const response = await fetch(`${API_BASE}/network/request/${id}/accept`, {
         method: 'PUT',
         headers: {
-          'x-auth-token': token || ''
-        }
+          'x-auth-token': token || '',
+        },
       });
 
       if (response.ok) {
-        setConnections(connections.map((connection: Connection) => 
-          connection.id === id ? { ...connection, status: 'connected' } : connection
-        ));
+        setConnections(connections.map((connection: Connection) => (connection.id === id ? { ...connection, status: 'connected' } : connection)));
       } else {
         alert('Failed to accept connection request');
       }
@@ -333,8 +343,8 @@ const Network: React.FC = () => {
       const response = await fetch(`${API_BASE}/network/request/${id}/reject`, {
         method: 'PUT',
         headers: {
-          'x-auth-token': token || ''
-        }
+          'x-auth-token': token || '',
+        },
       });
 
       if (response.ok) {
@@ -355,8 +365,8 @@ const Network: React.FC = () => {
       const response = await fetch(`${API_BASE}/network/connection/${id}`, {
         method: 'DELETE',
         headers: {
-          'x-auth-token': token || ''
-        }
+          'x-auth-token': token || '',
+        },
       });
 
       if (response.ok) {
@@ -378,9 +388,9 @@ const Network: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-auth-token': token || ''
+          'x-auth-token': token || '',
         },
-        body: JSON.stringify({ userId: id })
+        body: JSON.stringify({ userId: id }),
       });
 
       if (response.ok) {
@@ -429,9 +439,7 @@ const Network: React.FC = () => {
   // Get counts
   const getConnectionCount = (status?: 'connected' | 'pending' | 'suggestion' | 'discover'): number => {
     if (status === 'discover') {
-      return allUsers.filter((user: Connection) => 
-        !connections.some((conn: Connection) => conn.id === user.id) && user.status === 'suggestion'
-      ).length;
+      return allUsers.filter((user: Connection) => !connections.some((conn: Connection) => conn.id === user.id) && user.status === 'suggestion').length;
     }
     if (!status) {
       return connections.filter((c: Connection) => c.status !== 'suggestion').length;
@@ -445,7 +453,7 @@ const Network: React.FC = () => {
     <div className={styles.networkContainer}>
       {/* Add Back Button */}
       <BackButton fallbackPath="/dashboard">Back to Dashboard</BackButton>
-      
+
       <div className={styles.networkHeader}>
         <div className={styles.headerTop}>
           <h1 className={styles.networkTitle}>My Network</h1>
@@ -460,7 +468,7 @@ const Network: React.FC = () => {
                 className={styles.searchInput}
               />
               {searchQuery && (
-                <button 
+                <button
                   className={styles.clearSearchButton}
                   onClick={() => setSearchQuery('')}
                 >
@@ -468,7 +476,7 @@ const Network: React.FC = () => {
                 </button>
               )}
             </div>
-            <button 
+            <button
               className={`${styles.filterButton} ${showFilters ? styles.activeFilter : ''}`}
               onClick={() => setShowFilters(!showFilters)}
             >
@@ -499,7 +507,7 @@ const Network: React.FC = () => {
                 ))}
               </div>
             </div>
-            
+
             <div className={styles.filterSection}>
               <h3 className={styles.filterTitle}>Profession</h3>
               <div className={styles.filterOptions}>
@@ -514,9 +522,9 @@ const Network: React.FC = () => {
                 ))}
               </div>
             </div>
-            
+
             <div className={styles.filterActions}>
-              <button 
+              <button
                 className={styles.clearFiltersButton}
                 onClick={clearFilters}
               >
@@ -578,7 +586,7 @@ const Network: React.FC = () => {
                   <h3 className={styles.connectionName}>{connection.name}</h3>
                   <p className={styles.connectionProfession}>{connection.profession}</p>
                   <p className={styles.connectionLocation}>{connection.location}</p>
-                  
+
                   {connection.interests && connection.interests.length > 0 && (
                     <div className={styles.connectionInterests}>
                       {connection.interests.map((interest: string, index: number) => (
@@ -586,23 +594,28 @@ const Network: React.FC = () => {
                       ))}
                     </div>
                   )}
-                  
+
                   <p className={styles.connectionMutual}>
-                    <span className={styles.mutualCount}>{connection.mutualConnections}</span> mutual connections
+                    <span className={styles.mutualCount}>{connection.mutualConnections}</span>
+                    {' '}
+                    mutual connections
                   </p>
-                  
+
                   {connection.lastActive && (
-                    <p className={styles.lastActive}>Last active: {connection.lastActive}</p>
+                    <p className={styles.lastActive}>
+                      Last active:
+                      {connection.lastActive}
+                    </p>
                   )}
                 </div>
                 <div className={styles.connectionActions}>
                   {connection.status === 'connected' && (
                     <>
-                      <Link 
-  to="/messages/$userId" 
-  params={{ userId: connection.id }} 
-  className={styles.messageButton}
->
+                      <Link
+                        to="/messages/$userId"
+                        params={{ userId: connection.id }}
+                        className={styles.messageButton}
+                      >
                         <MessageIcon />
                         <span>Message</span>
                       </Link>
@@ -623,7 +636,7 @@ const Network: React.FC = () => {
                       </button>
                     </>
                   )}
-                  
+
                   {connection.status === 'pending' && (
                     <>
                       <button
@@ -642,7 +655,7 @@ const Network: React.FC = () => {
                       </button>
                     </>
                   )}
-                  
+
                   {connection.status === 'suggestion' && (
                     <button
                       className={styles.connectButton}

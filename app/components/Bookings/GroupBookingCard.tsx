@@ -13,7 +13,7 @@ const GroupBookingCard: React.FC<GroupBookingCardProps> = ({
   onCancel,
   onViewDetails,
   showActions = true,
-  compact = false
+  compact = false,
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,25 +22,23 @@ const GroupBookingCard: React.FC<GroupBookingCardProps> = ({
   const currentUserId = 'current-user-id'; // This should be from useAuth() hook
 
   // Determine user's role and permissions
-  const userRole = groupBookingService.isUserOrganizer(booking, currentUserId) 
-    ? 'organizer' 
+  const userRole = groupBookingService.isUserOrganizer(booking, currentUserId)
+    ? 'organizer'
     : groupBookingService.isUserParticipant(booking, currentUserId)
-    ? 'participant'
-    : 'none';
+      ? 'participant'
+      : 'none';
 
   const canJoin = userRole === 'none' && groupBookingService.canAcceptMoreParticipants(booking);
   const canLeave = groupBookingService.canUserLeave(booking, currentUserId);
   const canManage = groupBookingService.canUserManage(booking, currentUserId);
 
   // Format date and time
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
+  const formatDate = (dateString: string): string => new Date(dateString).toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 
   const formatTime = (timeString: string): string => {
     const [hours, minutes] = timeString.split(':');
@@ -50,17 +48,15 @@ const GroupBookingCard: React.FC<GroupBookingCardProps> = ({
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
-  const formatTimeRange = (): string => {
-    return `${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}`;
-  };
+  const formatTimeRange = (): string => `${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}`;
 
   // Handle join action
   const handleJoin = async () => {
     if (!onJoin) return;
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
       await onJoin(booking.id);
     } catch (err) {
@@ -73,10 +69,10 @@ const GroupBookingCard: React.FC<GroupBookingCardProps> = ({
   // Handle leave action
   const handleLeave = async () => {
     if (!onLeave) return;
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
       await onLeave(booking.id);
     } catch (err) {
@@ -89,13 +85,13 @@ const GroupBookingCard: React.FC<GroupBookingCardProps> = ({
   // Handle cancel action
   const handleCancel = async () => {
     if (!onCancel) return;
-    
+
     const reason = window.prompt('Please provide a reason for cancellation (optional):');
     if (reason === null) return; // User cancelled the prompt
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
       await onCancel(booking.id, reason);
     } catch (err) {
@@ -118,7 +114,7 @@ const GroupBookingCard: React.FC<GroupBookingCardProps> = ({
 
   // Get participant avatars to display
   const getDisplayParticipants = () => {
-    const acceptedParticipants = booking.participants?.filter(p => p.status === 'accepted') || [];
+    const acceptedParticipants = booking.participants?.filter((p) => p.status === 'accepted') || [];
     return acceptedParticipants.slice(0, 3); // Show max 3 avatars
   };
 
@@ -145,11 +141,13 @@ const GroupBookingCard: React.FC<GroupBookingCardProps> = ({
             )}
           </div>
         </div>
-        
+
         <div className={styles.headerRight}>
           <div className={styles.participantCount}>
             <span className={styles.countText}>
-              {booking.currentParticipantCount}/{booking.maxParticipants}
+              {booking.currentParticipantCount}
+              /
+              {booking.maxParticipants}
             </span>
             <span className={styles.countLabel}>participants</span>
           </div>
@@ -193,11 +191,17 @@ const GroupBookingCard: React.FC<GroupBookingCardProps> = ({
 
         {booking.tags && booking.tags.length > 0 && (
           <div className={styles.tags}>
-            {booking.tags.slice(0, compact ? 2 : 4).map(tag => (
-              <span key={tag} className={styles.tag}>#{tag}</span>
+            {booking.tags.slice(0, compact ? 2 : 4).map((tag) => (
+              <span key={tag} className={styles.tag}>
+                #
+                {tag}
+              </span>
             ))}
             {booking.tags.length > (compact ? 2 : 4) && (
-              <span className={styles.tagMore}>+{booking.tags.length - (compact ? 2 : 4)}</span>
+              <span className={styles.tagMore}>
+                +
+                {booking.tags.length - (compact ? 2 : 4)}
+              </span>
             )}
           </div>
         )}
@@ -213,10 +217,10 @@ const GroupBookingCard: React.FC<GroupBookingCardProps> = ({
                 )}
                 <span className={styles.crownIcon}>👑</span>
               </div>
-              
+
               {getDisplayParticipants().map((participant) => (
-                <div 
-                  key={participant.user.id} 
+                <div
+                  key={participant.user.id}
                   className={styles.participantAvatar}
                   title={participant.user.name}
                 >
@@ -227,23 +231,30 @@ const GroupBookingCard: React.FC<GroupBookingCardProps> = ({
                   )}
                 </div>
               ))}
-              
+
               {booking.currentParticipantCount > 4 && (
                 <div className={styles.moreParticipants}>
-                  +{booking.currentParticipantCount - 4}
+                  +
+                  {booking.currentParticipantCount - 4}
                 </div>
               )}
             </div>
-            
+
             <div className={styles.participantInfo}>
               <span className={styles.organizerName}>
-                Organized by {booking.organizer.name}
+                Organized by
+                {' '}
+                {booking.organizer.name}
               </span>
               {booking.hasMinimumParticipants ? (
                 <span className={styles.statusGood}>✅ Ready to meet</span>
               ) : (
                 <span className={styles.statusNeed}>
-                  Needs {booking.minParticipants - booking.currentParticipantCount} more
+                  Needs
+                  {' '}
+                  {booking.minParticipants - booking.currentParticipantCount}
+                  {' '}
+                  more
                 </span>
               )}
             </div>
@@ -263,9 +274,9 @@ const GroupBookingCard: React.FC<GroupBookingCardProps> = ({
                 View Details
               </button>
             )}
-            
+
             <Link
-              to="/workspaces/map/$placeId" 
+              to="/workspaces/map/$placeId"
               params={{ placeId: booking.workspace.id }}
               className={`${styles.actionButton} ${styles.linkButton}`}
             >
@@ -297,13 +308,13 @@ const GroupBookingCard: React.FC<GroupBookingCardProps> = ({
             {canManage && (
               <>
                 <Link
-                  to="/group-bookings/$groupId/manage" 
+                  to="/group-bookings/$groupId/manage"
                   params={{ groupId: booking.id }}
                   className={`${styles.actionButton} ${styles.manageButton}`}
                 >
                   Manage
                 </Link>
-                
+
                 <button
                   onClick={handleCancel}
                   className={`${styles.actionButton} ${styles.cancelButton}`}

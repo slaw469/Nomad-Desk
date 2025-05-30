@@ -8,10 +8,10 @@ interface BackButtonProps {
   children?: React.ReactNode;
 }
 
-const BackButton: React.FC<BackButtonProps> = ({ 
-  fallbackPath = '/search', 
+const BackButton: React.FC<BackButtonProps> = ({
+  fallbackPath = '/search',
   className = '',
-  children 
+  children,
 }) => {
   const navigate = useNavigate();
 
@@ -39,18 +39,18 @@ const BackButton: React.FC<BackButtonProps> = ({
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     textDecoration: 'none',
-    marginBottom: '20px'
+    marginBottom: '20px',
   };
 
   const hoverStyles = {
     backgroundColor: '#F1F5F9',
     borderColor: '#4A6FDC',
     color: '#4A6FDC',
-    transform: 'translateY(-1px)'
+    transform: 'translateY(-1px)',
   };
 
   return (
-    <button 
+    <button
       onClick={handleBack}
       className={className}
       style={defaultStyles}
@@ -62,18 +62,18 @@ const BackButton: React.FC<BackButtonProps> = ({
       }}
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path 
-          d="M19 12H5" 
-          stroke="currentColor" 
-          strokeWidth="2" 
-          strokeLinecap="round" 
+        <path
+          d="M19 12H5"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
           strokeLinejoin="round"
         />
-        <path 
-          d="M12 19l-7-7 7-7" 
-          stroke="currentColor" 
-          strokeWidth="2" 
-          strokeLinecap="round" 
+        <path
+          d="M12 19l-7-7 7-7"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
           strokeLinejoin="round"
         />
       </svg>

@@ -44,9 +44,9 @@ export interface ConnectionRequest {
 
 // Generic fetch function for API calls
 const fetchApi = async <T>(
-  endpoint: string, 
-  method: string = 'GET', 
-  data?: any
+  endpoint: string,
+  method = 'GET',
+  data?: any,
 ): Promise<T> => {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -67,10 +67,10 @@ const fetchApi = async <T>(
   try {
     console.log(`Fetching ${method} ${API_BASE_URL}${endpoint}`);
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    
+
     // Try to parse response as JSON
     const responseData = await response.json();
-    
+
     if (!response.ok) {
       const errorMessage = responseData.message || `Error: ${response.status} ${response.statusText}`;
       console.error('API error:', errorMessage);
@@ -91,67 +91,45 @@ const fetchApi = async <T>(
 // Network Service methods
 export const networkService = {
   // Get all connections
-  getConnections: async (): Promise<Connection[]> => {
-    return fetchApi<Connection[]>('/network/connections');
-  },
-  
+  getConnections: async (): Promise<Connection[]> => fetchApi<Connection[]>('/network/connections'),
+
   // Get connection requests (received)
-  getConnectionRequests: async (): Promise<ConnectionRequest[]> => {
-    return fetchApi<ConnectionRequest[]>('/network/requests');
-  },
-  
+  getConnectionRequests: async (): Promise<ConnectionRequest[]> => fetchApi<ConnectionRequest[]>('/network/requests'),
+
   // Get sent connection requests
-  getSentRequests: async (): Promise<ConnectionRequest[]> => {
-    return fetchApi<ConnectionRequest[]>('/network/requests/sent');
-  },
-  
+  getSentRequests: async (): Promise<ConnectionRequest[]> => fetchApi<ConnectionRequest[]>('/network/requests/sent'),
+
   // Send a connection request
-  sendConnectionRequest: async (userId: string): Promise<ConnectionRequest> => {
-    return fetchApi<ConnectionRequest>('/network/request', 'POST', { userId });
-  },
-  
+  sendConnectionRequest: async (userId: string): Promise<ConnectionRequest> => fetchApi<ConnectionRequest>('/network/request', 'POST', { userId }),
+
   // Accept a connection request
-  acceptRequest: async (requestId: string): Promise<Connection> => {
-    return fetchApi<Connection>(`/network/request/${requestId}/accept`, 'PUT');
-  },
-  
+  acceptRequest: async (requestId: string): Promise<Connection> => fetchApi<Connection>(`/network/request/${requestId}/accept`, 'PUT'),
+
   // Reject a connection request
-  rejectRequest: async (requestId: string): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>(`/network/request/${requestId}/reject`, 'PUT');
-  },
-  
+  rejectRequest: async (requestId: string): Promise<{ message: string }> => fetchApi<{ message: string }>(`/network/request/${requestId}/reject`, 'PUT'),
+
   // Remove a connection
-  removeConnection: async (connectionId: string): Promise<{ message: string }> => {
-    return fetchApi<{ message: string }>(`/network/connection/${connectionId}`, 'DELETE');
-  },
-  
+  removeConnection: async (connectionId: string): Promise<{ message: string }> => fetchApi<{ message: string }>(`/network/connection/${connectionId}`, 'DELETE'),
+
   // Get connection statistics
-  getConnectionStats: async (): Promise<{ 
+  getConnectionStats: async (): Promise<{
     totalConnections: number;
     pendingRequests: number;
     mutualConnections: Record<string, number>;
-  }> => {
-    return fetchApi<{ 
+  }> => fetchApi<{
       totalConnections: number;
       pendingRequests: number;
       mutualConnections: Record<string, number>;
-    }>('/network/stats');
-  },
-  
+    }>('/network/stats'),
+
   // Get suggested connections based on interests, etc.
-  getSuggestedConnections: async (): Promise<Connection[]> => {
-    return fetchApi<Connection[]>('/network/suggested');
-  },
-  
+  getSuggestedConnections: async (): Promise<Connection[]> => fetchApi<Connection[]>('/network/suggested'),
+
   // Get mutual connections with a specific user
-  getMutualConnections: async (userId: string): Promise<Connection[]> => {
-    return fetchApi<Connection[]>(`/network/mutual/${userId}`);
-  },
-  
+  getMutualConnections: async (userId: string): Promise<Connection[]> => fetchApi<Connection[]>(`/network/mutual/${userId}`),
+
   // Search connections by name, skills, etc.
-  searchConnections: async (query: string): Promise<Connection[]> => {
-    return fetchApi<Connection[]>(`/network/search?q=${encodeURIComponent(query)}`);
-  }
+  searchConnections: async (query: string): Promise<Connection[]> => fetchApi<Connection[]>(`/network/search?q=${encodeURIComponent(query)}`),
 };
 
 export default networkService;

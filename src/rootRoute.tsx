@@ -1,4 +1,3 @@
-
 import { Outlet } from '@tanstack/react-router';
 
 // This component will serve as the root layout for all routes

@@ -20,8 +20,8 @@ const Loading: React.FC<LoadingProps> = ({ message = 'Loading...', fullScreen = 
       right: 0,
       bottom: 0,
       background: 'rgba(255, 255, 255, 0.9)',
-      zIndex: 9999
-    })
+      zIndex: 9999,
+    }),
   };
 
   const spinnerStyle: React.CSSProperties = {
@@ -31,18 +31,20 @@ const Loading: React.FC<LoadingProps> = ({ message = 'Loading...', fullScreen = 
     borderRadius: '50%',
     borderTop: '3px solid #4A6FDC',
     animation: 'spin 1s linear infinite',
-    marginBottom: '10px'
+    marginBottom: '10px',
   };
 
   return (
     <div style={loadingStyle}>
-      <style>{`
+      <style>
+        {`
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
-      `}</style>
-      <div style={spinnerStyle}></div>
+      `}
+      </style>
+      <div style={spinnerStyle} />
       <div>{message}</div>
     </div>
   );

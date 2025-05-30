@@ -9,21 +9,18 @@ import Faq from './Faq';
 import Contact from './Contact';
 import Footer from './Footer';
 
+const NomadDeskAbout: React.FC = () => (
+  <div className="nomad-desk">
+    <Header />
+    <Hero />
+    <Story />
+    <Values />
+    <Stats />
+    <Skills />
+    <Faq />
+    <Contact />
+    <Footer />
+  </div>
+);
 
-const NomadDeskAbout: React.FC = () => {
-  return (
-    <div className="nomad-desk">
-      <Header />
-      <Hero />
-      <Story />
-      <Values />
-      <Stats />
-      <Skills />
-      <Faq />
-      <Contact />
-      <Footer />
-    </div>
-  );
-};
-
-export default NomadDeskAbout; 
+export default NomadDeskAbout;

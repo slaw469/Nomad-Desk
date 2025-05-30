@@ -25,4 +25,4 @@ export interface BookingRequest {
   endTime: string;
   numberOfPeople: number;
   specialRequests?: string;
-} 
+}
