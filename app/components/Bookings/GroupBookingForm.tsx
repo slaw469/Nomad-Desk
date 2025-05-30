@@ -409,3 +409,28 @@ const GroupBookingForm: React.FC<GroupBookingFormProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Submit Button */}
+        <div className={styles.formActions}>
+          <button
+            type="button"
+            onClick={onCancel}
+            className={styles.cancelButton}
+            disabled={loading}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className={styles.submitButton}
+            disabled={loading}
+          >
+            {loading ? 'Creating...' : 'Create Group Booking'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default GroupBookingForm;
