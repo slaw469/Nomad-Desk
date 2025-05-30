@@ -1,5 +1,5 @@
 // app/components/Dashboard/SideBar/Network.tsx - FIXED API URL
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 
 import BackButton from '../../Common/BackButton';
@@ -598,7 +598,11 @@ const Network: React.FC = () => {
                 <div className={styles.connectionActions}>
                   {connection.status === 'connected' && (
                     <>
-                      <Link to={`/messages/${connection.id}`} className={styles.messageButton}>
+                      <Link 
+  to="/messages/$userId" 
+  params={{ userId: connection.id }} 
+  className={styles.messageButton}
+>
                         <MessageIcon />
                         <span>Message</span>
                       </Link>

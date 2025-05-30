@@ -1,4 +1,3 @@
-
 import { Link } from '@tanstack/react-router';
 import styles from '../../workspace.module.css';
 
@@ -29,7 +28,10 @@ export default function SimilarWorkspaces({ workspaces }: SimilarWorkspacesProps
         {workspaces.map((workspace) => (
           <div key={workspace.id} className={styles.workspaceCard}>
             <div className={styles.cardImage}>
-              <Link to={`/workspaces/${workspace.id}`}>
+              <Link 
+                to="/workspaces/$workspaceId" 
+                params={{ workspaceId: workspace.id }}
+              >
                 <img src={workspace.photo} alt={workspace.title} />
               </Link>
               <div className={styles.cardFavorite}>
@@ -39,7 +41,11 @@ export default function SimilarWorkspaces({ workspaces }: SimilarWorkspacesProps
               </div>
             </div>
             <div className={styles.cardContent}>
-              <Link to={`/workspaces/${workspace.id}`} className={styles.cardTitle}>
+              <Link 
+                to="/workspaces/$workspaceId" 
+                params={{ workspaceId: workspace.id }} 
+                className={styles.cardTitle}
+              >
                 {workspace.title}
               </Link>
               <p className={styles.cardLocation}>{workspace.distance}</p>

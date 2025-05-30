@@ -1,6 +1,6 @@
-// src/router.tsx - UPDATED: Add all footer link routes
-import { Router, Route, RootRoute, ErrorComponent } from '@tanstack/react-router';
-import React from 'react';
+// src/router.tsx - UPDATED: Add all footer link routes and group booking routes
+import { Router, Route, RootRoute } from '@tanstack/react-router';
+
 import App from './App';
 import LandingPage from '../app/components/LandingPageComponents/components/LandingPage';
 import WorkspaceList from '../app/components/workspaces/WorkSpaceIndex';
@@ -8,12 +8,12 @@ import WorkspaceDetail from '../app/components/workspaces/$workspaceId/WSindex';
 import WorkspaceSearchPage from '../app/components/workspaces/WorkspaceSearchPage';
 import MapWorkspaceDetail from '../app/components/workspaces/MapWorkspaceDetail';
 import FeaturesPage from '../app/components/Features/FeaturesPage';
-import Dashboard from '../app/components/dashboard/Dashboard';
+import Dashboard from '../app/components/Dashboard/Dashboard';
 import Profile from '../app/components/Profile/Profile';
 import Favorites from '../app/components/Favorites/Favorites';
-import Settings from '../app/components/dashboard/sidebar/Settings';
-import Notifications from '../app/components/dashboard/sidebar/Notifications';
-import Network from '../app/components/dashboard/sidebar/Network';
+import Settings from '../app/components/Dashboard/SideBar/Settings';
+import Notifications from '../app/components/Dashboard/SideBar/Notifications';
+import Network from '../app/components/Dashboard/SideBar/Network';
 import WrappedLSPage from '../app/components/LoginSignup/WrappedLSPage';
 import OAuthSuccess from '../app/components/LoginSignup/OAuthSuccess';
 import NomadDeskAbout from '../app/components/About/NomadDeskAbout';
@@ -26,6 +26,10 @@ import HelpCenter from '../app/components/Support/HelpCenter';
 import PrivacyPolicy from '../app/components/Legal/PrivacyPolicy';
 import TermsOfService from '../app/components/Legal/TermsOfService';
 import TrustSafety from '../app/components/Legal/TrustSafety';
+
+// Import group booking components (create these if they don't exist)
+// import GroupBookingManage from '../app/components/Bookings/GroupBookingManage';
+// import GroupBookingsList from '../app/components/Bookings/GroupBookingsList';
 
 import '../app/styles/font-fix.css';
 
@@ -209,6 +213,40 @@ const mapWorkspaceDetailRoute = new Route({
   component: () => (
     <ProtectedRoute>
       <MapWorkspaceDetail />
+    </ProtectedRoute>
+  ),
+  errorComponent: RouteErrorComponent,
+});
+
+// Group bookings routes - NEW ADDITIONS
+const groupBookingsRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/group-bookings',
+  component: () => (
+    <ProtectedRoute>
+      <ComingSoon title="Group Bookings" description="Manage your group bookings and reservations" />
+    </ProtectedRoute>
+  ),
+  errorComponent: RouteErrorComponent,
+});
+
+const groupBookingManageRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/group-bookings/$groupId/manage',
+  component: () => (
+    <ProtectedRoute>
+      <ComingSoon title="Manage Group Booking" description="Edit and manage your group booking details" />
+    </ProtectedRoute>
+  ),
+  errorComponent: RouteErrorComponent,
+});
+
+const groupBookingDetailRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/group-bookings/$groupId',
+  component: () => (
+    <ProtectedRoute>
+      <ComingSoon title="Group Booking Details" description="View your group booking details and participants" />
     </ProtectedRoute>
   ),
   errorComponent: RouteErrorComponent,
@@ -414,6 +452,11 @@ const routeTree = rootRoute.addChildren([
   workspaceDetailRoute,
   workspaceSearchRoute,
   mapWorkspaceDetailRoute,
+  // Group booking routes - NEW ADDITIONS
+  groupBookingsRoute,
+  groupBookingManageRoute,
+  groupBookingDetailRoute,
+  // Existing routes continue
   howItWorksRoute,
   featuresRoute,
   aboutRoute,

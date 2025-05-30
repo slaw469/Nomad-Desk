@@ -725,7 +725,7 @@ const MapWorkspaceDetail: React.FC = () => {
             similarWorkspaces.map((similar, index) => (
               <div key={index} className={styles.workspaceCard}>
                 <div className={styles.cardImage}>
-                  <Link to={`/workspaces/map/${similar.id}`}>
+                  <Link to="/workspaces/map/$placeId" params={{ placeId: similar.id }}>
                     <img 
                       src={similar.photos && similar.photos.length > 0 
                         ? getPhotoUrl(similar.photos[0])
@@ -744,7 +744,7 @@ const MapWorkspaceDetail: React.FC = () => {
                   </div>
                 </div>
                 <div className={styles.cardContent}>
-                  <Link to={`/workspaces/map/${similar.id}`} className={styles.cardTitle}>
+                  <Link to="/workspaces/map/$placeId" params={{ placeId: similar.id }} className={styles.cardTitle}>
                     {similar.name}
                   </Link>
                   <p className={styles.cardLocation}>

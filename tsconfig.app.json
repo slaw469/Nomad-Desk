@@ -22,5 +22,10 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["app", "global.d.ts", "nomad-desk-backend/utils/notificationHelpers.js"]
+  "include": [
+    "src",
+    "app", 
+    "global.d.ts", 
+    "nomad-desk-backend/utils/notificationHelpers.js"
+  ]
 }

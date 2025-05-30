@@ -265,7 +265,8 @@ const GroupBookingCard: React.FC<GroupBookingCardProps> = ({
             )}
             
             <Link
-              to={`/workspaces/map/${booking.workspace.id}`}
+              to="/workspaces/map/$placeId" 
+              params={{ placeId: booking.workspace.id }}
               className={`${styles.actionButton} ${styles.linkButton}`}
             >
               View Workspace
@@ -296,7 +297,8 @@ const GroupBookingCard: React.FC<GroupBookingCardProps> = ({
             {canManage && (
               <>
                 <Link
-                  to={`/group-bookings/${booking.id}/manage`}
+                  to="/group-bookings/$groupId/manage" 
+                  params={{ groupId: booking.id }}
                   className={`${styles.actionButton} ${styles.manageButton}`}
                 >
                   Manage

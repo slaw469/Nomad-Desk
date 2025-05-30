@@ -15,7 +15,8 @@ import styles from './GroupBookingManager.module.css';
 import Modal from '../Common/Modal';
 
 const GroupBookingManager: React.FC = () => {
-  const { id } = useParams({ strict: false });
+  // Fix: Use 'groupId' instead of 'id' to match the router parameter
+  const { groupId } = useParams({ strict: false });
   const navigate = useNavigate();
   
   const [booking, setBooking] = useState<GroupBooking | null>(null);
@@ -35,22 +36,22 @@ const GroupBookingManager: React.FC = () => {
   const currentUserId = 'current-user-id';
 
   useEffect(() => {
-    if (id) {
+    if (groupId) {
       fetchGroupBookingData();
     }
-  }, [id]);
+  }, [groupId]);
 
   const fetchGroupBookingData = async () => {
-    if (!id) return;
+    if (!groupId) return;
     
     setLoading(true);
     setError(null);
     
     try {
       const [bookingData, participantsData, statsData] = await Promise.all([
-        groupBookingService.getGroupBooking(id),
-        groupBookingService.getGroupParticipants(id),
-        groupBookingService.getGroupBookingStats(id)
+        groupBookingService.getGroupBooking(groupId),
+        groupBookingService.getGroupParticipants(groupId),
+        groupBookingService.getGroupBookingStats(groupId)
       ]);
       
       setBooking(bookingData);
@@ -65,7 +66,7 @@ const GroupBookingManager: React.FC = () => {
   };
 
   const handleSendInvite = async () => {
-    if (!inviteEmail.trim() || !id) return;
+    if (!inviteEmail.trim() || !groupId) return;
     
     setInviteLoading(true);
     
@@ -75,7 +76,7 @@ const GroupBookingManager: React.FC = () => {
         personalMessage: inviteMessage.trim() || undefined
       }];
       
-      const result = await groupBookingService.sendGroupInvitations(id, invitations);
+      const result = await groupBookingService.sendGroupInvitations(groupId, invitations);
       
       if (result.successCount > 0) {
         setInviteEmail('');
@@ -92,10 +93,10 @@ const GroupBookingManager: React.FC = () => {
   };
 
   const handleRemoveParticipant = async (participantId: string) => {
-    if (!id || !window.confirm('Are you sure you want to remove this participant?')) return;
+    if (!groupId || !window.confirm('Are you sure you want to remove this participant?')) return;
     
     try {
-      await groupBookingService.removeParticipant(id, participantId);
+      await groupBookingService.removeParticipant(groupId, participantId);
       await fetchGroupBookingData(); // Refresh data
     } catch (err) {
       console.error('Failed to remove participant:', err);
@@ -104,13 +105,13 @@ const GroupBookingManager: React.FC = () => {
   };
 
   const handleCancelBooking = async () => {
-    if (!id) return;
+    if (!groupId) return;
     
     const reason = window.prompt('Please provide a reason for cancellation:');
     if (!reason) return;
     
     try {
-      await groupBookingService.cancelGroupBooking(id, reason);
+      await groupBookingService.cancelGroupBooking(groupId, reason);
       navigate({ to: '/dashboard' });
     } catch (err) {
       console.error('Failed to cancel booking:', err);
@@ -531,4 +532,3 @@ const GroupBookingManager: React.FC = () => {
 };
 
 export default GroupBookingManager;
-                  

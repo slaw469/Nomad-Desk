@@ -139,7 +139,7 @@ export default function WorkspaceList() {
           {filteredWorkspaces.map(workspace => (
             <div key={workspace.id} className={styles.workspaceCard}>
               <div className={styles.cardImage}>
-                <Link to={`/workspaces/${workspace.id}`}>
+                <Link to="/workspaces/$workspaceId" params={{ workspaceId: workspace.id }}>
                   <img src={workspace.photo} alt={workspace.title} />
                 </Link>
                 <div className={styles.cardFavorite}>
@@ -149,7 +149,7 @@ export default function WorkspaceList() {
                 </div>
               </div>
               <div className={styles.cardContent}>
-                <Link to={`/workspaces/${workspace.id}`} className={styles.cardTitle}>
+                <Link to="/workspaces/$workspaceId" params={{ workspaceId: workspace.id }} className={styles.cardTitle}>
                   {workspace.title}
                 </Link>
                 <p className={styles.cardLocation}>{workspace.distance}</p>

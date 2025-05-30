@@ -263,17 +263,10 @@ const Dashboard: React.FC = () => {
       setError(null);
       const bookingDetails = await bookingService.bookAgain(booking.id);
       
-      // Navigate to the workspace page with pre-filled booking details
+      // Navigate to the workspace page
       navigate({ 
-        to: `/workspaces/${bookingDetails.workspace.id}`,
-        search: {
-          date: new Date().toISOString().split('T')[0], // Today's date
-          startTime: bookingDetails.startTime,
-          endTime: bookingDetails.endTime,
-          roomType: bookingDetails.roomType,
-          numberOfPeople: bookingDetails.numberOfPeople.toString(),
-          specialRequests: bookingDetails.specialRequests || ''
-        }
+        to: "/workspaces/$workspaceId",
+        params: { workspaceId: bookingDetails.workspace.id }
       });
     } catch (err) {
       console.error('Failed to get booking details:', err);
@@ -627,7 +620,13 @@ const Dashboard: React.FC = () => {
                         <span className={styles.favoriteSpaceAmenity}>Study Area</span>
                       </div>
                     </div>
-                    <Link to={`/workspaces/map/${favorite.workspace.id}`} className={styles.bookSpaceButton}>Book Now</Link>
+                    <Link 
+  to="/workspaces/map/$placeId" 
+  params={{ placeId: favorite.workspace.id }} 
+  className={styles.bookSpaceButton}
+>
+  Book Now
+</Link>
                   </div>
                 </div>
               ))}
