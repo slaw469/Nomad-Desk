@@ -1,5 +1,5 @@
 // app/routes/workspaces/$workspaceId/components/AmenityList.tsx
-import React from 'react';
+
 import styles from '../../workspace.module.css';
 
 interface Amenity {

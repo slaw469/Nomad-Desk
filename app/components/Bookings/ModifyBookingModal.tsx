@@ -27,8 +27,8 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isClosing, setIsClosing] = useState(false);
-  const successTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const successTimeoutRef = useRef<number | null>(null);
+  const closeTimeoutRef = useRef<number | null>(null);
   const submitCountRef = useRef(0);
   const isMountedRef = useRef(true);
   const updatedBookingRef = useRef<Booking | null>(null);
@@ -81,7 +81,7 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({
 
     setIsClosing(true);
     
-    closeTimeoutRef.current = setTimeout(() => {
+    closeTimeoutRef.current = window.setTimeout(() => {
       console.log('=== Close Timeout Executing ===');
       console.log('Component still mounted:', isMountedRef.current);
       if (isMountedRef.current) {
@@ -158,7 +158,7 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({
         setSuccess('Booking successfully modified!');
         
         console.log('=== Setting Success Timeout ===');
-        successTimeoutRef.current = setTimeout(() => {
+        successTimeoutRef.current = window.setTimeout(() => {
           console.log('=== Success Timeout Executing ===');
           console.log('Component still mounted:', isMountedRef.current);
           if (isMountedRef.current && !isClosing) {
@@ -312,4 +312,4 @@ const ModifyBookingModal: React.FC<ModifyBookingModalProps> = ({
   );
 };
 
-export default ModifyBookingModal; 
+export default ModifyBookingModal;

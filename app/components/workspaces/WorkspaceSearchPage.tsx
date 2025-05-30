@@ -17,7 +17,7 @@ const WorkspaceSearchPage: React.FC = () => {
   const [userLocation, setUserLocation] = useState<Location | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [apiKey, setApiKey] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
+  const [,setError] = useState<string | null>(null);
   
   // Fetch API key on component mount
   useEffect(() => {

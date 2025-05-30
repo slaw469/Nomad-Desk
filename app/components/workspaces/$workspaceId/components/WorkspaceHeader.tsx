@@ -1,5 +1,5 @@
 // app/routes/workspaces/$workspaceId/components/WorkspaceHeader.tsx
-import React from 'react';
+
 import styles from '../../workspace.module.css';
 
 interface WorkspaceHeaderProps {

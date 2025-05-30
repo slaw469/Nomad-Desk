@@ -108,7 +108,7 @@ interface ActiveSession {
 }
 
 const Settings: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   
   // State management
