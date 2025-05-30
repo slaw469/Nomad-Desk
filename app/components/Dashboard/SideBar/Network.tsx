@@ -3,7 +3,7 @@ import  { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 
 import BackButton from '../../Common/BackButton';
-import styles from './sidebarstyles/network.module.css';
+import styles from './SideBarStyles/network.module.css';
 
 // Icons (keeping your existing icons)
 const UserIcon = () => (
