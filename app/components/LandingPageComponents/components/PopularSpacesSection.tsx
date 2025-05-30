@@ -173,7 +173,7 @@ const PopularSpacesSection: React.FC = () => {
         <div className={styles.spaceCards}>
           {workspaces.map((workspace) => (
             <div key={workspace.id} className={styles.spaceCard}>
-              <Link to={`/workspaces/${workspace.id}`}>
+              <Link to="/workspaces/$workspaceId" params={{ workspaceId: workspace.id }}>
                 <img 
                   src={getPhotoUrl(workspace)}
                   alt={workspace.name} 
@@ -196,7 +196,7 @@ const PopularSpacesSection: React.FC = () => {
               )}
               <div className={styles.spaceInfo}>
                 <div className={styles.spaceTitle}>
-                  <Link to={`/workspaces/${workspace.id}`} className={styles.spaceName}>
+                  <Link to="/workspaces/$workspaceId" params={{ workspaceId: workspace.id }} className={styles.spaceName}>
                     {workspace.name}
                   </Link>
                   <div className={styles.spaceRating}>

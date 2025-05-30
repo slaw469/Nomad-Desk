@@ -226,7 +226,7 @@ const Favorites: React.FC = () => {
             {sortedFavorites.map(favorite => (
               <div key={favorite.id} className={styles.favoriteCard}>
                 <div className={styles.favoriteImage}>
-                  <Link to={`/workspaces/map/${favorite.workspace.id}`}>
+                  <Link to="/workspaces/map/$placeId" params={{ placeId: favorite.workspace.id }}>
                     <img 
                       src={getPhotoUrl(favorite.workspace.photo)} 
                       alt={favorite.workspace.name}
@@ -253,7 +253,7 @@ const Favorites: React.FC = () => {
                 </div>
                 <div className={styles.favoriteContent}>
                   <div className={styles.favoriteHeader}>
-                    <Link to={`/workspaces/map/${favorite.workspace.id}`} className={styles.favoriteTitle}>
+                    <Link to="/workspaces/map/$placeId" params={{ placeId: favorite.workspace.id }} className={styles.favoriteTitle}>
                       {favorite.workspace.name}
                     </Link>
                     {favorite.workspace.rating && (
@@ -285,13 +285,15 @@ const Favorites: React.FC = () => {
                   
                   <div className={styles.favoriteActions}>
                     <Link 
-                      to={`/workspaces/map/${favorite.workspace.id}`} 
+                      to="/workspaces/map/$placeId" 
+                      params={{ placeId: favorite.workspace.id }} 
                       className={styles.viewButton}
                     >
                       View Details
                     </Link>
                     <Link 
-                      to={`/workspaces/map/${favorite.workspace.id}`} 
+                      to="/workspaces/map/$placeId" 
+                      params={{ placeId: favorite.workspace.id }} 
                       className={styles.bookButton}
                     >
                       Book Now

@@ -1160,7 +1160,8 @@ const Profile: React.FC = () => {
                 <h4>{connection.user.name}</h4>
                 <p>{connection.user.profession || 'No profession'}</p>
                 <Link 
-                  to={`/messages/${connection.user.id}`} 
+                  to="/messages/$userId" 
+                  params={{ userId: connection.user.id }} 
                   className={styles.messageButton}
                 >
                   <MessageIcon />
@@ -1294,7 +1295,8 @@ const Profile: React.FC = () => {
                     {currentTab === 'upcoming' ? (
                       <>
                         <Link 
-                          to={`/workspaces/map/${booking.workspace.id}`} 
+                          to="/workspaces/map/$placeId" 
+                          params={{ placeId: booking.workspace.id }} 
                           className={`${styles.actionButton} ${styles.primaryButton}`}
                         >
                           View Details
@@ -1309,7 +1311,8 @@ const Profile: React.FC = () => {
                     ) : (
                       <>
                         <Link 
-                          to={`/workspaces/map/${booking.workspace.id}`} 
+                          to="/workspaces/map/$placeId" 
+                          params={{ placeId: booking.workspace.id }} 
                           className={`${styles.actionButton} ${styles.primaryButton}`}
                         >
                           Book Again

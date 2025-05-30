@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Outlet, Link } from '@tanstack/react-router';
 
 // This component will handle any fallback routes or route structuring

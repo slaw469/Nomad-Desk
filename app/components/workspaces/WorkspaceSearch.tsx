@@ -213,7 +213,7 @@ const WorkspaceSearch: React.FC<WorkspaceSearchProps> = ({ onLocationSelected })
                 {workspaces.map((workspace) => (
                   <div key={workspace.id} className={styles.workspaceCard}>
                     <div className={styles.cardImage}>
-                      <Link to={`/workspaces/map/${workspace.id}`}>
+                      <Link to="/workspaces/map/$placeId" params={{ placeId: workspace.id }}>
                         <img 
                           src={workspace.photos && workspace.photos.length > 0 
                             ? getPhotoUrl(workspace.photos[0])
@@ -232,7 +232,7 @@ const WorkspaceSearch: React.FC<WorkspaceSearchProps> = ({ onLocationSelected })
                       </div>
                     </div>
                     <div className={styles.cardContent}>
-                      <Link to={`/workspaces/map/${workspace.id}`} className={styles.cardTitle}>
+                      <Link to="/workspaces/map/$placeId" params={{ placeId: workspace.id }} className={styles.cardTitle}>
                         {workspace.name}
                       </Link>
                       <p className={styles.cardLocation}>
