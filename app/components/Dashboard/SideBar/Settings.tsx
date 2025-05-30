@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useAuth } from "../../../contexts/AuthContext";
-import styles from './sidebarstyles/settings.module.css';
+import styles from './SideBarStyles/settings.module.css';
 
 // Modern Icon Components with glassmorphism support
 const BackIcon = () => (
