@@ -1,5 +1,5 @@
 import React from 'react';
-import './Contact.css';
+import './aboutstyles/Contact.css';
 
 const Contact: React.FC = () => (
   <section className="contact">
