@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import './aboutstyles/faq.css';
+import './aboutstyles/Faq.css';  // Capital F to match the actual filename
 
 interface FaqItem {
   question: string;
