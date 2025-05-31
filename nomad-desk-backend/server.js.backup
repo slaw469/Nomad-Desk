@@ -79,10 +79,10 @@ const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
     origin: function(origin, callback) {
-      // Allow localhost for development, vercel.app domains for production, and same-origin
+      // In development, allow any localhost port + undefined for same-origin
       if (!origin || 
-          /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin) ||
-          /^https:\/\/.*\.vercel\.app$/.test(origin)) {
+          origin.match(/^http:\/\/(localhost|127\.0\.0\.1):\d+$/) ||
+          origin.match(/^https:\/\/(localhost|127\.0\.0\.1):\d+$/)) {
         callback(null, true);
       } else {
         console.log('WebSocket blocked by CORS:', origin);
@@ -164,10 +164,9 @@ io.on('error', (error) => {
 // CORS middleware with proper configuration - FIXED: More robust pattern matching
 app.use(cors({
   origin: function(origin, callback) {
-    // Allow localhost for development, vercel.app domains for production, and same-origin
+    // In development, allow any localhost/127.0.0.1 port + undefined for same-origin
     if (!origin || 
-        /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin) ||
-        /^https:\/\/.*\.vercel\.app$/.test(origin)) {
+        /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
       callback(null, true);
     } else {
       console.log('HTTP blocked by CORS:', origin);
@@ -452,9 +451,7 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Start the server
-if (process.env.NODE_ENV !== 'production') {
-  startServer();
-}
+startServer();
 
 // Notification helper functions - FIXED: Better error handling for require
 try {
@@ -465,5 +462,4 @@ try {
 }
 
 // Export server for testing
-module.exports = app;
-
+module.exports = { app, server, io };

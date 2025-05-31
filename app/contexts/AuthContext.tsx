@@ -44,7 +44,7 @@ interface AuthProviderProps {
 }
 
 // Define backend URL
-const BACKEND_URL = 'http://localhost:5003';
+const BACKEND_URL = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5003';
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);

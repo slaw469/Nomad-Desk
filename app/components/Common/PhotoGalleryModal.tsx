@@ -253,7 +253,7 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
             style={imageStyles}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = 'http://localhost:5003/api/placeholder/800/600?text=Image+Not+Available';
+              target.src = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5003/api'}/placeholder/800/600?text=Image+Not+Available`;
             }}
           />
         </div>
@@ -296,7 +296,7 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({
                 onClick={() => setActiveIndex(index)}
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = `http://localhost:5003/api/placeholder/60/60?text=${index + 1}`;
+                  target.src = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5003/api'}/placeholder/60/60?text=${index + 1}`;
                 }}
               />
             ))}

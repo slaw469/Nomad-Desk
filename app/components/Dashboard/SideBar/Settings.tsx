@@ -156,7 +156,7 @@ const Settings: React.FC = () => {
       setLoading(true);
 
       // Use the existing profile endpoint for now until settings routes are added
-      const response = await fetch('http://localhost:5003/api/profile', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5003/api'}/profile`.replace('/api/profile', '/profile'), {
         headers: {
           'x-auth-token': localStorage.getItem('token') || '',
         },
@@ -198,7 +198,7 @@ const Settings: React.FC = () => {
 
       // Try to get notification stats
       try {
-        const notifResponse = await fetch('http://localhost:5003/api/notifications/stats', {
+        const notifResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5003/api'}/notifications/stats`, {
           headers: {
             'x-auth-token': localStorage.getItem('token') || '',
           },
@@ -258,7 +258,7 @@ const Settings: React.FC = () => {
       const method = 'PUT';
 
       if (endpoint === 'account') {
-        url = 'http://localhost:5003/api/profile';
+        url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5003/api'}/profile`.replace('/api/profile', '/profile');
       } else {
         // For other endpoints, we'll implement them later
         setSuccessMessage('Settings saved locally (backend integration pending)');

@@ -108,7 +108,7 @@ const Network: React.FC = () => {
   const allProfessions = ['UX Designer', 'Software Engineer', 'Product Manager', 'Marketing Specialist', 'Content Writer', 'Data Scientist', 'Educator', 'Entrepreneur'];
 
   // FIXED: Updated API_BASE to match your backend
-  const API_BASE = 'http://localhost:5003/api';
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5003/api';
 
   // Load real connection data from APIs
   useEffect(() => {

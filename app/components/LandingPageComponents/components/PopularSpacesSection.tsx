@@ -124,10 +124,10 @@ const PopularSpacesSection: React.FC = () => {
   const getPhotoUrl = (workspace: Workspace): string => {
     if (workspace.photos && workspace.photos.length > 0) {
       // Use absolute URL to backend
-      return `http://localhost:5003/api/public-maps/photo?reference=${encodeURIComponent(workspace.photos[0])}&maxwidth=400`;
+      return `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5003/api'}/public-maps/photo?reference=${encodeURIComponent(workspace.photos[0])}&maxwidth=400`;
     }
     // Use absolute URL for placeholder
-    return `http://localhost:5003/api/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`;
+    return `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5003/api'}/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`;
   };
 
   return (
@@ -205,7 +205,7 @@ const PopularSpacesSection: React.FC = () => {
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     // Use absolute URL for error fallback
-                    target.src = `http://localhost:5003/api/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`;
+                    target.src = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5003/api'}/placeholder/400/250?text=${encodeURIComponent(workspace.name)}`;
                   }}
                   loading="lazy" // Add lazy loading for better performance
                 />

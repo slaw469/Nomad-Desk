@@ -1,7 +1,7 @@
 // app/services/api.ts - UPDATED WITH CORRECT BACKEND PORT
 
 // Base API URL - UPDATED to match your backend port
-const API_BASE_URL = 'http://localhost:5003/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5003/api';
 
 // Interface for authentication responses
 interface AuthResponse {

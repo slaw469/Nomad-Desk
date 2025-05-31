@@ -123,7 +123,7 @@ const Dashboard: React.FC = () => {
   // NEW: Function to get photo URL for favorites
   const getPhotoUrl = (photoReference?: string): string => {
     if (!photoReference) {
-      return 'http://localhost:5003/api/placeholder/300/200?text=Workspace';
+      return `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5003/api'}/placeholder/300/200?text=Workspace`;
     }
     return photoReference; // The photo is already a full URL from the backend
   };
@@ -314,7 +314,7 @@ const Dashboard: React.FC = () => {
                 alt={booking.workspace.name}
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = '/api/placeholder/300/200';
+                  target.src = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5003/api'}/placeholder/300/200?text=Workspace`;
                 }}
               />
             </div>
@@ -604,7 +604,7 @@ const Dashboard: React.FC = () => {
                       alt={favorite.workspace.name}
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        target.src = 'http://localhost:5003/api/placeholder/300/200?text=Workspace';
+                        target.src = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5003/api'}/placeholder/300/200?text=Workspace`;
                       }}
                     />
                     <button
