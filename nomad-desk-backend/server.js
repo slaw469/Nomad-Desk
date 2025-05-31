@@ -219,7 +219,7 @@ app.use(passport.initialize());
 require('./config/passport')();
 
 // Connect to database
-require('./config/db');
+const connectDB = require('./config/db');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
@@ -356,6 +356,15 @@ const startServer = async () => {
       throw new Error('MONGO_URI environment variable is required');
     }
     
+    // ADD THIS: Database connection
+    try {
+      await connectDB();
+      console.log('✅ Database connected successfully');
+    } catch (error) {
+      console.error('❌ Database connection failed, continuing without DB:', error.message);
+      // Continue without database for now
+    }
+    
     // Kill any existing process on the port
     await killPortProcess(PORT);
     
@@ -393,12 +402,13 @@ const startServer = async () => {
       } else {
         console.error('❌ Server error:', error.message);
       }
-      process.exit(1);
+      // Don't exit in serverless environment
+      console.error('Server error occurred, but continuing...');
     });
     
   } catch (error) {
     console.error('❌ Failed to start server:', error.message);
-    process.exit(1);
+    console.error('Server startup failed, but function will continue...');
   }
 };
 
