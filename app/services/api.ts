@@ -50,6 +50,9 @@ const fetchApi = async <T>(
   };
 
   try {
+    console.log('🔍 API_BASE_URL:', API_BASE_URL);           // ADD THIS LINE
+    console.log('🔍 Endpoint:', endpoint);                   // ADD THIS LINE
+    console.log('🔍 Full URL:', `${API_BASE_URL}${endpoint}`); // ADD THIS LINE
     console.log(`Fetching ${method} ${API_BASE_URL}${endpoint}`);
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
 
