@@ -462,7 +462,8 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Start the server
-if (process.env.NODE_ENV !== 'production') {
+// OR THIS:
+if (process.env.NODE_ENV !== 'production' || process.env.RAILWAY_ENVIRONMENT) {
   startServer();
 }
 
