@@ -1,4 +1,4 @@
-// app/contexts/AuthContext.tsx - UPDATED: Better OAuth handling
+// app/contexts/AuthContext.tsx - UPDATED: Better OAuth handlingg
 import React, {
   createContext, useContext, useState, useEffect, ReactNode,
 } from 'react';
