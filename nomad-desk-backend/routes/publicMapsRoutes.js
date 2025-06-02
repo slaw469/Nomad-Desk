@@ -1,4 +1,4 @@
-// nomad-desk-backend/routes/publicMapsRoutes.js - ADD MISSING PLACES ENDPOINT
+// nomad-desk-backend/routes/publicMapsRoutes.js - FIXED CORS ISSUE
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
@@ -111,29 +111,42 @@ router.get('/photo', async (req, res) => {
 
 /**
  * @route   GET api/public-maps/api-key
- * @desc    Get the Google Maps API key (public version with referer restrictions)
+ * @desc    Get the Google Maps API key (FIXED - Allow all Vercel domains)
  * @access  Public
  */
 router.get('/api-key', (req, res) => {
   try {
-    // Check the referer to ensure it's from an allowed origin
     const referer = req.headers.referer || '';
+    const origin = req.headers.origin || '';
+    
+    console.log('🔍 API Key Request:');
+    console.log('  - Referer:', referer);
+    console.log('  - Origin:', origin);
+    
+    // FIXED: Allow all Vercel domains and localhost
     const allowedOrigins = [
       'http://localhost:5173',
       'http://localhost:5185',
       'http://127.0.0.1:5173',
-      'http://127.0.0.1:5185'
-      // Add your production domains here
+      'http://127.0.0.1:5185',
+      'https://nomad-desk-ochre.vercel.app',
+      // Add pattern matching for any Vercel domain
     ];
     
-    const isAllowedOrigin = allowedOrigins.some(origin => referer.startsWith(origin));
+    // Check if it's a Vercel domain or localhost
+    const isVercelDomain = referer.includes('.vercel.app') || origin.includes('.vercel.app');
+    const isLocalhost = referer.includes('localhost') || referer.includes('127.0.0.1') || 
+                       origin.includes('localhost') || origin.includes('127.0.0.1');
+    const isAllowedOrigin = allowedOrigins.some(allowed => 
+      referer.startsWith(allowed) || origin === allowed
+    );
     
-    if (!isAllowedOrigin && referer) {
-      console.log('❌ API key blocked by CORS:', referer);
+    if (!isVercelDomain && !isLocalhost && !isAllowedOrigin && (referer || origin)) {
+      console.log('❌ API key blocked by CORS:', { referer, origin });
       return res.status(403).json({ message: 'Access denied' });
     }
     
-    console.log('✅ API key provided to allowed origin:', referer || 'direct');
+    console.log('✅ API key provided to allowed origin:', referer || origin || 'direct');
     
     // Return the API key
     res.json({ apiKey: GOOGLE_MAPS_API_KEY });
