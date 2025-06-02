@@ -14,6 +14,9 @@ const SocialButton: React.FC<SocialButtonProps> = ({ provider, disabled = false,
 
   const handleClick = () => {
     if (!disabled) {
+        console.log('🔍 VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
+        console.log('🔍 BACKEND_URL:', BACKEND_URL);
+        console.log('🔍 Final redirect URL:', `${BACKEND_URL}/api/auth/${provider}`);
       if (onClick) {
         onClick();
       } else {

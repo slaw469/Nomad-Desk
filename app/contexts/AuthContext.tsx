@@ -1,4 +1,4 @@
-// app/contexts/AuthContext.tsx - UPDATED: Better OAuth handlingg
+// app/contexts/AuthContext.tsx - Complete Rewrite with Better Debugging
 import React, {
   createContext, useContext, useState, useEffect, ReactNode,
 } from 'react';
@@ -10,7 +10,7 @@ interface User {
   name?: string;
   provider?: string;
   avatar?: string;
-  [key: string]: any; // Allow any additional properties
+  [key: string]: any;
 }
 
 interface AuthContextType {
@@ -25,17 +25,13 @@ interface AuthContextType {
   clearError: () => void;
 }
 
-// Create context with undefined initial value
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Custom hook with proper error handling
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider. Make sure your component is wrapped with AuthProvider.');
+    throw new Error('useAuth must be used within an AuthProvider');
   }
-
   return context;
 };
 
@@ -43,8 +39,26 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Define backend URL
-const BACKEND_URL = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5003';
+// Get backend URL from environment with proper fallbacks
+const getBackendUrl = (): string => {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+  
+  console.log('🔍 Raw VITE_API_BASE_URL:', apiBaseUrl);
+  
+  // If we have an API base URL, remove /api to get the backend URL
+  if (apiBaseUrl) {
+    const backendUrl = apiBaseUrl.replace('/api', '');
+    console.log('🔍 Computed backend URL:', backendUrl);
+    return backendUrl;
+  }
+  
+  // Fallback for local development
+  const fallbackUrl = 'http://localhost:5003';
+  console.log('🔍 Using fallback URL:', fallbackUrl);
+  return fallbackUrl;
+};
+
+const BACKEND_URL = getBackendUrl();
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -52,187 +66,219 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Helper function to navigate to a path
-  const navigateTo = (path: string) => {
+  // Safe navigation helper
+  const navigateTo = (path: string): void => {
     try {
+      console.log('🧭 Navigating to:', path);
       window.location.href = path;
     } catch (err) {
-      console.error('Navigation error:', err);
-      // Fallback: try to use history API
-      if (window.history && window.history.pushState) {
-        window.history.pushState(null, '', path);
-        window.location.reload();
-      }
+      console.error('❌ Navigation error:', err);
+      // Fallback navigation method
+      window.location.assign(path);
     }
   };
 
-  // Check if user is logged in on initial load
+  // Initialize authentication state
   useEffect(() => {
-    const checkAuth = async () => {
+    const initializeAuth = async (): Promise<void> => {
       try {
-        console.log('🔍 Checking authentication state...');
+        console.log('🚀 Initializing authentication...');
+        
         const token = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
 
-        if (token && storedUser) {
-          try {
-            console.log('📱 Found stored auth data, validating...');
+        if (!token || !storedUser) {
+          console.log('📭 No stored authentication data found');
+          setIsLoading(false);
+          return;
+        }
 
-            // Parse stored user data
+        console.log('🔍 Found stored auth data, validating token...');
 
-            // Verify token validity by getting current user
-            const currentUser = await authService.getCurrentUser(token);
-            if (currentUser) {
-              console.log('✅ Authentication valid, user logged in:', currentUser.name);
-              setUser(currentUser);
-              setIsAuthenticated(true);
-            } else {
-              console.log('❌ Token validation failed, clearing auth data');
-              // Clear invalid data
-              localStorage.removeItem('token');
-              localStorage.removeItem('user');
-            }
-          } catch (err) {
-            console.log('❌ Token validation failed, clearing auth data');
-            // If token is invalid, clear storage
+        try {
+          const currentUser = await authService.getCurrentUser(token);
+          
+          if (currentUser) {
+            console.log('✅ Token valid, user authenticated:', currentUser.name || currentUser.email);
+            setUser(currentUser);
+            setIsAuthenticated(true);
+          } else {
+            console.log('❌ Token invalid, clearing stored data');
             localStorage.removeItem('token');
             localStorage.removeItem('user');
           }
-        } else {
-          console.log('📭 No stored auth data found');
+        } catch (validationError) {
+          console.log('❌ Token validation failed:', validationError);
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
         }
       } catch (err) {
-        console.error('❌ Auth check error:', err);
+        console.error('❌ Auth initialization error:', err);
         // Clear potentially corrupted data
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       } finally {
-        // Always set loading to false, even if there are errors
-        console.log('🏁 Auth check complete');
+        console.log('🏁 Auth initialization complete');
         setIsLoading(false);
       }
     };
 
-    checkAuth();
+    initializeAuth();
   }, []);
 
-  // Clear error
-  const clearError = () => {
+  // Clear error state
+  const clearError = (): void => {
     setError(null);
   };
 
-  // Login user
-  const login = async (data: LoginData) => {
+  // Store authentication data
+  const storeAuthData = (token: string, userData: User): void => {
+    try {
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+      setIsAuthenticated(true);
+    } catch (err) {
+      console.error('❌ Failed to store auth data:', err);
+      throw new Error('Failed to store authentication data');
+    }
+  };
+
+  // Handle login
+  const login = async (data: LoginData): Promise<void> => {
     setIsLoading(true);
     setError(null);
 
     try {
-      console.log('🔐 Attempting login...');
+      console.log('🔐 Attempting login for:', data.email);
+      
       const response = await authService.login(data);
+      
+      if (!response.token || !response.user) {
+        throw new Error('Invalid response from server');
+      }
 
-      // Store auth info
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-
-      setUser(response.user);
-      setIsAuthenticated(true);
-
-      console.log('✅ Login successful:', response.user.name);
-
-      // Navigate to dashboard after successful login
-      navigateTo('/dashboard');
+      storeAuthData(response.token, response.user);
+      
+      console.log('✅ Login successful for:', response.user.name || response.user.email);
+      
+      // Navigate to dashboard or saved redirect path
+      const redirectPath = localStorage.getItem('redirectAfterLogin') || '/dashboard';
+      localStorage.removeItem('redirectAfterLogin');
+      navigateTo(redirectPath);
+      
     } catch (err) {
       console.error('❌ Login failed:', err);
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An error occurred during login');
-      }
+      const errorMessage = err instanceof Error ? err.message : 'Login failed';
+      setError(errorMessage);
       throw err;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Register user
-  const signup = async (data: SignupData) => {
+  // Handle signup
+  const signup = async (data: SignupData): Promise<void> => {
     setIsLoading(true);
     setError(null);
 
     try {
-      console.log('📝 Attempting signup...');
+      console.log('📝 Attempting signup for:', data.email);
+      
       const response = await authService.register(data);
+      
+      if (!response.token || !response.user) {
+        throw new Error('Invalid response from server');
+      }
 
-      // Store auth info
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-
-      setUser(response.user);
-      setIsAuthenticated(true);
-
-      console.log('✅ Signup successful:', response.user.name);
-
-      // Navigate to dashboard after successful signup
-      navigateTo('/dashboard');
+      storeAuthData(response.token, response.user);
+      
+      console.log('✅ Signup successful for:', response.user.name || response.user.email);
+      
+      // Navigate to dashboard or saved redirect path
+      const redirectPath = localStorage.getItem('redirectAfterLogin') || '/dashboard';
+      localStorage.removeItem('redirectAfterLogin');
+      navigateTo(redirectPath);
+      
     } catch (err) {
       console.error('❌ Signup failed:', err);
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An error occurred during registration');
-      }
+      const errorMessage = err instanceof Error ? err.message : 'Signup failed';
+      setError(errorMessage);
       throw err;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Social login - redirects to backend OAuth endpoint
-  const socialLogin = async (provider: string) => {
+  // Handle social login
+  const socialLogin = async (provider: string): Promise<void> => {
     try {
-      console.log(`🔗 Initiating ${provider} OAuth...`);
+      console.log(`🔗 Initiating ${provider.toUpperCase()} OAuth...`);
+      
+      // Debug environment and URL construction
+      console.log('🔍 Environment debug:');
+      console.log('  - VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
+      console.log('  - BACKEND_URL:', BACKEND_URL);
+      console.log('  - Current location:', window.location.href);
+      console.log('  - Is HTTPS:', window.location.protocol === 'https:');
 
-      // Save the current path for redirect after login
+      // Save current path for post-login redirect
       const currentPath = window.location.pathname;
-      if (currentPath !== '/' && currentPath !== '/login' && currentPath !== '/signup') {
-        localStorage.setItem('redirectAfterLogin', currentPath);
-      } else {
-        localStorage.setItem('redirectAfterLogin', '/dashboard');
-      }
+      const redirectPath = (currentPath !== '/' && currentPath !== '/login' && currentPath !== '/signup') 
+        ? currentPath 
+        : '/dashboard';
+      
+      localStorage.setItem('redirectAfterLogin', redirectPath);
+      console.log('💾 Saved redirect path:', redirectPath);
 
-      // Redirect to backend OAuth route
+      // Construct OAuth URL
       const oauthUrl = `${BACKEND_URL}/api/auth/${provider}`;
-      console.log('🚀 Redirecting to:', oauthUrl);
+      
+      console.log('🚀 Final OAuth URL:', oauthUrl);
+      console.log('🔍 URL Protocol:', new URL(oauthUrl).protocol);
+      console.log('🔍 URL Host:', new URL(oauthUrl).host);
+      console.log('🔍 URL Path:', new URL(oauthUrl).pathname);
+
+      // Redirect to OAuth provider
       window.location.href = oauthUrl;
+      
     } catch (err) {
-      console.error(`❌ ${provider} login error:`, err);
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError(`An error occurred during ${provider} login`);
-      }
+      console.error(`❌ ${provider} OAuth error:`, err);
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : `Failed to initiate ${provider} login`;
+      setError(errorMessage);
       throw err;
     }
   };
 
-  // Logout user
-  const logout = () => {
+  // Handle logout
+  const logout = (): void => {
     try {
       console.log('👋 Logging out user...');
+      
+      // Clear all auth-related data
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('redirectAfterLogin');
 
+      // Update state
       setUser(null);
       setIsAuthenticated(false);
+      setError(null);
 
       console.log('✅ Logout successful');
       navigateTo('/');
-    } catch (error) {
-      console.error('❌ Logout error:', error);
+      
+    } catch (err) {
+      console.error('❌ Logout error:', err);
+      // Even if there's an error, clear the state
+      setUser(null);
+      setIsAuthenticated(false);
     }
   };
 
+  // Context value
   const value: AuthContextType = {
     user,
     isAuthenticated,
